@@ -1,0 +1,33 @@
+import { useGameStore } from './store/gameStore';
+import { LoginScreen } from './components/auth/LoginScreen';
+import { ProfileSelect } from './components/auth/ProfileSelect';
+import { ParentDashboard } from './components/auth/ParentDashboard';
+import { WorldMap } from './components/game/WorldMap';
+import { Stage } from './components/game/Stage';
+import { StageResultScreen } from './components/game/StageResultScreen';
+import { BossFight } from './components/game/BossFight';
+
+function App() {
+  const screen = useGameStore((s) => s.screen);
+
+  switch (screen) {
+    case 'auth':
+      return <LoginScreen />;
+    case 'profile-select':
+      return <ProfileSelect />;
+    case 'world-map':
+      return <WorldMap />;
+    case 'stage':
+      return <Stage />;
+    case 'stage-result':
+      return <StageResultScreen />;
+    case 'boss-fight':
+      return <BossFight />;
+    case 'parent-dashboard':
+      return <ParentDashboard />;
+    default:
+      return <LoginScreen />;
+  }
+}
+
+export default App;

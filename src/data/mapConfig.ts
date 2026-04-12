@@ -23,4 +23,46 @@ export const OVERWORLD_NODES: MapNode[] = [
 
 export const SHOP_NODE = { name: 'Shop', top: 22.9, left: 14 };
 
+// ── Zone Maps (per-world stage maps) ────────────────────────────────
+
+export interface ZoneStageNode {
+  stageIndex: number;
+  top: number;
+  left: number;
+  type: 'practice' | 'challenge' | 'mini-boss' | 'world-boss';
+}
+
+export interface ZoneMapConfig {
+  image: string;          // path to zone map image
+  calibrating: boolean;   // set true to enable calibration tool
+  nodes: ZoneStageNode[];
+}
+
+/**
+ * Zone map configs for each world.
+ * To calibrate a new zone map:
+ *   1. Add the image path and set calibrating: true
+ *   2. Run dev, click each of the 8 stage locations in order
+ *   3. Copy the console output into the nodes array
+ *   4. Set calibrating: false
+ */
+export const ZONE_MAPS: (ZoneMapConfig | null)[] = [
+  // World 0: Emerald Forest — no zone map yet (will use fallback list)
+  null,
+  // World 1: Crystal Caves
+  null,
+  // World 2: Mystic Meadows
+  null,
+  // World 3: Ironforge Mountains
+  null,
+  // World 4: Shadow Swamp
+  null,
+  // World 5: Enchanted Ruins
+  null,
+  // World 6: Sky Citadel
+  null,
+  // World 7: Dragon's Peak
+  null,
+];
+
 export const OVERWORLD_MAP_IMAGE = '/assets/maps/world maps/overworld_map.jpg';

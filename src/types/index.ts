@@ -151,6 +151,8 @@ export type GameScreen =
   | 'auth'
   | 'profile-select'
   | 'world-map'
+  | 'zone-map'
+  | 'shop'
   | 'stage'
   | 'boss-fight'
   | 'stage-result'

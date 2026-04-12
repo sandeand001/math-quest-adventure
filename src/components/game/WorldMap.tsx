@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
-import { WORLDS } from '../../data/worlds';
 import { getTheme } from '../../data/themes';
-import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE } from '../../data/mapConfig';
+import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE, SHOP_NODE } from '../../data/mapConfig';
 import { XPBar } from '../ui/XPBar';
 import { HeartsBar } from '../ui/HeartsBar';
 
@@ -11,7 +10,6 @@ const DEV_MODE = import.meta.env.DEV; // coordinate picker only in dev
 export function WorldMap() {
   const {
     setCurrentWorld,
-    setCurrentStage,
     setScreen,
     resetStage,
   } = useGameStore();
@@ -76,20 +74,13 @@ export function WorldMap() {
   };
 
   const handleWorldClick = (worldIdx: number) => {
-    // Enter the world at the player's current stage (or stage 0 for completed/new worlds)
+    // Open the zone map for this world
     resetStage();
     setCurrentWorld(worldIdx);
-    const startStage =
-      worldIdx === profile.currentWorld ? profile.currentStage : 0;
-    setCurrentStage(startStage);
-
-    const stageDef = WORLDS[worldIdx].stages[startStage];
-    if (stageDef.type === 'mini-boss' || stageDef.type === 'world-boss') {
-      setScreen('boss-fight');
-    } else {
-      setScreen('stage');
-    }
+    setScreen('zone-map');
   };
+
+  const shopUnlocked = unlockedWorld >= 3; // unlocked after completing Mystic Meadows (world index 2)
 
   return (
     <div className="min-h-screen bg-[#2a1f14] flex flex-col">
@@ -229,6 +220,42 @@ export function WorldMap() {
                 </button>
               );
             })}
+
+            {/* Shop node */}
+            <button
+              onClick={() => shopUnlocked && setScreen('shop')}
+              disabled={!shopUnlocked}
+              className="absolute -translate-x-1/2 -translate-y-1/2 group"
+              style={{
+                top: `${SHOP_NODE.top}%`,
+                left: `${SHOP_NODE.left}%`,
+              }}
+              title={shopUnlocked ? 'Shop' : '🔒 Locked'}
+            >
+              <div
+                className={`
+                  w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full
+                  flex items-center justify-center
+                  border-3 transition-all duration-200
+                  ${shopUnlocked
+                    ? 'bg-purple-600/80 border-purple-400 shadow-[0_0_14px_rgba(168,85,247,0.4)] cursor-pointer hover:scale-115 active:scale-95'
+                    : 'bg-gray-800/60 border-gray-600/50 opacity-60 cursor-not-allowed'
+                  }
+                `}
+              >
+                <span className="text-lg sm:text-xl">{shopUnlocked ? '🛒' : '🔒'}</span>
+              </div>
+              <div
+                className={`
+                  absolute left-1/2 -translate-x-1/2 mt-1
+                  px-2 py-0.5 rounded-md text-xs font-bold whitespace-nowrap
+                  pointer-events-none transition-opacity duration-200
+                  ${shopUnlocked ? 'opacity-100 bg-black/70 text-purple-200' : 'opacity-0 group-hover:opacity-100 bg-black/50 text-gray-400'}
+                `}
+              >
+                {shopUnlocked ? 'Shop' : '???'}
+              </div>
+            </button>
         </div>
       </div>
     </div>

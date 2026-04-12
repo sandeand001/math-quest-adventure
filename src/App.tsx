@@ -3,6 +3,7 @@ import { LoginScreen } from './components/auth/LoginScreen';
 import { ProfileSelect } from './components/auth/ProfileSelect';
 import { ParentDashboard } from './components/auth/ParentDashboard';
 import { WorldMap } from './components/game/WorldMap';
+import { ZoneMap } from './components/game/ZoneMap';
 import { Stage } from './components/game/Stage';
 import { StageResultScreen } from './components/game/StageResultScreen';
 import { BossFight } from './components/game/BossFight';
@@ -17,6 +18,8 @@ function App() {
       return <ProfileSelect />;
     case 'world-map':
       return <WorldMap />;
+    case 'zone-map':
+      return <ZoneMap />;
     case 'stage':
       return <Stage />;
     case 'stage-result':

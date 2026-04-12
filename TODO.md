@@ -1,18 +1,20 @@
 # MathQuest: Adventure Math — Project TODO
 
 ## Current Status
-- **Phase 1 (MVP Core)**: ~90% complete
-- **Phase 2 (Visuals & Curriculum)**: ~30% complete
-- **Phase 3 (Polish)**: Not started
+- **Phase 1 (MVP Core)**: ~95% complete
+- **Phase 2 (Visuals & Curriculum)**: ~60% complete
+- **Phase 3 (Polish)**: ~20% complete
 
 ---
 
 ## Sprint 1 — Core Cleanup & Map Infrastructure
 
-- [ ] Remove non-Fantasy theme options (hide Space/Ocean/Jungle, simplify profile creation)
-- [ ] Interactive world map — full-screen Fantasy map with 8 clickable tier locations on a path
-- [ ] Stage map inside each world — zone map with 8 nodes (6 stages + mini-boss + world boss)
-- [ ] Story text system — intro per world, narrative between stages, boss dialogue, victory text
+- [x] Remove non-Fantasy theme options (hide Space/Ocean/Jungle, simplify profile creation)
+- [x] Interactive world map — full-screen Fantasy map with 8 clickable tier locations on a path
+- [x] Stage map inside each world — zone map with 8 nodes (fallback list + image support ready)
+- [x] Story text system — intro per world, boss dialogue, victory text (Guide Owl narrator)
+- [x] Shop node on overworld map — unlocks after Mystic Meadows
+- [x] Calibration tool for map node positioning (extracted to utils)
 
 ## Sprint 2 — Avatar & Economy
 
@@ -24,8 +26,8 @@
 
 - [ ] Level-up animation — celebratory VFX when player levels up
 - [ ] Streak effects — fire/lightning visuals on 5+ and 10+ streaks
-- [ ] Achievement badges — "First Boss Defeated", "10-Streak Master", "Times Table Champion", etc.
-- [ ] Sound mute toggle — visible button in header/settings
+- [x] Achievement badges — 19 achievements defined, checker + toast notifications
+- [x] Sound mute toggle — visible button in world map header
 - [ ] Hint system — free hints in practice stages (visual aids, reduce choices), disabled during boss fights
 
 ## Sprint 4 — Engagement & Retention
@@ -73,6 +75,13 @@
 - [x] Parent dashboard with basic stats
 - [x] Boss assets copied (36 sprites + 9 SFX + 5 backgrounds)
 - [x] Multiplication/division capped at 10s tables for K-5 scope
+- [x] Interactive overworld map with calibrated node positions
+- [x] Zone map component with image support + calibration tool
+- [x] Shop node on overworld (unlocks after world 3)
+- [x] Story system — 8 worlds of narrative (Guide Owl, boss intros, victory text)
+- [x] Achievement system — 19 definitions, checker, toast notifications
+- [x] Sound mute toggle
+- [x] Removed non-Fantasy theme options
 
 ---
 
@@ -92,4 +101,4 @@
 
 ---
 
-*Last updated: April 11, 2026*
+*Last updated: April 12, 2026*

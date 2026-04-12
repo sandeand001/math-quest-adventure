@@ -18,8 +18,13 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
     setSelected(null);
     setInputValue('');
     setFeedback(null);
+    // Auto-focus the input for non-multiple-choice questions
     if (question.format !== 'multiple-choice') {
-      inputRef.current?.focus();
+      // Use a short delay to ensure the DOM has rendered
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [question.id, question.format]);
 
@@ -133,6 +138,7 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={feedback !== null}
+            autoFocus
             className="
               flex-1 px-4 py-3 text-2xl text-center font-bold
               bg-indigo-950/60 border-2 border-indigo-700/50 rounded-xl text-white

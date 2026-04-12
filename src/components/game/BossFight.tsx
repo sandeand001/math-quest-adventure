@@ -127,9 +127,8 @@ export function BossFight() {
       if (fightOver) return;
 
       if (isCorrect) {
-        // Player attacks boss
-        const attackPower = profile?.stats.attack ?? 1;
-        damageBoss(attackPower);
+        // Player attacks boss — always 1 HP damage per correct answer
+        damageBoss(1);
         setPose('hit-position');
         setShaking(true);
         setFlashVisible(true);
@@ -139,7 +138,7 @@ export function BossFight() {
         setTimeout(() => {
           setShaking(false);
           setFlashVisible(false);
-          if (bossHp - attackPower > 0) {
+          if (bossHp - 1 > 0) {
             setPose('base-position');
           }
         }, 400);

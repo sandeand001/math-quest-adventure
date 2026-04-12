@@ -195,7 +195,16 @@ export function BossFight() {
   const currentQuestion = questions[questionIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex flex-col">
+    <div
+      className="min-h-screen flex flex-col relative"
+      style={{ background: '#0f1222' }}
+    >
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: `url(${world?.background ?? ''})` }}
+      />
+      <div className="relative z-10 flex flex-col flex-1">
       {/* Boss area */}
       <div className="relative flex-1 flex flex-col items-center justify-center overflow-hidden">
         {/* Boss name & HP */}
@@ -260,6 +269,7 @@ export function BossFight() {
             streak={0}
           />
         ) : null}
+      </div>
       </div>
     </div>
   );

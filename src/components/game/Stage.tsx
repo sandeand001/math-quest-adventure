@@ -115,7 +115,16 @@ export function Stage() {
   const progress = totalQuestions > 0 ? (currentQuestionIndex / totalQuestions) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex flex-col">
+    <div
+      className="min-h-screen flex flex-col relative"
+      style={{ background: '#0f1222' }}
+    >
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-15"
+        style={{ backgroundImage: `url(${world?.background ?? ''})` }}
+      />
+      <div className="relative z-10 flex flex-col flex-1">
       {/* Top bar */}
       <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
         <button
@@ -151,6 +160,7 @@ export function Stage() {
           streak={streak}
         />
       </main>
+      </div>
     </div>
   );
 }

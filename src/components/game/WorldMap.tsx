@@ -32,7 +32,13 @@ export function WorldMap() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950">
+    <div className="min-h-screen bg-slate-950 relative">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: `url(${WORLDS[unlockedWorld]?.background ?? ''})` }}
+      />
+      <div className="relative z-10">
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-3 bg-black/20 border-b border-indigo-800/20">
         <button
@@ -144,6 +150,7 @@ export function WorldMap() {
           })}
         </div>
       </main>
+      </div>
     </div>
   );
 }

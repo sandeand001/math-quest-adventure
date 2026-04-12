@@ -9,6 +9,8 @@ export function WorldMap() {
     setCurrentWorld,
     setScreen,
     resetStage,
+    muted,
+    toggleMute,
   } = useGameStore();
 
   const profile = useActiveProfile();
@@ -47,6 +49,13 @@ export function WorldMap() {
         </div>
         <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
         <span className="text-yellow-400 text-sm font-bold shrink-0">🪙 {profile.stats.coins}</span>
+        <button
+          onClick={toggleMute}
+          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
+          title={muted ? 'Unmute' : 'Mute'}
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
         <button
           onClick={() => setScreen('parent-dashboard')}
           className="text-xs text-amber-200/40 hover:text-amber-200 transition-colors shrink-0"

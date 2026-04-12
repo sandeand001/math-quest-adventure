@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { StarRating } from '../ui/StarRating';
+import { AchievementToast } from '../ui/AchievementToast';
+import { checkAchievements } from '../../engine/achievements';
 import { WORLDS } from '../../data/worlds';
 
 export function StageResultScreen() {
@@ -20,6 +23,17 @@ export function StageResultScreen() {
   const stageDef = world?.stages[currentStageIndex];
   const passed = result && stageDef ? result.accuracy >= stageDef.requiredAccuracy : false;
   const isLastStage = stageDef && world ? currentStageIndex >= world.stages.length - 1 : false;
+
+  // Check achievements on mount
+  const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const [toastIndex, setToastIndex] = useState(0);
+
+  useEffect(() => {
+    const unlocked = checkAchievements();
+    if (unlocked.length > 0) {
+      setNewAchievements(unlocked);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!result) {
     return null;
@@ -104,6 +118,15 @@ export function StageResultScreen() {
           Back to World Map
         </button>
       </div>
+
+      {/* Achievement toasts */}
+      {newAchievements[toastIndex] && (
+        <AchievementToast
+          key={newAchievements[toastIndex]}
+          achievementId={newAchievements[toastIndex]}
+          onDone={() => setToastIndex((i) => i + 1)}
+        />
+      )}
     </div>
   );
 }

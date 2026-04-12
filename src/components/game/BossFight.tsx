@@ -3,9 +3,11 @@ import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { generateStageQuestions } from '../../engine/questions';
 import { getBoss, getBossSprite, getBossSfx } from '../../data/bosses';
 import { WORLDS } from '../../data/worlds';
+import { getStory } from '../../data/stories';
 import { xpForCorrectAnswer, applyXp, coinsForBossDefeat } from '../../engine/progression';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
+import { StoryDialog } from '../ui/StoryDialog';
 import { Howl } from 'howler';
 
 type BossPose = 'base-position' | 'attack-position' | 'hit-position' | 'defeated-position';
@@ -50,6 +52,12 @@ export function BossFight() {
   const [xpEarned, setXpEarned] = useState(0);
   const [initialized, setInitialized] = useState(false);
 
+  // Story dialogs
+  const bossIntro = isBossFight ? getStory('boss-intro', currentWorldIndex, currentStageIndex) : undefined;
+  const bossVictoryStory = getStory('boss-victory', currentWorldIndex);
+  const [showBossIntro, setShowBossIntro] = useState(!!bossIntro);
+  const [showVictoryStory, setShowVictoryStory] = useState(false);
+
   // Initialize boss fight
   useEffect(() => {
     const hp = isBossFight ? boss.hp : Math.max(3, boss.hp - 3);
@@ -80,6 +88,9 @@ export function BossFight() {
       playSfx('victory');
       setVictory(true);
       setFightOver(true);
+      if (isBossFight && bossVictoryStory) {
+        setShowVictoryStory(true);
+      }
 
       // Reward player
       if (profile) {
@@ -270,6 +281,12 @@ export function BossFight() {
           />
         ) : null}
       </div>
+      {showBossIntro && bossIntro && (
+        <StoryDialog story={bossIntro} onComplete={() => setShowBossIntro(false)} />
+      )}
+      {showVictoryStory && bossVictoryStory && (
+        <StoryDialog story={bossVictoryStory} onComplete={() => setShowVictoryStory(false)} />
+      )}
       </div>
     </div>
   );

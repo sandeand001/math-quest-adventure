@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { WORLDS } from '../../data/worlds';
 import { getTheme } from '../../data/themes';
 import { ZONE_MAPS, type ZoneStageNode } from '../../data/mapConfig';
+import { getStory } from '../../data/stories';
 import { HeartsBar } from '../ui/HeartsBar';
+import { StoryDialog } from '../ui/StoryDialog';
 
 const DEV_MODE = import.meta.env.DEV;
 
@@ -23,6 +25,21 @@ export function ZoneMap() {
   const worldName = theme.worldNames[currentWorldIndex] ?? `World ${currentWorldIndex + 1}`;
   const zoneConfig = ZONE_MAPS[currentWorldIndex];
   const unlockedWorld = profile.currentWorld;
+
+  // Story dialog
+  const [showStory, setShowStory] = useState(false);
+  const worldIntro = getStory('world-intro', currentWorldIndex);
+
+  // Show world intro on first visit (when it's the current unlocked world and stage 0)
+  useEffect(() => {
+    if (
+      worldIntro &&
+      currentWorldIndex === unlockedWorld &&
+      profile.currentStage === 0
+    ) {
+      setShowStory(true);
+    }
+  }, [currentWorldIndex, unlockedWorld, profile.currentStage, worldIntro]);
 
   // Dev calibration state
   const [calibrationStep, setCalibrationStep] = useState(0);
@@ -113,6 +130,9 @@ export function ZoneMap() {
             })}
           </div>
         </main>
+        {showStory && worldIntro && (
+          <StoryDialog story={worldIntro} onComplete={() => setShowStory(false)} />
+        )}
       </div>
     );
   }
@@ -205,6 +225,9 @@ export function ZoneMap() {
           })}
         </div>
       </div>
+      {showStory && worldIntro && (
+        <StoryDialog story={worldIntro} onComplete={() => setShowStory(false)} />
+      )}
     </div>
   );
 }

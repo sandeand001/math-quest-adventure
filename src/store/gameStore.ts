@@ -66,6 +66,10 @@ interface GameState {
   // ── Mastery ──
   masteryMap: Record<string, SkillMastery>; // keyed by skillId
   recordMastery: (operation: string, tier: number, isCorrect: boolean) => void;
+
+  // ── Achievements ──
+  unlockedAchievements: string[]; // achievement IDs
+  unlockAchievement: (id: string) => void;
 }
 
 function generateId(): string {
@@ -185,6 +189,14 @@ export const useGameStore = create<GameState>()(
           const updated = updateMastery(existing, isCorrect);
           return { masteryMap: { ...state.masteryMap, [id]: updated } };
         }),
+
+      // ── Achievements ──
+      unlockedAchievements: [],
+      unlockAchievement: (id) =>
+        set((state) => {
+          if (state.unlockedAchievements.includes(id)) return state;
+          return { unlockedAchievements: [...state.unlockedAchievements, id] };
+        }),
     }),
     {
       name: 'mathquest-game',
@@ -194,6 +206,7 @@ export const useGameStore = create<GameState>()(
         activeProfileId: state.activeProfileId,
         stageResults: state.stageResults,
         masteryMap: state.masteryMap,
+        unlockedAchievements: state.unlockedAchievements,
         muted: state.muted,
       }),
     },

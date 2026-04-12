@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import type { ThemeId } from '../../types';
-import { THEMES } from '../../data/themes';
 
 export function ProfileSelect() {
   const { profiles, setActiveProfile, setScreen, addProfile } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newTheme, setNewTheme] = useState<ThemeId>('fantasy');
 
   const handleSelectProfile = (id: string) => {
     setActiveProfile(id);
@@ -17,7 +14,7 @@ export function ProfileSelect() {
   const handleCreateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    const profile = addProfile(newName.trim(), newTheme);
+    const profile = addProfile(newName.trim(), 'fantasy');
     setActiveProfile(profile.id);
     setNewName('');
     setShowCreate(false);
@@ -79,33 +76,6 @@ export function ProfileSelect() {
               "
               autoFocus
             />
-            <div>
-              <label className="text-sm text-gray-400 block mb-2">Choose your adventure</label>
-              <div className="grid grid-cols-2 gap-2">
-                {THEMES.map((theme) => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => theme.available && setNewTheme(theme.id)}
-                    disabled={!theme.available}
-                    className={`
-                      p-3 rounded-xl border text-left text-sm transition-all
-                      ${newTheme === theme.id
-                        ? 'border-indigo-500 bg-indigo-900/60 text-white'
-                        : theme.available
-                          ? 'border-gray-700/40 bg-gray-800/20 text-gray-300 hover:border-gray-600'
-                          : 'border-gray-800/20 bg-gray-900/20 text-gray-600 cursor-not-allowed'
-                      }
-                    `}
-                  >
-                    <p className="font-bold">{theme.name}</p>
-                    {!theme.available && (
-                      <p className="text-xs text-gray-600 mt-1">Coming soon</p>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
             <div className="flex gap-3">
               <button
                 type="button"

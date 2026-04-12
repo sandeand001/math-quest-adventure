@@ -15,26 +15,28 @@ function makeStages(tier: number): StageDefinition[] {
 
 /** Boss IDs assigned per world – cute → cool → final progression */
 const WORLD_BOSSES: { bossId: string; miniBossId: string }[] = [
-  { bossId: 'math-cute',    miniBossId: 'phonics-cute'  },
-  { bossId: 'story-cute',   miniBossId: 'math-cute'     },
-  { bossId: 'math-cool',    miniBossId: 'phonics-cute'  },
-  { bossId: 'phonics-cool', miniBossId: 'story-cute'    },
-  { bossId: 'story-cool',   miniBossId: 'math-cool'     },
-  { bossId: 'phonics-final', miniBossId: 'story-cool'   },
-  { bossId: 'math-final',   miniBossId: 'phonics-final' },
+  { bossId: 'math-cute',     miniBossId: 'phonics-cute'  },  // World 1
+  { bossId: 'phonics-cute',  miniBossId: 'story-cute'    },  // World 2
+  { bossId: 'story-cute',    miniBossId: 'math-cute'     },  // World 3
+  { bossId: 'math-cool',     miniBossId: 'phonics-cute'  },  // World 4
+  { bossId: 'phonics-cool',  miniBossId: 'story-cute'    },  // World 5
+  { bossId: 'story-cool',    miniBossId: 'math-cool'     },  // World 6
+  { bossId: 'phonics-final', miniBossId: 'story-cool'    },  // World 7
+  { bossId: 'math-final',    miniBossId: 'phonics-final' },  // World 8
 ];
 
 const BACKGROUNDS = [
   '/assets/backgrounds/forest.jpg',
   '/assets/backgrounds/field.jpg',
   '/assets/backgrounds/clouds.jpg',
-  '/assets/backgrounds/night-forest.jpg',
-  '/assets/backgrounds/night-sky.jpg',
   '/assets/backgrounds/forest.jpg',
+  '/assets/backgrounds/night-forest.jpg',
+  '/assets/backgrounds/field.jpg',
+  '/assets/backgrounds/night-sky.jpg',
   '/assets/backgrounds/night-sky.jpg',
 ];
 
-export const WORLDS: WorldDefinition[] = Array.from({ length: 7 }, (_, i) => ({
+export const WORLDS: WorldDefinition[] = Array.from({ length: 8 }, (_, i) => ({
   worldIndex: i,
   name: '',   // filled dynamically from theme
   tier: i + 1,

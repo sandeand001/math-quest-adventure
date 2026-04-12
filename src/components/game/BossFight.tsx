@@ -93,7 +93,7 @@ export function BossFight() {
         updateProfile(profile.id, {
           stats: updatedStats,
           currentWorld:
-            isBossFight && currentWorldIndex < 6
+            isBossFight && currentWorldIndex < WORLDS.length - 1
               ? currentWorldIndex + 1
               : profile.currentWorld,
           currentStage: isBossFight

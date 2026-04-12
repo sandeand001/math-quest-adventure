@@ -1,11 +1,8 @@
-import { useState, useRef } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { getTheme } from '../../data/themes';
 import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE, SHOP_NODE } from '../../data/mapConfig';
 import { XPBar } from '../ui/XPBar';
 import { HeartsBar } from '../ui/HeartsBar';
-
-const DEV_MODE = import.meta.env.DEV; // coordinate picker only in dev
 
 export function WorldMap() {
   const {
@@ -20,67 +17,13 @@ export function WorldMap() {
   const theme = getTheme(profile.theme);
   const unlockedWorld = profile.currentWorld;
 
-  const [calibrationStep, setCalibrationStep] = useState(0);
-  const [calibrationPoints, setCalibrationPoints] = useState<{ top: number; left: number }[]>([]);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-
-  const CALIBRATION_LABELS = [
-    '📍 Click TOP-LEFT corner of the image',
-    '📍 Click TOP-RIGHT corner of the image',
-    '📍 Click BOTTOM-LEFT corner of the image',
-    '📍 Click BOTTOM-RIGHT corner of the image',
-    '📍 Click location 1: Emerald Forest',
-    '📍 Click location 2: Crystal Caves',
-    '📍 Click location 3: Mystic Meadows',
-    '📍 Click location 4: Ironforge Mountains',
-    '📍 Click location 5: Shadow Swamp',
-    '📍 Click location 6: Enchanted Ruins',
-    '📍 Click location 7: Sky Citadel',
-    '📍 Click location 8: Dragon\'s Peak',
-    '🛒 Click location 9: Shop (forest clearing)',
-  ];
-
-  const handleCalibrationClick = (e: React.MouseEvent) => {
-    if (!DEV_MODE || calibrationStep >= CALIBRATION_LABELS.length) return;
-    const rect = mapContainerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const left = Math.round(((e.clientX - rect.left) / rect.width) * 1000) / 10;
-    const top = Math.round(((e.clientY - rect.top) / rect.height) * 1000) / 10;
-    const point = { top, left };
-
-    const newPoints = [...calibrationPoints, point];
-    setCalibrationPoints(newPoints);
-
-    const label = CALIBRATION_LABELS[calibrationStep];
-    console.log(`${label} → top: ${top}%, left: ${left}%`);
-
-    const nextStep = calibrationStep + 1;
-    setCalibrationStep(nextStep);
-
-    // After all 13 clicks, output the final config
-    if (nextStep === CALIBRATION_LABELS.length) {
-      console.log('\n✅ CALIBRATION COMPLETE — Copy this into mapConfig.ts:\n');
-      console.log('Corners:', JSON.stringify(newPoints.slice(0, 4), null, 2));
-      const locations = newPoints.slice(4, 12);
-      const shopPoint = newPoints[12];
-      const names = ['Emerald Forest', 'Crystal Caves', 'Mystic Meadows', 'Ironforge Mountains', 'Shadow Swamp', 'Enchanted Ruins', 'Sky Citadel', "Dragon's Peak"];
-      console.log('\nexport const OVERWORLD_NODES: MapNode[] = [');
-      locations.forEach((p, i) => {
-        console.log(`  { worldIndex: ${i}, name: '${names[i]}', top: ${p.top}, left: ${p.left} },`);
-      });
-      console.log('];');
-      console.log(`\nexport const SHOP_NODE = { name: 'Shop', top: ${shopPoint.top}, left: ${shopPoint.left} };`);
-    }
-  };
-
   const handleWorldClick = (worldIdx: number) => {
-    // Open the zone map for this world
     resetStage();
     setCurrentWorld(worldIdx);
     setScreen('zone-map');
   };
 
-  const shopUnlocked = unlockedWorld >= 3; // unlocked after completing Mystic Meadows (world index 2)
+  const shopUnlocked = unlockedWorld >= 3;
 
   return (
     <div className="min-h-screen bg-[#2a1f14] flex flex-col">
@@ -115,10 +58,8 @@ export function WorldMap() {
       {/* Map area — nodes positioned relative to the image via inline aspect-ratio container */}
       <div className="flex-1 overflow-auto flex items-center justify-center bg-[#2a1f14] p-1">
         <div
-          ref={mapContainerRef}
           className="relative w-full max-w-[1920px]"
           style={{ aspectRatio: '16 / 9' }}
-          onClick={DEV_MODE ? handleCalibrationClick : undefined}
         >
           {/* Map image fills this container exactly */}
           <img
@@ -128,30 +69,6 @@ export function WorldMap() {
             draggable={false}
           />
 
-          {/* Dev mode: calibration UI */}
-          {DEV_MODE && calibrationStep < CALIBRATION_LABELS.length && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/85 text-yellow-300 text-sm font-bold px-4 py-2 rounded-lg z-50 pointer-events-none whitespace-nowrap">
-              {CALIBRATION_LABELS[calibrationStep]} ({calibrationStep + 1}/{CALIBRATION_LABELS.length})
-            </div>
-          )}
-          {DEV_MODE && calibrationStep >= CALIBRATION_LABELS.length && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/85 text-green-400 text-sm font-bold px-4 py-2 rounded-lg z-50 pointer-events-none">
-              ✅ Done! Check browser console for coordinates.
-            </div>
-          )}
-
-          {/* Dev mode: show all clicked points */}
-          {DEV_MODE && calibrationPoints.map((pt, i) => (
-            <div
-              key={i}
-              className={`absolute w-4 h-4 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none ${i < 4 ? 'bg-blue-500' : 'bg-red-500'}`}
-              style={{ top: `${pt.top}%`, left: `${pt.left}%` }}
-            >
-              <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-white bg-black/70 px-1 rounded font-mono">
-                {i < 4 ? `C${i + 1}` : i - 3}
-              </span>
-            </div>
-          ))}
             {OVERWORLD_NODES.map((node) => {
               const isUnlocked = node.worldIndex <= unlockedWorld;
               const isCurrent = node.worldIndex === unlockedWorld;

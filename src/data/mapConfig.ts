@@ -11,14 +11,16 @@ export interface MapNode {
 }
 
 export const OVERWORLD_NODES: MapNode[] = [
-  { worldIndex: 0, name: 'Emerald Forest',      top: 74, left: 13 },
-  { worldIndex: 1, name: 'Crystal Caves',       top: 76, left: 36 },
-  { worldIndex: 2, name: 'Mystic Meadows',      top: 40, left: 18 },
-  { worldIndex: 3, name: 'Ironforge Mountains',  top: 19, left: 42 },
-  { worldIndex: 4, name: 'Shadow Swamp',        top: 55, left: 56 },
-  { worldIndex: 5, name: 'Enchanted Ruins',     top: 70, left: 84 },
-  { worldIndex: 6, name: 'Sky Citadel',         top: 13, left: 64 },
-  { worldIndex: 7, name: "Dragon's Peak",       top: 10, left: 92 },
+  { worldIndex: 0, name: 'Emerald Forest',      top: 81.8, left: 12.7 },
+  { worldIndex: 1, name: 'Crystal Caves',       top: 82.7, left: 35.5 },
+  { worldIndex: 2, name: 'Mystic Meadows',      top: 49.7, left: 20.7 },
+  { worldIndex: 3, name: 'Ironforge Mountains',  top: 31.4, left: 43.7 },
+  { worldIndex: 4, name: 'Shadow Swamp',        top: 71.3, left: 59.9 },
+  { worldIndex: 5, name: 'Enchanted Ruins',     top: 76.7, left: 83.5 },
+  { worldIndex: 6, name: 'Sky Citadel',         top: 27.4, left: 70.7 },
+  { worldIndex: 7, name: "Dragon's Peak",       top: 28.3, left: 89.5 },
 ];
+
+export const SHOP_NODE = { name: 'Shop', top: 22.9, left: 14 };
 
 export const OVERWORLD_MAP_IMAGE = '/assets/maps/world maps/overworld_map.jpg';

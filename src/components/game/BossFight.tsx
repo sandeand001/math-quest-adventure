@@ -90,13 +90,17 @@ export function BossFight() {
           { ...profile.stats, coins: profile.stats.coins + coins },
           xpEarned,
         );
+        // Both mini-boss and world-boss victories advance stage progress
+        const nextStage = currentStageIndex + 1;
         updateProfile(profile.id, {
           stats: updatedStats,
           currentWorld:
             isBossFight && currentWorldIndex < 6
               ? currentWorldIndex + 1
               : profile.currentWorld,
-          currentStage: isBossFight ? 0 : profile.currentStage,
+          currentStage: isBossFight
+            ? 0 // Reset stage for new world
+            : Math.max(profile.currentStage, nextStage), // Mini-boss: advance stage
         });
       }
     } else if (playerHp <= 0) {

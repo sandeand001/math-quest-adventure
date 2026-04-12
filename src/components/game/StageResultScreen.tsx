@@ -1,4 +1,4 @@
-import { useGameStore } from '../../store/gameStore';
+import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { StarRating } from '../ui/StarRating';
 import { WORLDS } from '../../data/worlds';
 
@@ -10,7 +10,9 @@ export function StageResultScreen() {
     setCurrentStage,
     setScreen,
     resetStage,
+    updateProfile,
   } = useGameStore();
+  const profile = useActiveProfile();
 
   // Get the most recent result
   const result = stageResults[stageResults.length - 1];
@@ -26,8 +28,15 @@ export function StageResultScreen() {
   const handleContinue = () => {
     resetStage();
     if (passed && !isLastStage) {
-      setCurrentStage(currentStageIndex + 1);
-      const nextStageDef = world?.stages[currentStageIndex + 1];
+      const nextStage = currentStageIndex + 1;
+      setCurrentStage(nextStage);
+
+      // Persist stage progress to profile
+      if (profile && nextStage > profile.currentStage && currentWorldIndex === profile.currentWorld) {
+        updateProfile(profile.id, { currentStage: nextStage });
+      }
+
+      const nextStageDef = world?.stages[nextStage];
       if (nextStageDef?.type === 'mini-boss' || nextStageDef?.type === 'world-boss') {
         setScreen('boss-fight');
       } else {

@@ -5,9 +5,11 @@ import type {
   GameScreen,
   Question,
   StageResult,
+  SkillMastery,
   ThemeId,
 } from '../types';
 import { defaultPlayerStats } from '../engine/progression';
+import { newSkillMastery, updateMastery, skillId } from '../engine/mastery';
 
 interface GameState {
   // ── Navigation ──
@@ -60,6 +62,10 @@ interface GameState {
   // ── Audio ──
   muted: boolean;
   toggleMute: () => void;
+
+  // ── Mastery ──
+  masteryMap: Record<string, SkillMastery>; // keyed by skillId
+  recordMastery: (operation: string, tier: number, isCorrect: boolean) => void;
 }
 
 function generateId(): string {
@@ -169,6 +175,16 @@ export const useGameStore = create<GameState>()(
       // ── Audio ──
       muted: false,
       toggleMute: () => set((state) => ({ muted: !state.muted })),
+
+      // ── Mastery ──
+      masteryMap: {},
+      recordMastery: (operation, tier, isCorrect) =>
+        set((state) => {
+          const id = skillId(operation, tier);
+          const existing = state.masteryMap[id] ?? newSkillMastery(id);
+          const updated = updateMastery(existing, isCorrect);
+          return { masteryMap: { ...state.masteryMap, [id]: updated } };
+        }),
     }),
     {
       name: 'mathquest-game',
@@ -177,6 +193,7 @@ export const useGameStore = create<GameState>()(
         profiles: state.profiles,
         activeProfileId: state.activeProfileId,
         stageResults: state.stageResults,
+        masteryMap: state.masteryMap,
         muted: state.muted,
       }),
     },

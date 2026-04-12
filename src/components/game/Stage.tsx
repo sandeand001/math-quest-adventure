@@ -23,6 +23,7 @@ export function Stage() {
     activeProfileId,
     profiles,
     updateProfile,
+    recordMastery,
   } = useGameStore();
 
   const world = WORLDS[currentWorldIndex];
@@ -62,8 +63,9 @@ export function Stage() {
 
     addStageResult(result);
 
-    // Apply XP
-    const xpEarned = correctCount * xpForCorrectAnswer(0, stageDef.tier);
+    // Apply XP (use average streak for bonus — simplified)
+    const avgStreak = correctCount > 0 ? Math.floor(correctCount / 2) : 0;
+    const xpEarned = correctCount * xpForCorrectAnswer(avgStreak, stageDef.tier);
     const updatedStats = applyXp(activeProfile.stats, xpEarned);
     updatedStats.totalCorrect += correctCount;
     updatedStats.totalAttempts += totalQuestions;
@@ -88,12 +90,18 @@ export function Stage() {
   const handleAnswer = useCallback(
     (_userAnswer: number, isCorrect: boolean) => {
       answerQuestion(isCorrect);
+
+      // Track mastery for this skill
+      if (currentQuestion) {
+        recordMastery(currentQuestion.operation, currentQuestion.tier, isCorrect);
+      }
+
       // Small delay then advance
       setTimeout(() => {
         nextQuestion();
       }, 200);
     },
-    [answerQuestion, nextQuestion],
+    [answerQuestion, nextQuestion, recordMastery, currentQuestion],
   );
 
   if (!stageDef || !currentQuestion) {

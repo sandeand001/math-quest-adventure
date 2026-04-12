@@ -42,7 +42,7 @@ export function BossFight() {
   const [shaking, setShaking] = useState(false);
   const [flashVisible, setFlashVisible] = useState(false);
   const [questions, setQuestions] = useState(
-    generateStageQuestions(stageDef?.tier ?? 1, stageDef?.questionCount ?? 5),
+    generateStageQuestions(stageDef?.tier ?? 1, stageDef?.questionCount ?? 5, stageDef?.difficulty ?? 1.0),
   );
   const [questionIndex, setQuestionIndex] = useState(0);
   const [fightOver, setFightOver] = useState(false);
@@ -161,7 +161,7 @@ export function BossFight() {
           setQuestionIndex((i) => i + 1);
         } else {
           // Generate more questions if boss is still alive
-          const newQ = generateStageQuestions(stageDef?.tier ?? 1, 5);
+          const newQ = generateStageQuestions(stageDef?.tier ?? 1, 5, stageDef?.difficulty ?? 1.0);
           setQuestions((prev) => [...prev, ...newQ]);
           setQuestionIndex((i) => i + 1);
         }

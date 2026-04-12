@@ -42,17 +42,27 @@ interface Operands {
   operation: Operation;
 }
 
-function generateOperands(tier: TierDefinition, operation: Operation): Operands {
-  const { min, max } = tier.numberRange;
+/**
+ * Scale a number range based on difficulty (0–1).
+ * At difficulty 0.15, use ~15% of the range (the easy end).
+ * At difficulty 1.0, use the full range.
+ * Always ensures a minimum useful range.
+ */
+function scaleRange(min: number, max: number, difficulty: number): { min: number; max: number } {
+  const range = max - min;
+  const scaledMax = Math.max(min + 2, Math.round(min + range * difficulty));
+  return { min, max: scaledMax };
+}
+
+function generateOperands(tier: TierDefinition, operation: Operation, difficulty: number): Operands {
+  const { min, max } = scaleRange(tier.numberRange.min, tier.numberRange.max, difficulty);
 
   switch (operation) {
     case 'addition': {
       const a = randInt(min, max);
-      const b = randInt(min, max - a > max ? max : max);
-      // Keep sum in range for lower tiers
-      const cappedB = Math.min(b, max - a);
-      const actualB = Math.max(cappedB, min);
-      return { a, b: actualB, answer: a + actualB, operation };
+      const cappedB = Math.min(randInt(min, max), max - a);
+      const b = Math.max(cappedB, min);
+      return { a, b, answer: a + b, operation };
     }
 
     case 'subtraction': {
@@ -64,7 +74,9 @@ function generateOperands(tier: TierDefinition, operation: Operation): Operands 
 
     case 'multiplication': {
       const tableMin = tier.tables?.min ?? 1;
-      const tableMax = tier.tables?.max ?? 10;
+      const fullTableMax = tier.tables?.max ?? 10;
+      // Scale which tables are available based on difficulty
+      const tableMax = Math.max(tableMin + 1, Math.round(tableMin + (fullTableMax - tableMin) * difficulty));
       const a = randInt(tableMin, tableMax);
       const b = randInt(tableMin, tableMax);
       return { a, b, answer: a * b, operation };
@@ -73,7 +85,8 @@ function generateOperands(tier: TierDefinition, operation: Operation): Operands 
     case 'division': {
       // Generate from multiplication to ensure clean division
       const tableMin = tier.tables?.min ?? 1;
-      const tableMax = tier.tables?.max ?? 10;
+      const fullTableMax = tier.tables?.max ?? 10;
+      const tableMax = Math.max(tableMin + 1, Math.round(tableMin + (fullTableMax - tableMin) * difficulty));
       const divisor = randInt(Math.max(tableMin, 1), tableMax);
       const quotient = randInt(tableMin, tableMax);
       const dividend = divisor * quotient;
@@ -185,6 +198,31 @@ function generateWordProblem(operands: Operands): string {
 
 // ── Blank position selection ────────────────────────────────────────
 
+/** Format complexity ordering (easiest → hardest). */
+const FORMAT_COMPLEXITY: QuestionFormat[] = [
+  'multiple-choice',
+  'fill-result',
+  'fill-operand',
+  'fill-operator',
+  'word-problem',
+];
+
+/**
+ * Filter available formats based on difficulty.
+ * At low difficulty, only use the easiest formats the tier supports.
+ * At high difficulty, use all formats the tier supports.
+ */
+function getFormatsForDifficulty(tierFormats: QuestionFormat[], difficulty: number): QuestionFormat[] {
+  // Sort tier formats by complexity order
+  const sorted = tierFormats
+    .slice()
+    .sort((a, b) => FORMAT_COMPLEXITY.indexOf(a) - FORMAT_COMPLEXITY.indexOf(b));
+
+  // At minimum, always include the easiest format
+  const count = Math.max(1, Math.ceil(sorted.length * difficulty));
+  return sorted.slice(0, count);
+}
+
 function selectBlankPosition(format: QuestionFormat): BlankPosition {
   switch (format) {
     case 'multiple-choice':
@@ -221,14 +259,19 @@ function getAnswerForBlank(
 
 // ── Main question generator ─────────────────────────────────────────
 
-export function generateQuestion(tier: number): Question {
+export function generateQuestion(tier: number, difficulty: number = 1.0): Question {
   const tierDef = TIERS[tier - 1];
   if (!tierDef) throw new Error(`Invalid tier: ${tier}`);
 
   const operation = pick(tierDef.operations);
-  const format = pick(tierDef.formats);
+
+  // Scale format complexity with difficulty:
+  // Low difficulty → only use simpler formats available in this tier
+  // High difficulty → use all formats including harder ones
+  const availableFormats = getFormatsForDifficulty(tierDef.formats, difficulty);
+  const format = pick(availableFormats);
   const blankPosition = selectBlankPosition(format);
-  const operands = generateOperands(tierDef, operation);
+  const operands = generateOperands(tierDef, operation, difficulty);
   const answer = getAnswerForBlank(operands, blankPosition);
 
   const question: Question = {
@@ -264,8 +307,8 @@ export function generateQuestion(tier: number): Question {
 }
 
 /** Generate a batch of questions for a stage. */
-export function generateStageQuestions(tier: number, count: number): Question[] {
-  return Array.from({ length: count }, () => generateQuestion(tier));
+export function generateStageQuestions(tier: number, count: number, difficulty: number = 1.0): Question[] {
+  return Array.from({ length: count }, () => generateQuestion(tier, difficulty));
 }
 
 /** Check if the given answer is correct. */

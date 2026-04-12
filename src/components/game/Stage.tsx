@@ -33,7 +33,7 @@ export function Stage() {
   // Generate questions when stage mounts
   useEffect(() => {
     if (stageDef && questions.length === 0) {
-      const q = generateStageQuestions(stageDef.tier, stageDef.questionCount);
+      const q = generateStageQuestions(stageDef.tier, stageDef.questionCount, stageDef.difficulty);
       setQuestions(q);
     }
   }, [stageDef, questions.length, setQuestions]);

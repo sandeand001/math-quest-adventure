@@ -2,14 +2,14 @@ import type { WorldDefinition, StageDefinition } from '../types';
 
 function makeStages(tier: number): StageDefinition[] {
   return [
-    { stageIndex: 0, type: 'practice',   questionCount: 10, tier, requiredAccuracy: 0.6 },
-    { stageIndex: 1, type: 'practice',   questionCount: 10, tier, requiredAccuracy: 0.6 },
-    { stageIndex: 2, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.65 },
-    { stageIndex: 3, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7 },
-    { stageIndex: 4, type: 'mini-boss',  questionCount: 5,  tier, requiredAccuracy: 0.7 },
-    { stageIndex: 5, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7 },
-    { stageIndex: 6, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7 },
-    { stageIndex: 7, type: 'world-boss', questionCount: 10, tier, requiredAccuracy: 0.7 },
+    { stageIndex: 0, type: 'practice',   questionCount: 10, tier, requiredAccuracy: 0.6,  difficulty: 0.15 },
+    { stageIndex: 1, type: 'practice',   questionCount: 10, tier, requiredAccuracy: 0.6,  difficulty: 0.30 },
+    { stageIndex: 2, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.65, difficulty: 0.45 },
+    { stageIndex: 3, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7,  difficulty: 0.55 },
+    { stageIndex: 4, type: 'mini-boss',  questionCount: 5,  tier, requiredAccuracy: 0.7,  difficulty: 0.60 },
+    { stageIndex: 5, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7,  difficulty: 0.70 },
+    { stageIndex: 6, type: 'challenge',  questionCount: 10, tier, requiredAccuracy: 0.7,  difficulty: 0.85 },
+    { stageIndex: 7, type: 'world-boss', questionCount: 10, tier, requiredAccuracy: 0.7,  difficulty: 1.0  },
   ];
 }
 

@@ -64,6 +64,7 @@ export interface StageDefinition {
   questionCount: number;
   tier: number;
   requiredAccuracy: number;  // 0-1, to pass
+  difficulty: number;        // 0-1, scales number range & format within tier
 }
 
 export interface WorldDefinition {

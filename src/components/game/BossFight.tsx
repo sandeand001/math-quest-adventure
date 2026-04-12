@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { generateStageQuestions } from '../../engine/questions';
 import { getBoss, getBossSprite, getBossSfx } from '../../data/bosses';
@@ -48,19 +48,17 @@ export function BossFight() {
   const [fightOver, setFightOver] = useState(false);
   const [victory, setVictory] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
-  const initRef = useRef(false);
+  const [initialized, setInitialized] = useState(false);
 
   // Initialize boss fight
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
-
     const hp = isBossFight ? boss.hp : Math.max(3, boss.hp - 3);
     const playerHpVal = profile?.stats.maxHp ?? 3;
     const shield = profile?.stats.shieldUnlocked ?? false;
 
     setBossFight(hp, playerHpVal, shield);
-  }, [boss.hp, isBossFight, profile, setBossFight]);
+    setInitialized(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Play SFX
   const playSfx = useCallback(
@@ -72,9 +70,9 @@ export function BossFight() {
     [boss, muted],
   );
 
-  // Check for fight end
+  // Check for fight end (only after initialization)
   useEffect(() => {
-    if (fightOver) return;
+    if (!initialized || fightOver) return;
 
     if (bossHp <= 0) {
       // Victory!
@@ -110,6 +108,7 @@ export function BossFight() {
       setVictory(false);
     }
   }, [
+    initialized,
     bossHp,
     playerHp,
     fightOver,

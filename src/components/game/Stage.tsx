@@ -1,10 +1,12 @@
-import { useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { generateStageQuestions } from '../../engine/questions';
 import { starsFromAccuracy, xpForCorrectAnswer, applyXp } from '../../engine/progression';
+import { getStory } from '../../data/stories';
 import { WORLDS } from '../../data/worlds';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
+import { StoryDialog } from '../ui/StoryDialog';
 
 export function Stage() {
   const {
@@ -29,6 +31,10 @@ export function Stage() {
   const world = WORLDS[currentWorldIndex];
   const stageDef = world?.stages[currentStageIndex];
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
+
+  // Stage intro story
+  const stageStory = getStory('stage-intro', currentWorldIndex, currentStageIndex);
+  const [showStory, setShowStory] = useState(!!stageStory);
 
   // Generate questions when stage mounts
   useEffect(() => {
@@ -160,6 +166,9 @@ export function Stage() {
           streak={streak}
         />
       </main>
+      {showStory && stageStory && (
+        <StoryDialog story={stageStory} onComplete={() => setShowStory(false)} />
+      )}
       </div>
     </div>
   );

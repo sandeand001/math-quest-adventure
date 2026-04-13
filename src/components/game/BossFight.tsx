@@ -53,8 +53,10 @@ export function BossFight() {
   const [initialized, setInitialized] = useState(false);
 
   // Story dialogs
-  const bossIntro = isBossFight ? getStory('boss-intro', currentWorldIndex, currentStageIndex) : undefined;
-  const bossVictoryStory = getStory('boss-victory', currentWorldIndex);
+  const bossIntro = isBossFight
+    ? getStory('boss-intro', currentWorldIndex, currentStageIndex)
+    : getStory('mini-boss-intro', currentWorldIndex, currentStageIndex);
+  const bossVictoryStory = isBossFight ? getStory('boss-victory', currentWorldIndex) : undefined;
   const [showBossIntro, setShowBossIntro] = useState(!!bossIntro);
   const [showVictoryStory, setShowVictoryStory] = useState(false);
 

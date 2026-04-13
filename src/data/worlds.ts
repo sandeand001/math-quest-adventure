@@ -13,16 +13,16 @@ function makeStages(tier: number): StageDefinition[] {
   ];
 }
 
-/** Boss IDs assigned per world – cute → cool → final progression */
+/** Boss IDs assigned per world — matched to story characters */
 const WORLD_BOSSES: { bossId: string; miniBossId: string }[] = [
-  { bossId: 'math-cute',     miniBossId: 'phonics-cute'  },  // World 1
-  { bossId: 'phonics-cute',  miniBossId: 'story-cute'    },  // World 2
-  { bossId: 'story-cute',    miniBossId: 'math-cute'     },  // World 3
-  { bossId: 'math-cool',     miniBossId: 'phonics-cute'  },  // World 4
-  { bossId: 'phonics-cool',  miniBossId: 'story-cute'    },  // World 5
-  { bossId: 'story-cool',    miniBossId: 'math-cool'     },  // World 6
-  { bossId: 'phonics-final', miniBossId: 'story-cool'    },  // World 7
-  { bossId: 'math-final',    miniBossId: 'phonics-final' },  // World 8
+  { bossId: 'numblet',       miniBossId: 'twig'       },  // World 0: Emerald Forest
+  { bossId: 'syllabuzz',     miniBossId: 'glimmer'    },  // World 1: Crystal Caves
+  { bossId: 'fablewing',     miniBossId: 'petalwhirl' },  // World 2: Mystic Meadows
+  { bossId: 'calculon',      miniBossId: 'cinder'     },  // World 3: Ironforge Mountains
+  { bossId: 'vowelstrike',   miniBossId: 'boggle'     },  // World 4: Shadow Swamp
+  { bossId: 'riddle-sphinx',  miniBossId: 'rune'       },  // World 5: Enchanted Ruins
+  { bossId: 'the-lexicon',   miniBossId: 'zephyr'     },  // World 6: Sky Citadel
+  { bossId: 'archimedes',    miniBossId: 'ember'      },  // World 7: Dragon's Peak
 ];
 
 const BACKGROUNDS = [

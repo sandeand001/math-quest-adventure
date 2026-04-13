@@ -9,6 +9,30 @@ import { StoryDialog } from '../ui/StoryDialog';
 
 const DEV_MODE = import.meta.env.DEV;
 
+/** Default S-curve node positions for the 8-stage layout when no zone map image exists */
+const DEFAULT_STAGE_POSITIONS: { top: number; left: number }[] = [
+  { top: 82, left: 12 },   // Stage 1 (bottom-left)
+  { top: 70, left: 32 },   // Stage 2
+  { top: 55, left: 16 },   // Stage 3
+  { top: 42, left: 38 },   // Stage 4
+  { top: 42, left: 62 },   // Mini-boss
+  { top: 55, left: 82 },   // Stage 6
+  { top: 30, left: 72 },   // Stage 7
+  { top: 15, left: 88 },   // World Boss (top-right)
+];
+
+/** Theme colors per world for the placeholder zone maps */
+const ZONE_THEMES: { bg: string; path: string; accent: string; name: string }[] = [
+  { bg: 'from-green-950 via-emerald-950 to-green-950', path: 'bg-green-800/40', accent: 'border-emerald-500', name: '🌲' },
+  { bg: 'from-indigo-950 via-purple-950 to-blue-950', path: 'bg-purple-800/40', accent: 'border-purple-500', name: '💎' },
+  { bg: 'from-green-950 via-lime-950 to-emerald-950', path: 'bg-lime-800/40', accent: 'border-lime-500', name: '🌸' },
+  { bg: 'from-stone-950 via-amber-950 to-stone-950', path: 'bg-amber-800/40', accent: 'border-amber-500', name: '⛰️' },
+  { bg: 'from-gray-950 via-emerald-950 to-gray-950', path: 'bg-gray-800/40', accent: 'border-gray-500', name: '🐸' },
+  { bg: 'from-stone-950 via-teal-950 to-stone-950', path: 'bg-teal-800/40', accent: 'border-teal-500', name: '🏛️' },
+  { bg: 'from-blue-950 via-sky-950 to-indigo-950', path: 'bg-sky-800/40', accent: 'border-sky-500', name: '☁️' },
+  { bg: 'from-red-950 via-orange-950 to-stone-950', path: 'bg-orange-800/40', accent: 'border-orange-500', name: '🌋' },
+];
+
 export function ZoneMap() {
   const {
     currentWorldIndex,
@@ -88,48 +112,117 @@ export function ZoneMap() {
     }
   };
 
-  // If no zone map image configured yet, show a simple list fallback
+  // If no zone map image configured yet, show styled placeholder with path layout
+  const zt = ZONE_THEMES[currentWorldIndex] ?? ZONE_THEMES[0];
+
   if (!zoneConfig?.image) {
     return (
-      <div className="min-h-screen bg-[#2a1f14] flex flex-col">
-        <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-amber-900/30 shrink-0">
+      <div className={`min-h-screen bg-gradient-to-b ${zt.bg} flex flex-col`}>
+        <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-white/10 shrink-0 z-20">
           <button onClick={() => setScreen('world-map')} className="text-amber-200/60 hover:text-amber-100 text-sm">
             ← World Map
           </button>
-          <h1 className="flex-1 text-center text-lg font-bold text-amber-100">{worldName}</h1>
+          <h1 className="flex-1 text-center text-lg font-bold text-amber-100">
+            {zt.name} {worldName}
+          </h1>
           <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
         </header>
-        <main className="flex-1 flex flex-col items-center justify-center gap-3 p-6">
-          <p className="text-amber-200/50 text-sm mb-4">Zone map coming soon — select a stage:</p>
-          <div className="flex flex-wrap gap-3 justify-center max-w-md">
+
+        <div className="flex-1 overflow-auto flex items-center justify-center p-2">
+          <div className="relative w-full max-w-[900px]" style={{ aspectRatio: '16 / 10' }}>
+
+            {/* Path lines connecting stages */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {DEFAULT_STAGE_POSITIONS.slice(0, -1).map((pos, i) => {
+                const next = DEFAULT_STAGE_POSITIONS[i + 1];
+                return (
+                  <line
+                    key={i}
+                    x1={pos.left}
+                    y1={pos.top}
+                    x2={next.left}
+                    y2={next.top}
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeWidth="1.5"
+                    strokeDasharray="2,2"
+                  />
+                );
+              })}
+            </svg>
+
+            {/* Stage nodes */}
             {world.stages.map((stage, stageIdx) => {
+              const pos = DEFAULT_STAGE_POSITIONS[stageIdx];
               const isStageUnlocked =
                 currentWorldIndex < unlockedWorld ||
                 (currentWorldIndex === unlockedWorld && stageIdx <= profile.currentStage);
+              const isCompleted =
+                currentWorldIndex < unlockedWorld ||
+                (currentWorldIndex === unlockedWorld && stageIdx < profile.currentStage);
+              const isCurrent =
+                currentWorldIndex === unlockedWorld && stageIdx === profile.currentStage;
               const isBoss = stage.type === 'mini-boss' || stage.type === 'world-boss';
+              const isWorldBoss = stage.type === 'world-boss';
 
               return (
                 <button
                   key={stageIdx}
                   onClick={() => isStageUnlocked && handleStageClick(stageIdx)}
                   disabled={!isStageUnlocked}
-                  className={`
-                    w-14 h-14 rounded-xl flex items-center justify-center text-sm font-bold
-                    border-2 transition-all
-                    ${isStageUnlocked
-                      ? isBoss
-                        ? 'bg-red-600/40 border-red-500/60 text-red-200 hover:bg-red-600/60 cursor-pointer'
-                        : 'bg-amber-800/40 border-amber-600/50 text-amber-100 hover:bg-amber-700/50 cursor-pointer'
-                      : 'bg-gray-800/30 border-gray-700/30 text-gray-600 cursor-not-allowed'
-                    }
-                  `}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
+                  style={{ top: `${pos.top}%`, left: `${pos.left}%` }}
                 >
-                  {!isStageUnlocked ? '🔒' : isBoss ? '💀' : stageIdx + 1}
+                  <div
+                    className={`
+                      ${isWorldBoss ? 'w-16 h-16 sm:w-20 sm:h-20' : isBoss ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-12 h-12 sm:w-14 sm:h-14'}
+                      rounded-full flex items-center justify-center
+                      border-3 transition-all duration-200
+                      ${isCurrent
+                        ? `bg-amber-500/80 border-yellow-300 shadow-[0_0_24px_rgba(250,204,21,0.5)] animate-pulse scale-110`
+                        : isCompleted
+                          ? `bg-emerald-600/70 border-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.3)]`
+                          : isStageUnlocked
+                            ? isBoss
+                              ? `bg-red-700/70 border-red-400 shadow-[0_0_16px_rgba(220,38,38,0.4)]`
+                              : `bg-white/10 ${zt.accent} shadow-[0_0_8px_rgba(255,255,255,0.1)]`
+                            : `bg-gray-900/50 border-gray-700/40 opacity-40`
+                      }
+                      ${isStageUnlocked ? 'cursor-pointer hover:scale-110 active:scale-95' : 'cursor-not-allowed'}
+                    `}
+                  >
+                    {isCompleted ? (
+                      <span className="text-lg sm:text-xl">⭐</span>
+                    ) : !isStageUnlocked ? (
+                      <span className="text-sm">🔒</span>
+                    ) : isWorldBoss ? (
+                      <span className="text-xl sm:text-2xl">🐉</span>
+                    ) : isBoss ? (
+                      <span className="text-lg sm:text-xl">💀</span>
+                    ) : (
+                      <span className="text-sm sm:text-base font-bold text-white drop-shadow-md">
+                        {stageIdx + 1}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <div
+                    className={`
+                      absolute left-1/2 -translate-x-1/2 mt-1
+                      px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold whitespace-nowrap
+                      pointer-events-none transition-opacity duration-200
+                      ${isCurrent || isWorldBoss ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                      bg-black/70 text-white
+                    `}
+                  >
+                    {isWorldBoss ? '⚔️ BOSS' : isBoss ? '💀 Mini-Boss' : `Stage ${stageIdx + 1}`}
+                  </div>
                 </button>
               );
             })}
           </div>
-        </main>
+        </div>
+
         {showStory && worldIntro && (
           <StoryDialog story={worldIntro} onComplete={() => setShowStory(false)} />
         )}

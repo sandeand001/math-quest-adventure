@@ -136,7 +136,7 @@ export function Stage() {
         <button
           onClick={() => {
             useGameStore.getState().resetStage();
-            setScreen('world-map');
+            setScreen('zone-map');
           }}
           className="text-gray-400 hover:text-white transition-colors text-sm"
         >

@@ -197,11 +197,13 @@ export function BossFight() {
   const handlePostFight = () => {
     resetStage();
     if (victory) {
-      setScreen('world-map');
+      // Return to zone map to see the completed state, or world map if world is done
+      const isFinalStage = currentStageIndex >= (world?.stages.length ?? 1) - 1;
+      setScreen(isFinalStage ? 'world-map' : 'zone-map');
     } else {
-      // Go back to redo stages
+      // Go back to zone map to retry
       setCurrentStage(Math.max(0, currentStageIndex - 2));
-      setScreen('stage');
+      setScreen('zone-map');
     }
   };
 

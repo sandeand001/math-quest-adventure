@@ -50,18 +50,14 @@ export function StageResultScreen() {
         updateProfile(profile.id, { currentStage: nextStage });
       }
 
-      const nextStageDef = world?.stages[nextStage];
-      if (nextStageDef?.type === 'mini-boss' || nextStageDef?.type === 'world-boss') {
-        setScreen('boss-fight');
-      } else {
-        setScreen('stage');
-      }
+      // Return to zone map so player can see progress and select next stage
+      setScreen('zone-map');
     } else if (passed && isLastStage) {
-      // World complete — go back to map
+      // World complete — go back to world map
       setScreen('world-map');
     } else {
-      // Failed — retry same stage
-      setScreen('stage');
+      // Failed — return to zone map to retry
+      setScreen('zone-map');
     }
   };
 
@@ -111,11 +107,11 @@ export function StageResultScreen() {
         <button
           onClick={() => {
             resetStage();
-            setScreen('world-map');
+            setScreen('zone-map');
           }}
           className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
         >
-          Back to World Map
+          Back to Zone Map
         </button>
       </div>
 

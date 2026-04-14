@@ -228,14 +228,14 @@ export function BossFight() {
           <HeartsBar current={bossHp} max={bossMaxHp} color="red" size="md" />
         </div>
 
-        {/* Boss image */}
+        {/* Boss image — sized to fill the viewport */}
         <div
           className={`relative transition-transform duration-200 ${shaking ? 'animate-shake' : ''}`}
         >
           <img
             src={getBossSprite(boss, pose)}
             alt={boss.name}
-            className="max-w-80 max-h-80 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-opacity duration-200"
+            className="w-[60vw] h-[50vh] sm:w-[50vw] sm:h-[55vh] max-w-[600px] max-h-[500px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-opacity duration-200"
           />
           {/* Flash hit overlay */}
           {flashVisible && (

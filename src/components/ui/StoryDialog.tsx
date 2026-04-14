@@ -69,65 +69,95 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end cursor-pointer select-none"
+      className="fixed inset-0 z-50 cursor-pointer select-none"
       onClick={handleNext}
     >
-      {/* Character sprite — anchored to bottom corner */}
-      {spriteSrc && (
-        <div
-          className={`
-            absolute bottom-0 pointer-events-none
-            ${side === 'left' ? 'left-2 sm:left-4' : 'right-2 sm:right-4'}
-            animate-[slideUp_0.3s_ease-out]
-          `}
-        >
-          <img
-            src={spriteSrc}
-            alt={story.speaker ?? ''}
-            className="w-24 h-24 sm:w-36 sm:h-36 md:w-44 md:h-44 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-          />
-        </div>
-      )}
+      {spriteSrc ? (
+        /* ── Layout with character sprite: sprite left, dialog right ── */
+        <div className="h-full flex flex-col sm:flex-row items-end sm:items-center">
+          {/* Character sprite — large, left side */}
+          <div
+            className={`
+              ${side === 'left' ? 'order-1' : 'order-2 sm:order-2'}
+              flex-shrink-0 flex items-end justify-center
+              w-full sm:w-2/5 pointer-events-none
+              animate-[slideUp_0.3s_ease-out]
+            `}
+          >
+            <img
+              src={spriteSrc}
+              alt={story.speaker ?? ''}
+              className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 lg:w-80 lg:h-80 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+            />
+          </div>
 
-      {/* Dialog panel — bottom of screen, no dimming */}
-      <div
-        className={`
-          w-full px-3 pb-3 animate-[slideUp_0.3s_ease-out]
-          ${spriteSrc ? (side === 'left' ? 'pl-28 sm:pl-40 md:pl-48' : 'pr-28 sm:pr-40 md:pr-48') : ''}
-        `}
-      >
-        <div className="max-w-2xl mx-auto bg-[#1a1530]/95 border border-indigo-700/40 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-sm">
-          {/* Speaker name + portrait */}
-          {story.speaker && (
-            <div className="flex items-center gap-2 mb-2">
-              {isBossSpeaker && story.portrait && (
-                <span className="text-2xl">{story.portrait}</span>
+          {/* Dialog panel — right side on desktop, bottom on mobile */}
+          <div
+            className={`
+              ${side === 'left' ? 'order-2' : 'order-1 sm:order-1'}
+              flex-1 flex items-end sm:items-center justify-center
+              px-3 pb-3 sm:pb-0 sm:pr-8
+              animate-[slideUp_0.3s_ease-out]
+            `}
+          >
+            <div className="w-full max-w-lg bg-[#1a1530]/95 border border-indigo-700/40 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-sm">
+              {story.speaker && (
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                    {story.speaker}
+                  </span>
+                </div>
               )}
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
-                {story.speaker}
-              </span>
+              <p className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
+                {currentLine}
+              </p>
+              <div className="flex items-center justify-between gap-3 mt-3">
+                <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                    style={{ width: `${((lineIndex + 1) / story.lines.length) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-gray-400 shrink-0">
+                  {isLast ? 'Tap to continue ▸' : `${lineIndex + 1}/${story.lines.length}`}
+                </span>
+              </div>
             </div>
-          )}
-
-          {/* Dialog text */}
-          <p className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
-            {currentLine}
-          </p>
-
-          {/* Progress bar */}
-          <div className="flex items-center justify-between gap-3 mt-3">
-            <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-500 rounded-full transition-all duration-300"
-                style={{ width: `${((lineIndex + 1) / story.lines.length) * 100}%` }}
-              />
-            </div>
-            <span className="text-[10px] text-gray-400 shrink-0">
-              {isLast ? 'Tap to continue ▸' : `${lineIndex + 1}/${story.lines.length}`}
-            </span>
           </div>
         </div>
-      </div>
+      ) : (
+        /* ── Layout without sprite (boss speakers): centered dialog ── */
+        <div className="h-full flex items-end justify-center">
+          <div className="w-full px-3 pb-3 animate-[slideUp_0.3s_ease-out]">
+            <div className="max-w-2xl mx-auto bg-[#1a1530]/95 border border-indigo-700/40 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-sm">
+              {story.speaker && (
+                <div className="flex items-center gap-2 mb-2">
+                  {isBossSpeaker && story.portrait && (
+                    <span className="text-2xl">{story.portrait}</span>
+                  )}
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                    {story.speaker}
+                  </span>
+                </div>
+              )}
+              <p className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
+                {currentLine}
+              </p>
+              <div className="flex items-center justify-between gap-3 mt-3">
+                <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                    style={{ width: `${((lineIndex + 1) / story.lines.length) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-gray-400 shrink-0">
+                  {isLast ? 'Tap to continue ▸' : `${lineIndex + 1}/${story.lines.length}`}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

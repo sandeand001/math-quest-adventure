@@ -6,46 +6,103 @@ interface StoryDialogProps {
   onComplete: () => void;
 }
 
-/** Map speaker names to sprite image paths and preferred positions */
-const SPEAKER_SPRITES: Record<string, { src: string; side: 'left' | 'right' }> = {
-  'Pip': { src: '/assets/characters/pip/happy.png', side: 'left' },
-  'Professor Hoot': { src: '/assets/characters/professor-hoot/wise.png', side: 'right' },
-};
+/**
+ * Determine Pip's sprite based on the story trigger and line content.
+ * Uses trigger context first (most reliable), then falls back to specific mentions.
+ */
+function getPipSprite(story: StoryEntry, line: string): string {
+  const trigger = story.trigger;
+  const l = line.toLowerCase();
 
-/** Map speaker + line context to specific sprite variants */
-function getSpriteForLine(speaker: string | undefined, line: string): string | null {
-  if (!speaker) return null;
+  // ── Trigger-based (highest priority — we know exactly what's happening) ──
 
-  if (speaker === 'Pip') {
-    const l = line.toLowerCase();
-    if (l.includes('scared') || l.includes('nervous') || l.includes('shaking') || l.includes('gulp') || l.includes('uh oh'))
-      return '/assets/characters/pip/scared.png';
-    if (l.includes('did it') || l.includes('ha!') || l.includes('woo') || l.includes('yea') || l.includes('cheering') || l.includes('victory') || l.includes('incredible'))
-      return '/assets/characters/pip/excited.png';
-    if (l.includes('hmm') || l.includes('realized') || l.includes('think') || l.includes('trick') || l.includes('tip'))
-      return '/assets/characters/pip/thinking.png';
-    if (l.includes('snack') || l.includes('berries') || l.includes('eat') || l.includes('food') || l.includes('marshmallow'))
-      return '/assets/characters/pip/eating.png';
-    if (l.includes('ready') || l.includes('let\'s go') || l.includes('let\'s do'))
+  // Boss intros: Pip is scared/nervous or battle-ready
+  if (trigger === 'boss-intro' || trigger === 'mini-boss-intro') {
+    if (l.includes('ready') || l.includes('take it') || l.includes('let\'s') || l.includes('can do'))
       return '/assets/characters/pip/battle-ready.png';
-    if (l.includes('sad') || l.includes('lost') || l.includes('miss'))
+    return '/assets/characters/pip/scared.png';
+  }
+
+  // Boss victories: Pip is excited/celebrating
+  if (trigger === 'boss-victory' || trigger === 'world-complete') {
+    if (l.includes('miss') || l.includes('gonna miss'))
       return '/assets/characters/pip/sad.png';
-    if (l.includes('wait') || l.includes('whoa') || l.includes('what') || l.includes('!?'))
-      return '/assets/characters/pip/surprised.png';
-    return '/assets/characters/pip/happy.png';
+    return '/assets/characters/pip/excited.png';
   }
 
-  if (speaker === 'Professor Hoot') {
-    const l = line.toLowerCase();
-    if (l.includes('proud') || l.includes('remarkable') || l.includes('well done') || l.includes('incredible') || l.includes('did it'))
-      return '/assets/characters/professor-hoot/proud.png';
-    if (l.includes('warn') || l.includes('careful') || l.includes('danger') || l.includes('urgent') || l.includes('afraid'))
+  // ── Line-content based (for world-intro and stage-intro) ──
+
+  // Nervousness / fear (check before general excitement)
+  if (l.includes('gulp') || l.includes('uh oh') || l.includes('shaking') || l.includes('trembl')
+    || l.includes('nervous') || l.includes('not going to pretend'))
+    return '/assets/characters/pip/scared.png';
+
+  // Surprise / shock
+  if (l.includes('whoa') || l.includes('wait.') || l.includes('what?!') || l.includes('!?'))
+    return '/assets/characters/pip/surprised.png';
+
+  // Determination / battle readiness
+  if (l.includes('let\'s do this') || l.includes('let\'s go') || l.includes('let\'s give')
+    || l.includes('onward') || l.includes('get in there') || l.includes('finish this'))
+    return '/assets/characters/pip/battle-ready.png';
+
+  // Thinking / tips / realization
+  if (l.includes('realized') || l.includes('trick') || l.includes('here\'s') || l.includes('tip')
+    || l.includes('secret') || l.includes('remember'))
+    return '/assets/characters/pip/thinking.png';
+
+  // Explicit snacking (only when Pip is actually eating, not "defeat" or "great")
+  if (l.includes('snacking while you work') || l.includes('berries so') || l.includes('munching'))
+    return '/assets/characters/pip/eating.png';
+
+  // Excitement (after checks that might catch false positives)
+  if (l.includes('we did it') || l.includes('ha!') || l.includes('how cool')
+    || l.includes('new skill') || l.includes('level'))
+    return '/assets/characters/pip/excited.png';
+
+  // Sadness (only explicit sadness, not "I miss" in a positive context)
+  if (l.includes('we lost') || l.includes('too strong'))
+    return '/assets/characters/pip/sad.png';
+
+  // Default: happy
+  return '/assets/characters/pip/happy.png';
+}
+
+/**
+ * Determine Professor Hoot's sprite based on trigger and content.
+ */
+function getHootSprite(story: StoryEntry, line: string): string {
+  const trigger = story.trigger;
+  const l = line.toLowerCase();
+
+  // Victory / celebration
+  if (trigger === 'boss-victory' || trigger === 'world-complete') {
+    if (l.includes('careful') || l.includes('warned') || l.includes('be warned'))
       return '/assets/characters/professor-hoot/concerned.png';
-    if (l.includes('celebrat') || l.includes('saved') || l.includes('champion'))
-      return '/assets/characters/professor-hoot/celebrating.png';
-    return '/assets/characters/professor-hoot/wise.png';
+    return '/assets/characters/professor-hoot/celebrating.png';
   }
 
+  // Boss intro warnings
+  if (trigger === 'boss-intro' || trigger === 'mini-boss-intro')
+    return '/assets/characters/professor-hoot/concerned.png';
+
+  // Content-based
+  if (l.includes('proud') || l.includes('remarkable') || l.includes('well done')
+    || l.includes('so proud') || l.includes('watching your progress'))
+    return '/assets/characters/professor-hoot/proud.png';
+
+  if (l.includes('warned') || l.includes('careful') || l.includes('danger')
+    || l.includes('afraid') || l.includes('terrible news'))
+    return '/assets/characters/professor-hoot/concerned.png';
+
+  return '/assets/characters/professor-hoot/wise.png';
+}
+
+/** Get sprite path for any speaker */
+function getSpriteForLine(story: StoryEntry, line: string): string | null {
+  if (!story.speaker) return null;
+  if (story.speaker === 'Pip') return getPipSprite(story, line);
+  if (story.speaker === 'Professor Hoot') return getHootSprite(story, line);
   return null;
 }
 
@@ -54,10 +111,10 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
 
   const currentLine = story.lines[lineIndex];
   const isLast = lineIndex >= story.lines.length - 1;
-  const speakerConfig = story.speaker ? SPEAKER_SPRITES[story.speaker] : null;
-  const side = speakerConfig?.side ?? 'left';
-  const spriteSrc = getSpriteForLine(story.speaker, currentLine);
-  const isBossSpeaker = !speakerConfig && story.speaker;
+  const spriteSrc = getSpriteForLine(story, currentLine);
+  const hasSpriteCharacter = story.speaker === 'Pip' || story.speaker === 'Professor Hoot';
+  const side = story.speaker === 'Professor Hoot' ? 'right' : 'left';
+  const isBossSpeaker = !hasSpriteCharacter && story.speaker;
 
   const handleNext = () => {
     if (isLast) {

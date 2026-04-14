@@ -241,7 +241,7 @@ export const FANTASY_STORY: StoryEntry[] = [
     worldIndex: 1,
     stageIndex: 7,
     speaker: 'Syllabuzz',
-    portrait: '🦇',
+    portrait: '💎',
     lines: [
       '*A massive crystal golem rises from the cave floor, eyes glowing purple!*',
       'BZZZZT! I am SYLLABUZZ! I eat subtraction for breakfast and addition for lunch!',
@@ -398,7 +398,7 @@ export const FANTASY_STORY: StoryEntry[] = [
     worldIndex: 3,
     stageIndex: 7,
     speaker: 'Calculon',
-    portrait: '🐲',
+    portrait: '⚔️',
     lines: [
       '*The mountain SHAKES. A dragon covered in iron armor stomps forward!*',
       'I am CALCULON! Forged in the FIRES of multiplication!',

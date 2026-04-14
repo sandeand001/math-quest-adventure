@@ -57,8 +57,6 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
   const speakerConfig = story.speaker ? SPEAKER_SPRITES[story.speaker] : null;
   const side = speakerConfig?.side ?? 'left';
   const spriteSrc = getSpriteForLine(story.speaker, currentLine);
-
-  // Boss speakers don't have sprites — they use emoji portraits only
   const isBossSpeaker = !speakerConfig && story.speaker;
 
   const handleNext = () => {
@@ -71,15 +69,15 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 cursor-pointer select-none"
+      className="fixed inset-0 z-50 flex items-end cursor-pointer select-none"
       onClick={handleNext}
     >
-      {/* Character sprite */}
+      {/* Character sprite — anchored to bottom corner */}
       {spriteSrc && (
         <div
           className={`
             absolute bottom-0 pointer-events-none
-            ${side === 'left' ? 'left-2 sm:left-6' : 'right-2 sm:right-6'}
+            ${side === 'left' ? 'left-2 sm:left-4' : 'right-2 sm:right-4'}
             animate-[slideUp_0.3s_ease-out]
           `}
         >
@@ -91,49 +89,41 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
         </div>
       )}
 
-      {/* Speech bubble */}
+      {/* Dialog panel — bottom of screen, no dimming */}
       <div
         className={`
-          mb-4 mx-4 w-full max-w-xl
-          ${spriteSrc ? (side === 'left' ? 'ml-28 sm:ml-44 md:ml-52' : 'mr-28 sm:mr-44 md:mr-52') : ''}
-          animate-[slideUp_0.3s_ease-out]
+          w-full px-3 pb-3 animate-[slideUp_0.3s_ease-out]
+          ${spriteSrc ? (side === 'left' ? 'pl-28 sm:pl-40 md:pl-48' : 'pr-28 sm:pr-40 md:pr-48') : ''}
         `}
       >
-        <div className="relative bg-white/95 rounded-2xl px-5 py-4 shadow-2xl">
-          {/* Speech bubble tail */}
-          <div
-            className={`absolute -bottom-2 ${
-              side === 'left' ? 'left-6' : 'right-6'
-            } w-5 h-5 bg-white/95 rotate-45 rounded-sm`}
-          />
-
-          {/* Speaker name badge */}
+        <div className="max-w-2xl mx-auto bg-[#1a1530]/95 border border-indigo-700/40 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-sm">
+          {/* Speaker name + portrait */}
           {story.speaker && (
             <div className="flex items-center gap-2 mb-2">
               {isBossSpeaker && story.portrait && (
                 <span className="text-2xl">{story.portrait}</span>
               )}
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
                 {story.speaker}
               </span>
             </div>
           )}
 
           {/* Dialog text */}
-          <p className="text-gray-800 text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
+          <p className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
             {currentLine}
           </p>
 
           {/* Progress bar */}
           <div className="flex items-center justify-between gap-3 mt-3">
-            <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
               <div
                 className="h-full bg-indigo-500 rounded-full transition-all duration-300"
                 style={{ width: `${((lineIndex + 1) / story.lines.length) * 100}%` }}
               />
             </div>
             <span className="text-[10px] text-gray-400 shrink-0">
-              {isLast ? 'Tap ▸' : `${lineIndex + 1}/${story.lines.length}`}
+              {isLast ? 'Tap to continue ▸' : `${lineIndex + 1}/${story.lines.length}`}
             </span>
           </div>
         </div>

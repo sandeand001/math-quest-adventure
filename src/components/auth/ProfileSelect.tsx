@@ -112,7 +112,7 @@ function PinPad({
 }
 
 export function ProfileSelect() {
-  const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile } = useGameStore();
+  const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile, setUid } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [step, setStep] = useState<'name' | 'avatar' | 'pin-create' | 'pin-confirm'>('name');
@@ -466,6 +466,15 @@ export function ProfileSelect() {
               🧪 Add Test User
             </button>
           )}
+          <button
+            onClick={() => {
+              setUid(null);
+              setScreen('login');
+            }}
+            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            🚪 Sign Out
+          </button>
         </div>
       </div>
 

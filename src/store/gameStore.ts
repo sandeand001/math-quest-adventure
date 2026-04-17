@@ -12,9 +12,11 @@ export type { GameState } from './sliceTypes';
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
-      // ── Core (navigation / audio) ──
-      screen: 'profile-select' as GameScreen,
+      // ── Core (navigation / auth / audio) ──
+      screen: 'login' as GameScreen,
       setScreen: (screen) => set({ screen }),
+      uid: null,
+      setUid: (uid) => set({ uid }),
       muted: false,
       toggleMute: () => set((state) => ({ muted: !state.muted })),
 
@@ -27,6 +29,7 @@ export const useGameStore = create<GameState>()(
     {
       name: 'mathquest-game',
       partialize: (state) => ({
+        uid: state.uid,
         profiles: state.profiles,
         activeProfileId: state.activeProfileId,
         stageResults: state.stageResults,
@@ -34,6 +37,12 @@ export const useGameStore = create<GameState>()(
         unlockedAchievements: state.unlockedAchievements,
         muted: state.muted,
       }),
+      // On app load: if signed in, go to profile-select; otherwise go to login
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.screen = state.uid ? 'profile-select' : 'login';
+        }
+      },
     },
   ),
 );

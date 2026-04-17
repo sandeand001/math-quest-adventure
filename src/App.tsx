@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { useGameStore } from './store/gameStore';
+import { useCloudSync } from './hooks/useCloudSync';
 
+const ParentLoginScreen = lazy(() => import('./components/auth/ParentLoginScreen').then((m) => ({ default: m.ParentLoginScreen })));
 const ProfileSelect = lazy(() => import('./components/auth/ProfileSelect').then((m) => ({ default: m.ProfileSelect })));
 const ParentDashboard = lazy(() => import('./components/auth/ParentDashboard').then((m) => ({ default: m.ParentDashboard })));
 const WorldMap = lazy(() => import('./components/game/WorldMap').then((m) => ({ default: m.WorldMap })));
@@ -22,8 +24,14 @@ function ScreenLoader() {
 function App() {
   const screen = useGameStore((s) => s.screen);
 
+  // Sync with Firestore when signed in
+  useCloudSync();
+
   let content;
   switch (screen) {
+    case 'login':
+      content = <ParentLoginScreen />;
+      break;
     case 'profile-select':
       content = <ProfileSelect />;
       break;
@@ -52,7 +60,7 @@ function App() {
       content = <ParentDashboard />;
       break;
     default:
-      content = <ProfileSelect />;
+      content = <ParentLoginScreen />;
   }
 
   return <Suspense fallback={<ScreenLoader />}>{content}</Suspense>;

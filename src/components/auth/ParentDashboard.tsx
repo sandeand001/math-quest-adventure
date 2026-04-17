@@ -21,7 +21,7 @@ export function ParentDashboard() {
         ) : (
           profiles.map((profile) => {
             const childResults = stageResults.filter(
-              () => true, // In production, filter by profile ID stored in results
+              (r) => r.profileId === profile.id,
             );
             const totalCorrect = profile.stats.totalCorrect;
             const totalAttempts = profile.stats.totalAttempts;

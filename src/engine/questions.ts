@@ -306,9 +306,34 @@ export function generateQuestion(tier: number, difficulty: number = 1.0): Questi
   return question;
 }
 
-/** Generate a batch of questions for a stage. */
+/** Generate a batch of questions for a stage, avoiding duplicate/near-duplicate questions. */
 export function generateStageQuestions(tier: number, count: number, difficulty: number = 1.0): Question[] {
-  return Array.from({ length: count }, () => generateQuestion(tier, difficulty));
+  const questions: Question[] = [];
+  let attempts = 0;
+  const maxAttempts = count * 10; // prevent infinite loops in very small pools
+
+  while (questions.length < count && attempts < maxAttempts) {
+    attempts++;
+    const q = generateQuestion(tier, difficulty);
+
+    // Check if this question is too similar to one already in the batch
+    const isDuplicate = questions.some((existing) =>
+      existing.operandA === q.operandA &&
+      existing.operandB === q.operandB &&
+      existing.operation === q.operation
+    );
+
+    if (!isDuplicate) {
+      questions.push(q);
+    }
+  }
+
+  // If we couldn't fill the batch with unique questions (tiny number pool), fill remainder
+  while (questions.length < count) {
+    questions.push(generateQuestion(tier, difficulty));
+  }
+
+  return questions;
 }
 
 /** Check if the given answer is correct. */

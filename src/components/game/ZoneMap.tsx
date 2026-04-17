@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { WORLDS } from '../../data/worlds';
 import { getTheme } from '../../data/themes';
 import { ZONE_MAPS, type ZoneStageNode } from '../../data/mapConfig';
 import { getStory } from '../../data/stories';
 import { HeartsBar } from '../ui/HeartsBar';
+import { CrystalTracker } from '../ui/CrystalTracker';
 import { StoryDialog } from '../ui/StoryDialog';
 
 const DEV_MODE = import.meta.env.DEV;
@@ -42,33 +43,32 @@ export function ZoneMap() {
   } = useGameStore();
 
   const profile = useActiveProfile();
+
+  // ── Hooks (must run in the same order every render) ──
+  const worldIntro = getStory('world-intro', currentWorldIndex);
+  const unlockedWorld = profile?.currentWorld ?? 0;
+  const profileCurrentStage = profile?.currentStage ?? 0;
+
+  // Show world intro on first mount when it's the current unlocked world and stage 0.
+  // Using a lazy initializer avoids a setState-in-effect cascade.
+  const [showStory, setShowStory] = useState(
+    () =>
+      !!profile &&
+      !!worldIntro &&
+      currentWorldIndex === unlockedWorld &&
+      profileCurrentStage === 0,
+  );
+  const [calibrationStep, setCalibrationStep] = useState(0);
+  const [calibrationPoints, setCalibrationPoints] = useState<{ top: number; left: number }[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // ── Early return AFTER hooks ──
   if (!profile) return null;
 
   const theme = getTheme(profile.theme);
   const world = WORLDS[currentWorldIndex];
   const worldName = theme.worldNames[currentWorldIndex] ?? `World ${currentWorldIndex + 1}`;
   const zoneConfig = ZONE_MAPS[currentWorldIndex];
-  const unlockedWorld = profile.currentWorld;
-
-  // Story dialog
-  const [showStory, setShowStory] = useState(false);
-  const worldIntro = getStory('world-intro', currentWorldIndex);
-
-  // Show world intro on first visit (when it's the current unlocked world and stage 0)
-  useEffect(() => {
-    if (
-      worldIntro &&
-      currentWorldIndex === unlockedWorld &&
-      profile.currentStage === 0
-    ) {
-      setShowStory(true);
-    }
-  }, [currentWorldIndex, unlockedWorld, profile.currentStage, worldIntro]);
-
-  // Dev calibration state
-  const [calibrationStep, setCalibrationStep] = useState(0);
-  const [calibrationPoints, setCalibrationPoints] = useState<{ top: number; left: number }[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const STAGE_LABELS = world.stages.map((s, i) => {
     if (s.type === 'mini-boss') return `📍 Click Mini-Boss (stage ${i + 1})`;
@@ -117,7 +117,7 @@ export function ZoneMap() {
 
   if (!zoneConfig?.image) {
     return (
-      <div className={`min-h-screen bg-gradient-to-b ${zt.bg} flex flex-col`}>
+      <div className={`h-screen bg-gradient-to-b ${zt.bg} flex flex-col`}>
         <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-white/10 shrink-0 z-20">
           <button onClick={() => setScreen('world-map')} className="text-amber-200/60 hover:text-amber-100 text-sm">
             ← World Map
@@ -126,10 +126,11 @@ export function ZoneMap() {
             {zt.name} {worldName}
           </h1>
           <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
+          <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
         </header>
 
-        <div className="flex-1 overflow-auto flex items-center justify-center p-2">
-          <div className="relative w-full max-w-[900px]" style={{ aspectRatio: '16 / 10' }}>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="relative w-full h-full">
 
             {/* Path lines connecting stages */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -232,26 +233,26 @@ export function ZoneMap() {
 
   // Full zone map with image
   return (
-    <div className="min-h-screen bg-[#2a1f14] flex flex-col">
+    <div className="h-screen bg-[#2a1f14] flex flex-col">
       <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-amber-900/30 shrink-0 z-20">
         <button onClick={() => setScreen('world-map')} className="text-amber-200/60 hover:text-amber-100 text-sm">
           ← World Map
         </button>
         <h1 className="flex-1 text-center text-lg font-bold text-amber-100">{worldName}</h1>
         <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
+        <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
       </header>
 
-      <div className="flex-1 overflow-auto flex items-center justify-center p-1">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <div
           ref={containerRef}
-          className="relative w-full max-w-[1920px]"
-          style={{ aspectRatio: '16 / 9' }}
+          className="relative w-full h-full"
           onClick={DEV_MODE && zoneConfig.calibrating ? handleCalibrationClick : undefined}
         >
           <img
             src={zoneConfig.image}
             alt={worldName}
-            className="absolute inset-0 w-full h-full object-fill rounded-lg"
+            className="absolute inset-0 w-full h-full object-fill"
             draggable={false}
           />
 

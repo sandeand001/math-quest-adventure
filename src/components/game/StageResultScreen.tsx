@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { StarRating } from '../ui/StarRating';
 import { AchievementToast } from '../ui/AchievementToast';
@@ -24,16 +24,9 @@ export function StageResultScreen() {
   const passed = result && stageDef ? result.accuracy >= stageDef.requiredAccuracy : false;
   const isLastStage = stageDef && world ? currentStageIndex >= world.stages.length - 1 : false;
 
-  // Check achievements on mount
-  const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  // Check achievements on mount (lazy initializer runs once)
+  const [newAchievements] = useState<string[]>(() => checkAchievements());
   const [toastIndex, setToastIndex] = useState(0);
-
-  useEffect(() => {
-    const unlocked = checkAchievements();
-    if (unlocked.length > 0) {
-      setNewAchievements(unlocked);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!result) {
     return null;
@@ -45,9 +38,12 @@ export function StageResultScreen() {
       const nextStage = currentStageIndex + 1;
       setCurrentStage(nextStage);
 
-      // Persist stage progress to profile
-      if (profile && nextStage > profile.currentStage && currentWorldIndex === profile.currentWorld) {
-        updateProfile(profile.id, { currentStage: nextStage });
+      // Belt-and-suspenders: also update profile in case Stage.tsx didn't
+      if (profile && currentWorldIndex === (profile.currentWorld ?? 0)) {
+        const newStage = Math.max(profile.currentStage ?? 0, nextStage);
+        if (newStage !== profile.currentStage) {
+          updateProfile(profile.id, { currentStage: newStage });
+        }
       }
 
       // Return to zone map so player can see progress and select next stage

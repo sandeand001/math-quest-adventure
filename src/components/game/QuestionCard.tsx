@@ -13,14 +13,10 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset state when question changes
+  // Auto-focus the input for non-multiple-choice questions. This is a DOM-side
+  // effect (focusing an element), not a state reset, so an effect is appropriate.
   useEffect(() => {
-    setSelected(null);
-    setInputValue('');
-    setFeedback(null);
-    // Auto-focus the input for non-multiple-choice questions
     if (question.format !== 'multiple-choice') {
-      // Use a short delay to ensure the DOM has rendered
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 50);

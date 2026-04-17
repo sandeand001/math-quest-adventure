@@ -26,14 +26,25 @@ const WORLD_BOSSES: { bossId: string; miniBossId: string }[] = [
 ];
 
 const BACKGROUNDS = [
-  '/assets/backgrounds/forest.jpg',
-  '/assets/backgrounds/field.jpg',
-  '/assets/backgrounds/clouds.jpg',
-  '/assets/backgrounds/forest.jpg',
-  '/assets/backgrounds/night-forest.jpg',
-  '/assets/backgrounds/field.jpg',
-  '/assets/backgrounds/night-sky.jpg',
-  '/assets/backgrounds/night-sky.jpg',
+  '/assets/backgrounds/emerald forest.png',
+  '/assets/backgrounds/crystal caves.png',
+  '/assets/backgrounds/mystic meadow.png',
+  '/assets/backgrounds/ironforge mountains.png',
+  '/assets/backgrounds/shadow swamp.png',
+  '/assets/backgrounds/enchanted ruins.png',
+  '/assets/backgrounds/sky citadel.png',
+  '/assets/backgrounds/dragons peak.png',
+];
+
+const BATTLE_BACKGROUNDS = [
+  '/assets/backgrounds/battle-forest_arena.png',
+  '/assets/backgrounds/battle-crystal_chamber.png',
+  '/assets/backgrounds/battle-meadow_ring.png',
+  '/assets/backgrounds/battle-forge_arena.png',
+  '/assets/backgrounds/battle-swamp_pool.png',
+  '/assets/backgrounds/battle-ruins_arena.png',
+  '/assets/backgrounds/battle-sky_platform.png',
+  '/assets/backgrounds/battle-volcanic_caldera.png',
 ];
 
 export const WORLDS: WorldDefinition[] = Array.from({ length: 8 }, (_, i) => ({
@@ -44,6 +55,7 @@ export const WORLDS: WorldDefinition[] = Array.from({ length: 8 }, (_, i) => ({
   bossId: WORLD_BOSSES[i].bossId,
   miniBossId: WORLD_BOSSES[i].miniBossId,
   background: BACKGROUNDS[i],
+  battleBackground: BATTLE_BACKGROUNDS[i],
 }));
 
 export function getWorldName(worldIndex: number, worldNames: string[]): string {

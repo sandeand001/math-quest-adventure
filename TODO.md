@@ -42,6 +42,10 @@
 - [ ] Configure Firebase security rules — COPPA-compliant, parent-scoped data access
 - [ ] Detailed parent analytics — per-skill breakdown, time graphs, mastery visualization
 
+## UI Polish
+
+- [ ] ProfileSelect crystal layout — move crystals to bottom of player card instead of circling around it (looks odd)
+
 ## Housekeeping
 
 - [ ] Restore GAME_PLAN.md — updated plan reflecting current 8-tier structure

@@ -1,15 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
+  AvatarId,
   ChildProfile,
+  CrystalId,
+  EquippedCosmetics,
   GameScreen,
   Question,
+  SidekickId,
   StageResult,
   SkillMastery,
   ThemeId,
 } from '../types';
 import { defaultPlayerStats } from '../engine/progression';
 import { newSkillMastery, updateMastery, skillId } from '../engine/mastery';
+import { AVATARS } from '../data/avatars';
+import { COSMETICS } from '../data/cosmetics';
 
 interface GameState {
   // ── Navigation ──
@@ -25,8 +31,16 @@ interface GameState {
   activeProfileId: string | null;
   setProfiles: (profiles: ChildProfile[]) => void;
   setActiveProfile: (id: string) => void;
-  addProfile: (name: string, theme: ThemeId) => ChildProfile;
+  addProfile: (name: string, theme: ThemeId, avatarId?: AvatarId) => ChildProfile;
   updateProfile: (id: string, updates: Partial<ChildProfile>) => void;
+  unlockSidekick: (profileId: string, sidekickId: SidekickId) => void;
+  setActiveSidekick: (profileId: string, sidekickId: SidekickId | null) => void;
+  collectCrystal: (profileId: string, crystalId: CrystalId) => void;
+  unlockAvatars: (profileId: string, avatarIds: AvatarId[]) => void;
+  purchaseItem: (profileId: string, itemType: 'avatar' | 'cosmetic', itemId: string, cost: number) => boolean;
+  equipCosmetic: (profileId: string, category: keyof EquippedCosmetics, itemId: string | null) => void;
+  deleteProfile: (profileId: string) => void;
+  createTestProfile: () => void;
 
   // ── Current session ──
   currentWorldIndex: number;
@@ -92,11 +106,19 @@ export const useGameStore = create<GameState>()(
       activeProfileId: null,
       setProfiles: (profiles) => set({ profiles }),
       setActiveProfile: (id) => set({ activeProfileId: id }),
-      addProfile: (name, theme) => {
+      addProfile: (name, theme, avatarId) => {
         const profile: ChildProfile = {
           id: generateId(),
           name,
           avatarUrl: '',
+          avatarId: avatarId ?? null,
+          equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
+          purchasedAvatars: [],
+          purchasedCosmetics: [],
+          unlockedAvatars: [],
+          activeSidekick: null,
+          unlockedSidekicks: [],
+          collectedCrystals: [],
           theme,
           currentWorld: 0,
           currentStage: 0,
@@ -111,6 +133,74 @@ export const useGameStore = create<GameState>()(
           profiles: state.profiles.map((p) =>
             p.id === id ? { ...p, ...updates } : p,
           ),
+        })),
+      unlockSidekick: (profileId, sidekickId) =>
+        set((state) => ({
+          profiles: state.profiles.map((p) => {
+            if (p.id !== profileId) return p;
+            const sidekicks = p.unlockedSidekicks ?? [];
+            if (sidekicks.includes(sidekickId)) return p;
+            return { ...p, unlockedSidekicks: [...sidekicks, sidekickId] };
+          }),
+        })),
+      setActiveSidekick: (profileId, sidekickId) =>
+        set((state) => ({
+          profiles: state.profiles.map((p) =>
+            p.id === profileId ? { ...p, activeSidekick: sidekickId } : p,
+          ),
+        })),
+      collectCrystal: (profileId, crystalId) =>
+        set((state) => ({
+          profiles: state.profiles.map((p) => {
+            if (p.id !== profileId) return p;
+            if (p.collectedCrystals?.includes(crystalId)) return p;
+            return { ...p, collectedCrystals: [...(p.collectedCrystals ?? []), crystalId] };
+          }),
+        })),
+      unlockAvatars: (profileId, avatarIds) =>
+        set((state) => ({
+          profiles: state.profiles.map((p) => {
+            if (p.id !== profileId) return p;
+            const existing = new Set(p.unlockedAvatars ?? []);
+            const newIds = avatarIds.filter((id) => !existing.has(id));
+            if (newIds.length === 0) return p;
+            return { ...p, unlockedAvatars: [...(p.unlockedAvatars ?? []), ...newIds] };
+          }),
+        })),
+      purchaseItem: (profileId, itemType, itemId, cost) => {
+        const state = useGameStore.getState();
+        const profile = state.profiles.find((p) => p.id === profileId);
+        if (!profile || profile.stats.coins < cost) return false;
+
+        set((s) => ({
+          profiles: s.profiles.map((p) => {
+            if (p.id !== profileId) return p;
+            const updatedStats = { ...p.stats, coins: p.stats.coins - cost };
+            if (itemType === 'avatar') {
+              const purchased = p.purchasedAvatars ?? [];
+              if (purchased.includes(itemId)) return p;
+              return { ...p, stats: updatedStats, purchasedAvatars: [...purchased, itemId] };
+            } else {
+              const purchased = p.purchasedCosmetics ?? [];
+              if (purchased.includes(itemId)) return p;
+              return { ...p, stats: updatedStats, purchasedCosmetics: [...purchased, itemId] };
+            }
+          }),
+        }));
+        return true;
+      },
+      equipCosmetic: (profileId, category, itemId) =>
+        set((state) => ({
+          profiles: state.profiles.map((p) =>
+            p.id === profileId
+              ? { ...p, equippedCosmetics: { ...p.equippedCosmetics, [category]: itemId } }
+              : p,
+          ),
+        })),
+      deleteProfile: (profileId) =>
+        set((state) => ({
+          profiles: state.profiles.filter((p) => p.id !== profileId),
+          activeProfileId: state.activeProfileId === profileId ? null : state.activeProfileId,
         })),
 
       // ── Current session ──
@@ -152,11 +242,19 @@ export const useGameStore = create<GameState>()(
         }),
 
       // ── Stage results ──
+      // Capped at MAX_STAGE_RESULTS to keep persisted storage bounded.
       stageResults: [],
       addStageResult: (result) =>
-        set((state) => ({
-          stageResults: [...state.stageResults, result],
-        })),
+        set((state) => {
+          const next = [...state.stageResults, result];
+          const MAX_STAGE_RESULTS = 200;
+          return {
+            stageResults:
+              next.length > MAX_STAGE_RESULTS
+                ? next.slice(next.length - MAX_STAGE_RESULTS)
+                : next,
+          };
+        }),
 
       // ── Boss fight state ──
       bossHp: 0,
@@ -196,6 +294,53 @@ export const useGameStore = create<GameState>()(
         set((state) => {
           if (state.unlockedAchievements.includes(id)) return state;
           return { unlockedAchievements: [...state.unlockedAchievements, id] };
+        }),
+
+      // ── Test profile ──
+      createTestProfile: () =>
+        set((state) => {
+          // Remove any existing test user and create fresh
+          const filteredProfiles = state.profiles.filter((p) => p.name !== '🧪 Test User');
+
+          const allSidekicks: SidekickId[] = ['twig', 'glimmer', 'petalwhirl', 'cinder', 'boggle', 'rune', 'zephyr', 'ember'];
+          const allCrystals: CrystalId[] = [
+            'crystal-addition', 'crystal-subtraction', 'crystal-place-value', 'crystal-multiplication',
+            'crystal-division', 'crystal-operations', 'crystal-mastery', 'crystal-champions',
+          ];
+          const premiumAvatarIds = AVATARS.filter((a) => a.premium).map((a) => a.id);
+          const allAvatarIds = AVATARS.map((a) => a.id);
+          const allCosmeticIds = COSMETICS.map((c) => c.id);
+
+          const testProfile: ChildProfile = {
+            id: `test-${Date.now()}`,
+            name: '🧪 Test User',
+            avatarUrl: '',
+            avatarId: 'starting-male',
+            equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
+            purchasedAvatars: premiumAvatarIds,
+            purchasedCosmetics: allCosmeticIds,
+            unlockedAvatars: allAvatarIds,
+            activeSidekick: null,
+            unlockedSidekicks: allSidekicks,
+            collectedCrystals: allCrystals,
+            theme: 'fantasy' as ThemeId,
+            currentWorld: 7,
+            currentStage: 7,   // all stages beaten in current world
+            stats: {
+              level: 25,
+              xp: 0,
+              xpToNextLevel: 50000,
+              coins: 99999,
+              hp: 8,
+              maxHp: 8,
+              attack: 5,
+              shieldUnlocked: true,
+              totalCorrect: 1000,
+              totalAttempts: 1100,
+            },
+            createdAt: Date.now(),
+          };
+          return { profiles: [...filteredProfiles, testProfile] };
         }),
     }),
     {

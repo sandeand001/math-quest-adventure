@@ -9,6 +9,199 @@
 
 ---
 
+## PLAYER AVATARS 🧑‍⚔️ (16 Characters — Gallery Selection)
+
+Players choose a full-body character avatar during profile creation. 8 free + 8 premium (purchased with in-game coins). All should feel heroic, age-appropriate, and visually distinct. Same cartoon style as the rest of the game. Mix of boys and girls — each class has 2 male and 2 female variants.
+
+**Save as**: `/assets/avatars/{id}.png` (e.g. `knight-red.png`)
+
+---
+
+### KNIGHTS (4 variants)
+
+#### Knight — Red (Free, Boy)
+```
+A cute cartoon boy knight standing heroically. Full-body view. About 8 years old. 
+Red and silver armor with simple designs. Small round shield with a number "+" symbol. 
+Short sword held upright. Open-face helmet showing a friendly, determined boy's face 
+with big brown eyes, short messy brown hair, and a confident grin. 
+Red cape flowing behind. About 3 feet tall — clearly a kid in armor. 
+Standing proudly with chest puffed out. Brave and adorable.
+Cartoon illustration for a children's fantasy game, bright colors, PNG with transparent background, 
+1024x1024, centered. No text. No background.
+```
+
+#### Knight — Blue (Free, Girl)
+```
+A cute cartoon girl knight standing heroically. Full-body view. About 8 years old. 
+Blue and silver armor with simple designs. Blue cape. Shield has a "−" subtraction symbol. 
+Open-face helmet showing a friendly, determined girl's face with big green eyes, 
+dark curly hair pulled into a short ponytail, and a brave smile. 
+Standing in a confident heroic pose, one foot forward. Strong and kind.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Knight — Gold (Premium, 200 coins, Girl)
+```
+A cute cartoon girl knight — but with gleaming golden armor with ornate designs. 
+About 8 years old. White cape with gold trim. Shield has a "×" multiplication symbol. 
+The golden armor glows faintly. Long red-auburn hair flowing from beneath a 
+crown-shaped helmet. Freckled face with bright blue eyes. 
+Looks more decorated and prestigious than the basic knights. Regal but still a cute kid.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Knight — Shadow (Premium, 500 coins, Boy)
+```
+A cute cartoon boy knight — but with dark purple-black armor with silver star accents. 
+About 8 years old. Dark purple cape. Shield has a "÷" division symbol with glowing edges. 
+Short spiky black hair, dark skin, and intense amber eyes visible through a silver visor. 
+Mysterious and cool — like a stealthy night guardian. 
+The most "epic" looking knight variant.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+---
+
+### WIZARDS (4 variants)
+
+#### Wizard — Purple (Free, Boy)
+```
+A cute cartoon boy wizard standing with confidence. Full-body view. About 8 years old. 
+Oversized purple robes with star patterns, too long in the sleeves. 
+Pointed purple wizard hat slightly too big, tilting to one side. 
+Holding a wooden staff with a glowing purple crystal on top. 
+Big round glasses. Pale skin, messy sandy-blond hair poking out from under the hat. 
+Young face with a mischievous grin. About 3 feet tall — clearly a kid playing wizard.
+Cartoon illustration for a children's fantasy game, bright colors, PNG with transparent background, 
+1024x1024, centered. No text. No background.
+```
+
+#### Wizard — Green (Free, Girl)
+```
+A cute cartoon girl wizard standing with confidence. Full-body view. About 8 years old. 
+Emerald green robes with leaf patterns. Green pointed hat with a feather. 
+Staff has a green crystal. Dark brown skin, black hair in two braids decorated with 
+small leaf clips. Warm brown eyes. Thoughtful, curious expression. 
+Nature-themed — vines wrapping around the staff. Wise beyond her years look.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Wizard — Fire (Premium, 200 coins, Boy)
+```
+A cute cartoon boy wizard — but with red-orange robes with flame patterns. About 8 years old. 
+Pointed hat with flickering flame on the tip instead of a point. 
+Staff topped with a blazing fire crystal. Robes seem to shimmer with heat. 
+Tan skin, short spiky red hair, big excited hazel eyes. 
+Excited, wide-eyed expression. A few floating spark embers around him.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Wizard — Ice (Premium, 500 coins, Girl)
+```
+A cute cartoon girl wizard — but with white and ice-blue crystalline robes. About 8 years old. 
+Hat covered in frost crystals. Staff topped with a snowflake-shaped ice crystal. 
+Light skin, long straight platinum-blonde hair with icy blue tips. Blue-gray eyes. 
+Breath visible as cold mist. Tiny ice crystals floating around her. 
+Serene, calm expression. The most magical-looking wizard variant.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+---
+
+### RANGERS (4 variants)
+
+#### Ranger — Green (Free, Girl)
+```
+A cute cartoon girl ranger/archer standing alert. Full-body view. About 8 years old. 
+Green tunic and brown leather vest. Small wooden bow slung across the back. 
+Quiver of arrows with colorful feather fletching. Pointed ears (elf-like but subtle). 
+Brown boots. Leaf-green hood pushed back showing a friendly girl's face with 
+olive skin, short choppy dark hair, and sharp green eyes. 
+Athletic pose, one hand shading eyes as if looking into the distance.
+Cartoon illustration for a children's fantasy game, bright colors, PNG with transparent background, 
+1024x1024, centered. No text. No background.
+```
+
+#### Ranger — Brown (Free, Boy)
+```
+A cute cartoon boy ranger/archer — but with desert/earth tones. About 8 years old. 
+Tan and brown outfit. Leather arm guards. Light brown skin, curly dark hair, 
+warm brown eyes. A small animal companion (mouse or lizard) sitting on the shoulder. 
+Sandy-colored hood. Confident stance with hands on hips. 
+Adventurous and friendly.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Ranger — White (Premium, 200 coins, Girl)
+```
+A cute cartoon girl ranger — but with arctic white and silver outfit. About 8 years old. 
+Fluffy white fur-trimmed cloak. Silver bow. Ice-blue arrows. 
+Fair skin, white-blonde hair in twin braids, pale blue eyes, rosy cheeks. 
+Snowflake patterns on the boots. Bundled up and cozy-looking. 
+A small snow owl perched on one arm.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Ranger — Black (Premium, 500 coins, Boy)
+```
+A cute cartoon boy ranger — but with midnight black and dark blue outfit. About 8 years old. 
+Star-speckled cloak that looks like the night sky. Silver-tipped arrows. 
+Dark skin, short-cropped hair, bright golden-brown eyes that seem to glow. 
+Glowing blue bowstring. Crescent moon pin on the cloak. 
+A tiny firefly jar attached to the belt for light. Stealthy and mysterious.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+---
+
+### HEALERS (4 variants)
+
+#### Healer — White (Free, Girl)
+```
+A cute cartoon girl healer/cleric standing gently. Full-body view. About 8 years old. 
+White robes with gold trim. Small golden sun medallion necklace. 
+Holding a wooden staff with a glowing warm-white crystal. 
+A tiny circlet on the head. Light skin, long wavy auburn hair. 
+Soft, kind face with big hazel eyes and a warm smile. 
+One hand slightly extended as if casting a healing spell. 
+Gentle golden sparkles around the hand.
+Cartoon illustration for a children's fantasy game, bright colors, PNG with transparent background, 
+1024x1024, centered. No text. No background.
+```
+
+#### Healer — Pink (Free, Boy)
+```
+A cute cartoon boy healer/cleric — but with pink and white robes with flower patterns. 
+About 8 years old. Rose quartz crystal on the staff. A flower crown on his head. 
+Asian features, straight black hair cut in a bowl-cut style, warm dark eyes. 
+Cheerful, bubbly expression. Butterfly-wing-shaped glow around the hands. 
+Gentle and kind — a boy who heals with kindness.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Healer — Gold (Premium, 200 coins, Boy)
+```
+A cute cartoon boy healer — but with golden robes with sunburst patterns. About 8 years old. 
+Staff topped with a miniature sun that actually glows. Solar corona around the head 
+like a halo. Dark brown skin, short curly black hair, bright golden-brown eyes. 
+The entire character has a warm golden glow. 
+Radiant and powerful-looking. Serene, confident expression.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+#### Healer — Dark (Premium, 500 coins, Girl)
+```
+A cute cartoon girl healer — but with deep midnight blue and silver robes. About 8 years old. 
+Crescent moon patterns. Staff topped with a moon crystal that glows silver. 
+Pale skin, long straight black hair with silver streaks, deep violet eyes. 
+Stars gently floating around her. Silver circlet with a teardrop gem. 
+Mysterious but kind. The "moon healer" — most unique-looking variant.
+Same cartoon style, transparent background, 1024x1024.
+```
+
+---
+
 ## PIP THE FOX 🦊 (Companion — Most Variants)
 
 Pip is a small, young red-orange fox with a cream-colored belly, big expressive green eyes, a bushy tail with a white tip, and oversized ears. He wears a tiny green adventurer's scarf around his neck. He's about the size of a house cat. His expressions are always exaggerated and readable — big smiles, wide scared eyes, etc.
@@ -105,7 +298,7 @@ Cartoon illustration for a children's fantasy game, bright colors, PNG with tran
 ### Prompt 2 — Professor Hoot: Proud/Impressed
 ```
 Same owl character from the previous image — brown/cream feathers, round spectacles, blue wizard hat 
-with gold stars, scroll in talon. This time he's puffing his chest out slightly, eyes bright and wide, 
+with gold stars. This time he's puffing his chest out slightly, eyes bright and wide, 
 one wing raised in a "well done!" gesture. His expression is beaming with pride — like a proud 
 grandfather watching his grandchild succeed. Small happy tears in the corners of his eyes.
 Same cartoon style, transparent background, 1024x1024.
@@ -115,7 +308,7 @@ Same cartoon style, transparent background, 1024x1024.
 ```
 Same owl character — brown/cream feathers, round spectacles, blue wizard hat with gold stars. 
 He's leaning forward slightly, one wing extended outward in a cautionary "be careful" gesture. 
-His brow is furrowed with concern, eyes serious but still kind. He's holding up the scroll 
+His brow is furrowed with concern, eyes serious but still kind. He's holding up the scroll with his wing 
 as if reading an urgent message. He looks worried but not panicked.
 Same cartoon style, transparent background, 1024x1024.
 ```
@@ -823,6 +1016,10 @@ Same cartoon style, transparent background, 1024x1024.
 
 | Character | Variants | Total Images |
 |---|---|---|
+| Player Avatars (Knights) | 4 variants | 4 |
+| Player Avatars (Wizards) | 4 variants | 4 |
+| Player Avatars (Rangers) | 4 variants | 4 |
+| Player Avatars (Healers) | 4 variants | 4 |
 | Pip the Fox | 8 poses | 8 |
 | Professor Hoot | 4 poses | 4 |
 | Numblet (World Boss 0) | 4 poses | 4 |
@@ -841,10 +1038,358 @@ Same cartoon style, transparent background, 1024x1024.
 | Rune (Mini-Boss 5) | 4 poses | 4 |
 | Zephyr (Mini-Boss 6) | 4 poses | 4 |
 | Ember (Mini-Boss 7) | 4 poses | 4 |
-| **TOTAL** | | **76 images** |
+| World Map | 1 image | 1 |
+| Zone Maps | 8 maps | 8 |
+| Area Backgrounds | 8 backgrounds | 8 |
+| Battle Backgrounds | 8 arenas | 8 |
+| **TOTAL** | | **117 images** |
 
 ### Priority Order
-1. **Pip** (8 images) — appears on every screen
-2. **World Bosses** (32 images) — needed for boss fights to work
-3. **Professor Hoot** (4 images) — appears in story dialogs
-4. **Mini-Bosses** (32 images) — can use placeholder until ready
+1. **Player Avatars** (16 images) — needed for profile creation to work
+2. **Pip** (8 images) — appears on every screen
+3. **World Bosses** (32 images) — needed for boss fights to work
+4. **Area Backgrounds** (8 images) — visible during stages
+5. **Battle Backgrounds** (8 images) — visible during boss fights
+6. **Zone Maps** (8 images) — one per world
+7. **World Map** (1 image) — overview map
+8. **Professor Hoot** (4 images) — appears in story dialogs
+9. **Mini-Bosses** (32 images) — can use placeholder until ready
+
+---
+
+## WORLD MAP (1 image)
+
+The world map shows all 8 worlds as a winding path/trail. Used as the main navigation screen.
+
+**Save as**: `/assets/maps/world-map.png`
+
+### World Map — Overview
+```
+A top-down fantasy world map filling the entire frame, drawn in a storybook illustration style. 
+A winding golden path connects 8 distinct regions from bottom-left to top-right:
+
+Bottom-left: A lush green forest (Emerald Forest).
+Then: A cluster of glowing purple crystal caves (Crystal Caves).  
+Then: Rolling flower meadows with floating lights (Mystic Meadows).
+Center: Dark iron mountains with glowing forges (Ironforge Mountains).
+Then: A murky dark swamp with twisted trees (Shadow Swamp).
+Then: Ancient stone ruins covered in vines and glowing symbols (Enchanted Ruins).
+Then: A floating castle in the clouds (Sky Citadel).
+Top-right: A massive volcanic peak with a dragon silhouette (Dragon's Peak).
+
+Each region is clearly distinct in color and theme. Small numbered waypoints (1-8) mark each area. 
+The path between regions has tiny footprints. Hand-drawn fantasy cartography style with decorative 
+compass rose in one corner. Parchment-tan color palette with vibrant color for each region.
+No text labels. No UI elements.
+Cartoon illustration for a children's fantasy game, bright colors, 1920×1080 landscape format, 
+no transparent background — full painted map filling the frame.
+```
+
+---
+
+## ZONE MAPS (8 images — one per world)
+
+Zone maps are scenic background images for each world. The game engine will overlay clickable stage icons on top — **the image should only contain the path and scenery, with NO circles, dots, nodes, markers, platforms, clearings, or landing spots.** Just a beautiful winding path through the environment.
+
+**Save as**: `/assets/maps/zone-{index}.png` (e.g. `zone-0.png`)
+
+---
+
+### Zone Map 0 — Emerald Forest
+```
+A wide scenic view of a magical forest with a winding dirt path traveling from the left edge 
+to the right edge of the image. The path weaves naturally between tall ancient trees draped 
+in glowing mushrooms. The left side is sunny and warmly lit. The right side gradually becomes 
+darker, more mysterious, and more overgrown — leading toward a dragon's den carved into a 
+mossy hillside on the far right. Fireflies and leaf particles float in the air. 
+Lush ferns and wildflowers border the path.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, bright warm greens and golds, 1920×1080 landscape 
+format. No text, no UI, no characters.
+```
+
+### Zone Map 1 — Crystal Caves
+```
+A wide scenic view inside a vast crystal cavern with a glowing crystal-lit path winding 
+from left to right. Purple and blue crystals of all sizes jut from the floor, walls, and 
+ceiling, casting prismatic light. Underground rivers shimmer with bioluminescence. 
+The path is a natural stone walkway illuminated by the crystal glow. The right end leads 
+toward a massive crystal throne formation. Stalactites and stalagmites frame the scene. 
+Sparkles and reflections fill the air.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, deep purples and blues with glowing highlights, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 2 — Mystic Meadows
+```
+A wide scenic view of enchanted rolling meadows with a flower-lined path meandering from 
+left to right across gentle hills. Giant dandelions, oversized mushrooms with glowing caps, 
+and floating pollen fill the landscape. Butterflies and tiny will-o-wisps hover everywhere. 
+The path is lined with colorful wildflowers. The far right features a grand rose-petal 
+archway resembling a butterfly palace entrance. Soft golden-hour sunlight. Dreamy atmosphere.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, pastels and warm golds, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 3 — Ironforge Mountains
+```
+A wide scenic view of a craggy mountain range with a stone-paved road carved into the 
+mountainside, winding from left to right. Dark gray rock with glowing orange lava veins 
+visible through cracks. Steam vents hiss along the route. Giant gears and mechanical 
+contraptions are built into the rock face. The path passes forge workshops and glowing 
+furnaces embedded in the cliffs. The far right features a massive iron gate with intense 
+forge-fire glow behind it. Heavy, industrial fantasy atmosphere.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, dark grays and oranges, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 4 — Shadow Swamp
+```
+A wide scenic view of a dark, misty swamp with a rickety wooden boardwalk winding from 
+left to right over murky water. Twisted mangrove trees with hanging moss arch over the 
+walkway. Glowing swamp gas bubbles rise from the dark water. Green-tinted fog hangs low. 
+Colorful but gross mushrooms grow on the posts and roots. The boardwalk gets more decayed 
+toward the right, ending at a large murky pool with suspicious ripples. 
+Eerie but not scary — more "spooky fun" vibes.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, dark greens and murky purples, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 5 — Enchanted Ruins
+```
+A wide scenic view of ancient crumbling stone ruins being reclaimed by a tropical jungle, 
+with a moss-covered stone pathway winding from left to right. Crumbling pillars, carved 
+walls, and broken archways line the path. Vines and exotic flowers grow over everything. 
+Glowing turquoise hieroglyphic symbols are carved into the standing stones. Ancient 
+fountains still trickle with glowing water. The far right features a grand sphinx-shaped 
+temple entrance with glowing turquoise eyes. Mystical atmosphere.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, tan stones and turquoise glows, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 6 — Sky Citadel
+```
+A wide scenic view of floating cloud islands and a sky castle, with a rainbow-bridge 
+pathway traveling from left to right across the sky, hopping between fluffy cloud islands. 
+Blue sky and golden sunbeams fill the background. Small floating stone towers and rope 
+bridges connect the islands. Birds soar and wind currents ripple the clouds. The far 
+right features a grand floating castle with book-shaped spires. Bright, airy, majestic.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, sky blues and cloud whites with golden accents, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+### Zone Map 7 — Dragon's Peak
+```
+A wide scenic view of a massive volcano's slopes with a treacherous obsidian path winding 
+from left to right toward the summit. Lava rivers flow in channels beside the path. Dark 
+volcanic rock with glowing red-orange cracks. Ash particles float in the air. The sky is 
+dark and dramatic with storm clouds and lightning. The far right features a massive dragon's 
+lair carved into the volcano caldera with golden treasure spilling from the entrance. 
+The most dramatic and intense environment — this is the endgame.
+DO NOT include any circles, dots, clearings, platforms, or markers anywhere in the image.
+Cartoon illustration, children's fantasy game, black rock with fiery oranges and dramatic reds, 
+1920×1080 landscape. No text, no UI, no characters.
+```
+
+---
+
+## AREA BACKGROUNDS (8 images — one per world)
+
+Shown behind the question card during regular practice/challenge stages. Each world has a distinct scenery background. Wide landscape format.
+
+**Save as**: `/assets/backgrounds/{name}.png`
+
+---
+
+### Background 0 — Emerald Forest (`forest.png`)
+```
+A bright, magical forest clearing. Tall ancient trees with thick trunks and lush canopies 
+filtering golden sunlight. Soft grass on the ground with tiny wildflowers. Glowing mushrooms 
+at the base of trees. Fireflies floating in the warm light. A small babbling brook in the 
+foreground. Gentle and welcoming — the "tutorial" environment. 
+Slightly blurred to serve as a background behind game UI.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, bright greens and warm golds. 
+No characters. No text.
+```
+
+### Background 1 — Crystal Caves (`crystal-caves.png`)
+```
+The interior of a vast crystal cavern. Enormous purple and blue crystal formations growing 
+from the floor, walls, and ceiling. The crystals glow with inner light, casting colorful 
+reflections on the wet cave walls. . 
+Stalactites. Beautiful and otherworldly. 
+Slightly blurred for use as a background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, deep purples and electric blues. 
+No characters. No text. Do not include a river or body of water. 
+```
+
+### Background 2 — Mystic Meadows (`mystic-meadows.png`)
+```
+A dreamy enchanted meadow at golden hour. Rolling hills covered in wildflowers of every color. 
+Giant dandelion puffs floating through the air. Oversized mushrooms with glowing caps. 
+Small fairy lights (will-o-wisps) hovering above the flowers. A rainbow arching faintly 
+in the distant sky. Butterflies everywhere. Soft, warm, magical atmosphere. 
+Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, pastels and warm sunset colors. 
+No characters. No text.
+```
+
+### Background 3 — Ironforge Mountains (`ironforge.png`)
+```
+A  mountain workshop interior/exterior. Dark craggy mountains with exposed 
+iron ore veins that glow orange. A  waterwheel and stone forge built into the 
+mountainside. Glowing molten metal rivers. Giant gears and mechanical contraptions. 
+Steam rising. An orange-lit sky with dark clouds. Industrial fantasy — dwarven forge 
+aesthetic but kid-friendly and colorful. Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, dark grays and molten oranges. 
+No characters. No text.
+```
+
+### Background 4 — Shadow Swamp (`shadow-swamp.png`)
+```
+A murky but colorful swamp scene. Dark water reflecting twisted tree silhouettes. 
+Mangrove roots arching out of the water. Hanging spanish moss and glowing swamp lanterns. 
+Colorful mushrooms and lily pads on the water. Green-purple fog hovering over the surface. 
+Fireflies and small bubbles rising from the water. Spooky-fun atmosphere — Halloween 
+without being scary. Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, dark greens and eerie purples. 
+No characters. No text.
+```
+
+### Background 5 — Enchanted Ruins (`enchanted-ruins.png`)
+```
+Ancient stone ruins being reclaimed by a tropical jungle. Crumbling pillars and carved 
+stone walls with glowing turquoise rune symbols. Vines and exotic flowers growing over 
+everything. A stone altar with a soft turquoise glow. Shafts of sunlight breaking through 
+the jungle canopy illuminating dust particles. Ancient and mystical. 
+Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, jungle greens and ancient tans 
+with turquoise magical accents. No characters. No text.
+```
+
+### Background 6 — Sky Citadel (`sky-citadel.png`)
+```
+A breathtaking view from a floating castle in the clouds. Fluffy white clouds at the same 
+level as the viewer. Distant floating islands visible. The golden-lit interior of a grand 
+library/castle hall with enormous bookshelves and floating books. Tall arched windows 
+showing the sky beyond. Warm sunbeams streaming through. Open, airy, majestic. 
+Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, sky blues and golden light. 
+No characters. No text.
+```
+
+### Background 7 — Dragon's Peak (`dragons-peak.png`)
+```
+The interior of a massive volcanic dragon's lair. Obsidian walls with veins of glowing 
+lava. Piles of golden treasure — coins, gems, goblets scattered around. A large stone 
+throne. Lava waterfalls in the background. The sky above the open caldera is dark with 
+storm clouds and lightning. Red-orange glow illuminating everything from below. 
+The most dramatic and intense environment. Slightly blurred for background.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape, black rock and fiery 
+oranges with dramatic lighting. No characters. No text.
+```
+
+---
+
+## BATTLE BACKGROUNDS (8 images — one per world)
+
+Shown behind the boss/mini-boss during boss fights. A boss character sprite will be composited on top of this image, so **the lower-center area must have a clear, flat ground or floor surface** where a creature could believably stand. The scenery should frame this standing area — environmental details around the edges and above, but the bottom-center should be an open, uncluttered ground plane. Both the mini-boss and world-boss in a given world share the same battle background.
+
+**Save as**: `/assets/backgrounds/battle-{index}.png` (e.g. `battle-0.png`)
+
+---
+
+### Battle Background 0 — Forest Arena
+```
+A forest battle scene viewed from a slight low angle. The bottom third of the image is a 
+flat, open dirt clearing — packed earth with a few scattered leaves, well-lit and uncluttered. 
+This is where a boss character will stand. Above and around the clearing, tall ancient trees 
+form a natural frame. Dramatic shafts of golden light break through the canopy from above. 
+Fireflies swirl in the air. The edges are darker, the center is brighter — spotlight effect.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 1 — Crystal Chamber
+```
+An underground crystal cavern battle scene. The bottom third is a flat polished crystal 
+floor — smooth, reflective, and uncluttered. This is where a boss character will stand. 
+Massive crystal pillars rise on either side. The ceiling above is covered in crystal 
+stalactites that glow intensely purple. Energy arcs between crystals in the upper area. 
+Reflective purple-blue lighting illuminates the floor from the crystals.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 2 — Meadow Ring
+```
+An enchanted meadow battle scene. The bottom third is a flat grassy clearing with short 
+grass and a few glowing flowers — open and uncluttered. This is where a boss character 
+will stand. Around the edges, oversized mushrooms and tall flowers form a natural ring 
+frame. Golden magical energy glows from the ground. Pollen and sparkles swirl in the air 
+above. Butterflies circle overhead. Intense but beautiful — a magical dueling ground.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 3 — Forge Arena
+```
+An iron forge battle scene. The bottom third is a flat circular stone platform — solid, 
+uncluttered rock surface. This is where a boss character will stand. Surrounding the 
+platform are rivers of molten lava. Giant gears and chains hang from above. Anvils and 
+hammers are mounted on the distant walls. Orange glow from the lava below lights everything 
+dramatically. Sparks fly and steam jets hiss from the edges.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 4 — Swamp Pool
+```
+A dark swamp battle scene. The bottom third is a raised muddy island — flat packed earth 
+rising above the waterline, open and uncluttered. This is where a boss character will stand. 
+Dark murky water surrounds the island on all sides. Twisted dead trees form a ring in the 
+background. Green fog rolls across the water surface. Eerie green-purple lighting from 
+bioluminescent algae below. Lily pads float on the water edges. Creepy-fun atmosphere.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 5 — Ruins Arena
+```
+A ruined stone temple battle scene. The bottom third is a flat stone floor with a carved 
+turquoise-glowing symbol pattern — an ancient summoning circle, open and uncluttered. 
+This is where a boss character will stand. Crumbling columns rise on either side. Jungle 
+vines break through the ceiling above, letting in dramatic light shafts. Floating 
+hieroglyphic symbols orbit slowly in the upper air. Ancient and mystical atmosphere.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 6 — Sky Platform
+```
+A floating sky battle scene. The bottom third is a flat circular stone platform with 
+ornate carvings — solid and uncluttered. This is where a boss character will stand. 
+Beyond the platform edges, there is nothing but open sky. Clouds swirl around the edges. 
+A dramatic sunset/sunrise sky fills the background — orange, pink, purple gradients. 
+Wind effects visible. Lightning flashes in distant clouds. Epic aerial arena.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```
+
+### Battle Background 7 — Volcanic Caldera
+```
+A volcanic summit battle scene. The bottom third is a flat stone platform — dark obsidian 
+rock with a few golden treasure pieces scattered at the very edges, but the center is open 
+and uncluttered. This is where a boss character will stand. Surrounding the platform is a 
+ring of lava. The caldera walls rise on all sides with lava waterfalls cascading down. 
+The sky above is dark and stormy with red lightning. Ash and embers rain from above. 
+The most dramatic, intense, final-boss-worthy arena.
+The ground area in the lower-center must be clear and flat for a character to stand on.
+Cartoon illustration, children's fantasy game, 1920×1080 landscape. No characters. No text.
+```

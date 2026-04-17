@@ -3,6 +3,7 @@ import { getTheme } from '../../data/themes';
 import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE, SHOP_NODE } from '../../data/mapConfig';
 import { XPBar } from '../ui/XPBar';
 import { HeartsBar } from '../ui/HeartsBar';
+import { CrystalTracker } from '../ui/CrystalTracker';
 
 export function WorldMap() {
   const {
@@ -38,17 +39,24 @@ export function WorldMap() {
           ← Profiles
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-amber-200/50 truncate">
-            {profile.name} · {theme.name}
-          </p>
           <XPBar
             xp={profile.stats.xp}
             xpToNext={profile.stats.xpToNextLevel}
             level={profile.stats.level}
+            name={profile.name}
+            equippedCosmetics={profile.equippedCosmetics ?? null}
           />
         </div>
         <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
+        <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
         <span className="text-yellow-400 text-sm font-bold shrink-0">🪙 {profile.stats.coins}</span>
+        <button
+          onClick={() => setScreen('inventory')}
+          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
+          title="Inventory"
+        >
+          🎒
+        </button>
         <button
           onClick={toggleMute}
           className="text-sm shrink-0 hover:opacity-80 transition-opacity"

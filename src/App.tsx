@@ -7,6 +7,8 @@ import { ZoneMap } from './components/game/ZoneMap';
 import { Stage } from './components/game/Stage';
 import { StageResultScreen } from './components/game/StageResultScreen';
 import { BossFight } from './components/game/BossFight';
+import { Shop } from './components/game/Shop';
+import { Inventory } from './components/game/Inventory';
 
 function App() {
   const screen = useGameStore((s) => s.screen);
@@ -26,6 +28,10 @@ function App() {
       return <StageResultScreen />;
     case 'boss-fight':
       return <BossFight />;
+    case 'shop':
+      return <Shop />;
+    case 'inventory':
+      return <Inventory />;
     case 'parent-dashboard':
       return <ParentDashboard />;
     default:

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { generateStageQuestions } from '../../engine/questions';
 import { starsFromAccuracy, xpForCorrectAnswer, applyXp } from '../../engine/progression';
@@ -6,6 +6,8 @@ import { getStory } from '../../data/stories';
 import { WORLDS } from '../../data/worlds';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
+import { CrystalTracker } from '../ui/CrystalTracker';
+import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 
 export function Stage() {
@@ -32,6 +34,12 @@ export function Stage() {
   const stageDef = world?.stages[currentStageIndex];
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
+  // Use a ref to avoid the completion effect depending on activeProfile directly
+  const profileRef = useRef(activeProfile);
+  useEffect(() => {
+    profileRef.current = activeProfile;
+  }, [activeProfile]);
+
   // Stage intro story
   const stageStory = getStory('stage-intro', currentWorldIndex, currentStageIndex);
   const [showStory, setShowStory] = useState(!!stageStory);
@@ -48,15 +56,24 @@ export function Stage() {
   const totalQuestions = questions.length;
   const isComplete = currentQuestionIndex >= totalQuestions && totalQuestions > 0;
 
+  // Prevent double-firing of the completion effect
+  const completedRef = useRef(false);
+
   // Handle stage completion
   useEffect(() => {
-    if (!isComplete || !stageDef || !activeProfile) return;
+    if (!isComplete || completedRef.current) return;
+    const profile = profileRef.current;
+    if (!stageDef || !profile) return;
+
+    completedRef.current = true;
 
     const accuracy = totalQuestions > 0 ? correctCount / totalQuestions : 0;
     const stars = starsFromAccuracy(accuracy);
     const timeSpent = Date.now() - stageStartTime;
+    const passed = accuracy >= stageDef.requiredAccuracy;
 
     const result = {
+      profileId: profile.id,
       worldIndex: currentWorldIndex,
       stageIndex: currentStageIndex,
       correct: correctCount,
@@ -72,17 +89,27 @@ export function Stage() {
     // Apply XP (use average streak for bonus — simplified)
     const avgStreak = correctCount > 0 ? Math.floor(correctCount / 2) : 0;
     const xpEarned = correctCount * xpForCorrectAnswer(avgStreak, stageDef.tier);
-    const updatedStats = applyXp(activeProfile.stats, xpEarned);
+    const updatedStats = applyXp(profile.stats, xpEarned);
     updatedStats.totalCorrect += correctCount;
     updatedStats.totalAttempts += totalQuestions;
 
-    updateProfile(activeProfile.id, { stats: updatedStats });
+    // Update stats AND advance stage progress in one call
+    const profileUpdates: Record<string, unknown> = { stats: updatedStats };
+    if (passed) {
+      const nextStage = currentStageIndex + 1;
+      if (
+        nextStage > (profile.currentStage ?? 0) &&
+        currentWorldIndex === (profile.currentWorld ?? 0)
+      ) {
+        profileUpdates.currentStage = nextStage;
+      }
+    }
 
+    updateProfile(profile.id, profileUpdates);
     setScreen('stage-result');
   }, [
     isComplete,
     stageDef,
-    activeProfile,
     currentWorldIndex,
     currentStageIndex,
     correctCount,
@@ -127,9 +154,22 @@ export function Stage() {
     >
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-15"
-        style={{ backgroundImage: `url(${world?.background ?? ''})` }}
+        className="absolute inset-0 bg-cover bg-center opacity-30"
+        style={{ backgroundImage: `url("${encodeURI(world?.background ?? '')}")` }}
       />
+
+      {/* Player avatar — bottom left corner, large */}
+      {activeProfile && (
+        <div className="absolute bottom-4 left-2 z-20">
+          <AvatarDisplay
+            avatarId={activeProfile.avatarId ?? null}
+            name={activeProfile.name}
+            equippedCosmetics={activeProfile.equippedCosmetics ?? null}
+            sidekick={activeProfile.activeSidekick ?? null}
+            collectedCrystals={activeProfile.collectedCrystals ?? []}
+          />
+        </div>
+      )}
       <div className="relative z-10 flex flex-col flex-1">
       {/* Top bar */}
       <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
@@ -154,13 +194,17 @@ export function Stage() {
           {currentQuestionIndex + 1}/{totalQuestions}
         </span>
         {activeProfile && (
-          <HeartsBar current={activeProfile.stats.hp} max={activeProfile.stats.maxHp} size="sm" />
+          <>
+            <HeartsBar current={activeProfile.stats.hp} max={activeProfile.stats.maxHp} size="sm" />
+            <CrystalTracker collectedCrystals={activeProfile.collectedCrystals ?? []} size="sm" />
+          </>
         )}
       </header>
 
       {/* Question area */}
       <main className="flex-1 flex items-center justify-center p-6">
         <QuestionCard
+          key={currentQuestion.id}
           question={currentQuestion}
           onAnswer={handleAnswer}
           streak={streak}

@@ -6,7 +6,7 @@ import { getCosmetic } from '../../data/cosmetics';
 import { STARTER_AVATARS } from '../../data/avatars';
 
 export function ProfileSelect() {
-  const { profiles, setActiveProfile, setScreen, addProfile, deleteProfile, createTestProfile, setUid, uid } = useGameStore();
+  const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile, setUid, uid } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [step, setStep] = useState<'name' | 'avatar'>('name');
@@ -14,6 +14,21 @@ export function ProfileSelect() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const handleSelectProfile = (id: string) => {
+    // Retroactively grant world background cosmetics for completed worlds
+    const profile = profiles.find((p) => p.id === id);
+    if (profile) {
+      const owned = new Set(profile.purchasedCosmetics ?? []);
+      const toGrant: string[] = [];
+      for (let w = 0; w < profile.currentWorld; w++) {
+        const bgId = `bg-world-${w}`;
+        if (!owned.has(bgId)) toGrant.push(bgId);
+      }
+      if (toGrant.length > 0) {
+        updateProfile(id, {
+          purchasedCosmetics: [...(profile.purchasedCosmetics ?? []), ...toGrant],
+        });
+      }
+    }
     setActiveProfile(id);
     setScreen('world-map');
   };

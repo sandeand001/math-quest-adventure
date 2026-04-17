@@ -112,7 +112,7 @@ function PinPad({
 }
 
 export function ProfileSelect() {
-  const { profiles, setActiveProfile, setScreen, addProfile, deleteProfile, createTestProfile } = useGameStore();
+  const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [step, setStep] = useState<'name' | 'avatar' | 'pin-create' | 'pin-confirm'>('name');
@@ -122,6 +122,8 @@ export function ProfileSelect() {
 
   // Per-profile PIN entry state
   const [pinPromptId, setPinPromptId] = useState<string | null>(null);
+  const [pinMode, setPinMode] = useState<'enter' | 'setup' | 'setup-confirm'>('enter');
+  const [setupPin, setSetupPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [pinKey, setPinKey] = useState(0); // key to force PinPad remount on error
 
@@ -129,13 +131,46 @@ export function ProfileSelect() {
     const profile = profiles.find((p) => p.id === id);
     if (!profile) return;
     setPinPromptId(id);
+    // If profile has no PIN (legacy profile), prompt to create one
+    if (!profile.pin) {
+      setPinMode('setup');
+    } else {
+      setPinMode('enter');
+    }
     setPinError('');
+    setSetupPin('');
     setPinKey((k) => k + 1);
   };
 
   const handlePinSubmit = (pin: string) => {
     const profile = profiles.find((p) => p.id === pinPromptId);
     if (!profile) return;
+
+    if (pinMode === 'setup') {
+      // First entry — save and ask to confirm
+      setSetupPin(pin);
+      setPinMode('setup-confirm');
+      setPinKey((k) => k + 1);
+      return;
+    }
+
+    if (pinMode === 'setup-confirm') {
+      if (pin === setupPin) {
+        // Save PIN to profile and enter
+        updateProfile(profile.id, { pin });
+        setPinPromptId(null);
+        setActiveProfile(profile.id);
+        setScreen('world-map');
+      } else {
+        setPinError('PINs don\u2019t match \u2014 try again');
+        setSetupPin('');
+        setPinMode('setup');
+        setPinKey((k) => k + 1);
+      }
+      return;
+    }
+
+    // Normal PIN entry
     if (pin === profile.pin) {
       setPinPromptId(null);
       setActiveProfile(profile.id);
@@ -435,19 +470,31 @@ export function ProfileSelect() {
       </div>
 
       {/* PIN prompt modal */}
-      {pinPromptId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-          <div className="bg-indigo-950 border border-indigo-800/50 rounded-2xl p-6 max-w-xs w-full space-y-4">
-            <PinPad
-              key={pinKey}
-              title={`Enter PIN for ${profiles.find((p) => p.id === pinPromptId)?.name ?? 'Player'}`}
-              subtitle={pinError || 'Enter your 4-digit PIN'}
-              onComplete={handlePinSubmit}
-              onBack={() => setPinPromptId(null)}
-            />
+      {pinPromptId && (() => {
+        const promptName = profiles.find((p) => p.id === pinPromptId)?.name ?? 'Player';
+        const pinTitle =
+          pinMode === 'setup' ? `Create a PIN for ${promptName}`
+          : pinMode === 'setup-confirm' ? 'Confirm Your PIN'
+          : `Enter PIN for ${promptName}`;
+        const pinSubtitle =
+          pinError
+          || (pinMode === 'setup' ? 'Set a 4-digit PIN to protect this profile'
+            : pinMode === 'setup-confirm' ? 'Enter the same PIN again'
+            : 'Enter your 4-digit PIN');
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+            <div className="bg-indigo-950 border border-indigo-800/50 rounded-2xl p-6 max-w-xs w-full space-y-4">
+              <PinPad
+                key={pinKey}
+                title={pinTitle}
+                subtitle={pinSubtitle}
+                onComplete={handlePinSubmit}
+                onBack={() => setPinPromptId(null)}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Delete confirmation modal */}
       {confirmDeleteId && (

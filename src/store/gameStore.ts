@@ -110,7 +110,6 @@ export const useGameStore = create<GameState>()(
         const profile: ChildProfile = {
           id: generateId(),
           name,
-          avatarUrl: '',
           avatarId: avatarId ?? null,
           equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
           purchasedAvatars: [],
@@ -314,7 +313,6 @@ export const useGameStore = create<GameState>()(
           const testProfile: ChildProfile = {
             id: `test-${Date.now()}`,
             name: '🧪 Test User',
-            avatarUrl: '',
             avatarId: 'starting-male',
             equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
             purchasedAvatars: premiumAvatarIds,

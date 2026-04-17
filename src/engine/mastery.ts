@@ -17,6 +17,7 @@ export function newSkillMastery(skillId: string): SkillMastery {
     level: 'learning',
     lastSeen: Date.now(),
     nextReview: 0,
+    recentResults: [],
   };
 }
 
@@ -39,6 +40,10 @@ export function updateMastery(
     updated.streak = 0;
   }
 
+  // Maintain rolling window (migrate legacy records that lack the field)
+  const recent = [...(mastery.recentResults ?? []), isCorrect];
+  updated.recentResults = recent.length > WINDOW_SIZE ? recent.slice(-WINDOW_SIZE) : recent;
+
   // Recalculate level
   updated.level = calculateLevel(updated);
 
@@ -50,29 +55,33 @@ export function updateMastery(
   return updated;
 }
 
+function recentAccuracy(mastery: SkillMastery): number {
+  const recent = mastery.recentResults ?? [];
+  if (recent.length === 0) {
+    return mastery.attempts > 0 ? mastery.correct / mastery.attempts : 0;
+  }
+  return recent.filter(Boolean).length / recent.length;
+}
+
 function calculateLevel(mastery: SkillMastery): MasteryLevel {
   if (mastery.attempts < 5) return 'learning';
 
-  const recentWindow = Math.min(mastery.attempts, WINDOW_SIZE);
-  // Approximate recent accuracy from overall stats
-  // (In production, we'd track a rolling window — this is a simplification)
-  const accuracy = mastery.correct / mastery.attempts;
+  const accuracy = recentAccuracy(mastery);
+  const windowFull = (mastery.recentResults ?? []).length >= WINDOW_SIZE;
 
   if (mastery.level === 'mastered') {
-    // Check for regression using a smaller window
-    const regressionWindow = Math.min(mastery.attempts, REGRESSION_WINDOW);
-    const recentAccuracy = mastery.correct / mastery.attempts;
-    if (regressionWindow >= REGRESSION_WINDOW && recentAccuracy < REGRESSION_THRESHOLD) {
-      return 'practicing';
+    // Check for regression using recent results
+    if ((mastery.recentResults ?? []).length >= REGRESSION_WINDOW) {
+      const tail = (mastery.recentResults ?? []).slice(-REGRESSION_WINDOW);
+      const tailAcc = tail.filter(Boolean).length / tail.length;
+      if (tailAcc < REGRESSION_THRESHOLD) {
+        return 'practicing';
+      }
     }
     return 'mastered';
   }
 
-  if (
-    accuracy >= MASTER_THRESHOLD &&
-    recentWindow >= WINDOW_SIZE &&
-    mastery.bestStreak >= 5
-  ) {
+  if (accuracy >= MASTER_THRESHOLD && windowFull && mastery.bestStreak >= 5) {
     return 'mastered';
   }
 

@@ -52,6 +52,7 @@ export interface SkillMastery {
   level: MasteryLevel;
   lastSeen: number;     // timestamp
   nextReview: number;   // timestamp
+  recentResults: boolean[];  // rolling window of last N results (true = correct)
 }
 
 // ── World / Stage ───────────────────────────────────────────────────
@@ -189,7 +190,6 @@ export interface PlayerStats {
 export interface ChildProfile {
   id: string;
   name: string;
-  avatarUrl: string;
   avatarId: AvatarId | null;
   equippedCosmetics: EquippedCosmetics;
   purchasedAvatars: AvatarId[];
@@ -207,7 +207,7 @@ export interface ChildProfile {
 
 // ── Adventure Themes ────────────────────────────────────────────────
 
-export type ThemeId = 'fantasy' | 'space' | 'ocean' | 'jungle';
+export type ThemeId = 'fantasy';
 
 export interface ThemeDefinition {
   id: ThemeId;

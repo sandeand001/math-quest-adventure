@@ -1,42 +1,65 @@
+import { lazy, Suspense } from 'react';
 import { useGameStore } from './store/gameStore';
-import { LoginScreen } from './components/auth/LoginScreen';
-import { ProfileSelect } from './components/auth/ProfileSelect';
-import { ParentDashboard } from './components/auth/ParentDashboard';
-import { WorldMap } from './components/game/WorldMap';
-import { ZoneMap } from './components/game/ZoneMap';
-import { Stage } from './components/game/Stage';
-import { StageResultScreen } from './components/game/StageResultScreen';
-import { BossFight } from './components/game/BossFight';
-import { Shop } from './components/game/Shop';
-import { Inventory } from './components/game/Inventory';
+
+const LoginScreen = lazy(() => import('./components/auth/LoginScreen').then((m) => ({ default: m.LoginScreen })));
+const ProfileSelect = lazy(() => import('./components/auth/ProfileSelect').then((m) => ({ default: m.ProfileSelect })));
+const ParentDashboard = lazy(() => import('./components/auth/ParentDashboard').then((m) => ({ default: m.ParentDashboard })));
+const WorldMap = lazy(() => import('./components/game/WorldMap').then((m) => ({ default: m.WorldMap })));
+const ZoneMap = lazy(() => import('./components/game/ZoneMap').then((m) => ({ default: m.ZoneMap })));
+const Stage = lazy(() => import('./components/game/Stage').then((m) => ({ default: m.Stage })));
+const StageResultScreen = lazy(() => import('./components/game/StageResultScreen').then((m) => ({ default: m.StageResultScreen })));
+const BossFight = lazy(() => import('./components/game/BossFight').then((m) => ({ default: m.BossFight })));
+const Shop = lazy(() => import('./components/game/Shop').then((m) => ({ default: m.Shop })));
+const Inventory = lazy(() => import('./components/game/Inventory').then((m) => ({ default: m.Inventory })));
+
+function ScreenLoader() {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="text-indigo-400 text-lg animate-pulse">Loading…</div>
+    </div>
+  );
+}
 
 function App() {
   const screen = useGameStore((s) => s.screen);
 
+  let content;
   switch (screen) {
     case 'auth':
-      return <LoginScreen />;
+      content = <LoginScreen />;
+      break;
     case 'profile-select':
-      return <ProfileSelect />;
+      content = <ProfileSelect />;
+      break;
     case 'world-map':
-      return <WorldMap />;
+      content = <WorldMap />;
+      break;
     case 'zone-map':
-      return <ZoneMap />;
+      content = <ZoneMap />;
+      break;
     case 'stage':
-      return <Stage />;
+      content = <Stage />;
+      break;
     case 'stage-result':
-      return <StageResultScreen />;
+      content = <StageResultScreen />;
+      break;
     case 'boss-fight':
-      return <BossFight />;
+      content = <BossFight />;
+      break;
     case 'shop':
-      return <Shop />;
+      content = <Shop />;
+      break;
     case 'inventory':
-      return <Inventory />;
+      content = <Inventory />;
+      break;
     case 'parent-dashboard':
-      return <ParentDashboard />;
+      content = <ParentDashboard />;
+      break;
     default:
-      return <LoginScreen />;
+      content = <LoginScreen />;
   }
+
+  return <Suspense fallback={<ScreenLoader />}>{content}</Suspense>;
 }
 
 export default App;

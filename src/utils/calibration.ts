@@ -55,6 +55,7 @@ export const WORLD_NAMES = [
 export function processOverworldCalibration(
   points: { top: number; left: number }[],
 ): void {
+  if (!import.meta.env.DEV) return;
   console.log('\n✅ OVERWORLD CALIBRATION COMPLETE — Copy into mapConfig.ts:\n');
   console.log('Corners:', JSON.stringify(points.slice(0, 4), null, 2));
   const locations = points.slice(4, 12);
@@ -89,6 +90,7 @@ export function processZoneCalibration(
   points: { top: number; left: number }[],
   stages: { type: string }[],
 ): void {
+  if (!import.meta.env.DEV) return;
   console.log(`\n✅ ZONE ${worldIndex} CALIBRATION COMPLETE:\n`);
   console.log(`// World ${worldIndex}: ${worldName}`);
   console.log('nodes: [');

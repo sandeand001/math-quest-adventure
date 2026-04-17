@@ -16,6 +16,7 @@ describe('newSkillMastery', () => {
     expect(m.attempts).toBe(0);
     expect(m.streak).toBe(0);
     expect(m.bestStreak).toBe(0);
+    expect(m.recentResults).toEqual([]);
   });
 });
 

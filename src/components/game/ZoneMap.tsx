@@ -86,10 +86,10 @@ export function ZoneMap() {
     const point = { top, left };
     const newPoints = [...calibrationPoints, point];
     setCalibrationPoints(newPoints);
-    console.log(`${STAGE_LABELS[calibrationStep]} → top: ${top}%, left: ${left}%`);
+    if (import.meta.env.DEV) console.log(`${STAGE_LABELS[calibrationStep]} → top: ${top}%, left: ${left}%`);
     const next = calibrationStep + 1;
     setCalibrationStep(next);
-    if (next === STAGE_LABELS.length) {
+    if (next === STAGE_LABELS.length && import.meta.env.DEV) {
       console.log(`\n✅ ZONE ${currentWorldIndex} CALIBRATION COMPLETE:\n`);
       console.log(`// World ${currentWorldIndex}: ${worldName}`);
       console.log('nodes: [');

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { AVATARS } from '../../data/avatars';
-import { COSMETICS, getCosmeticsByCategory } from '../../data/cosmetics';
+import { COSMETICS, getCosmeticsByCategory, isCosmeticUnlocked } from '../../data/cosmetics';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { AvatarGalleryPicker } from '../ui/AvatarGalleryPicker';
 import { SidekickPicker } from '../ui/SidekickPicker';
@@ -103,6 +103,12 @@ export function Shop() {
       const isEquipped = profile.equippedCosmetics?.[equipKey] === itemId;
       equipCosmetic(profile.id, equipKey, isEquipped ? null : itemId);
       showMessage(isEquipped ? `Unequipped ${item.name}` : `Equipped ${item.name}!`);
+      return;
+    }
+
+    // Check unlock condition
+    if (!isCosmeticUnlocked(item, profile)) {
+      showMessage(`🔒 ${item.name} is locked!`);
       return;
     }
 
@@ -208,22 +214,25 @@ export function Shop() {
                   const owned = profile.purchasedCosmetics?.includes(item.id);
                   const equipKey = EQUIP_KEY_MAP[item.category];
                   const equipped = equipKey ? profile.equippedCosmetics?.[equipKey] === item.id : false;
+                  const unlocked = isCosmeticUnlocked(item, profile);
                   const canAfford = profile.stats.coins >= item.cost;
 
                   return (
                     <button
                       key={item.id}
                       onClick={() => handleBuyCosmetic(item.id)}
-                      disabled={!owned && !canAfford}
+                      disabled={!owned && (!unlocked || !canAfford)}
                       className={`
                         w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left
                         ${equipped
                           ? 'bg-indigo-700/60 ring-1 ring-yellow-400'
                           : owned
                             ? 'bg-indigo-900/40 hover:bg-indigo-800/60'
-                            : canAfford
-                              ? 'bg-indigo-900/30 hover:bg-indigo-800/50'
-                              : 'bg-indigo-950/30 opacity-50 cursor-not-allowed'}
+                            : !unlocked
+                              ? 'bg-indigo-950/30 opacity-50 cursor-not-allowed'
+                              : canAfford
+                                ? 'bg-indigo-900/30 hover:bg-indigo-800/50'
+                                : 'bg-indigo-950/30 opacity-50 cursor-not-allowed'}
                       `}
                     >
                       {/* Preview swatch for backgrounds */}
@@ -262,6 +271,8 @@ export function Shop() {
                           <span className={`text-xs font-bold ${equipped ? 'text-yellow-400' : 'text-green-400'}`}>
                             {equipped ? 'Equipped' : 'Owned'}
                           </span>
+                        ) : !unlocked ? (
+                          <span className="text-xs font-bold text-gray-500">🔒 Locked</span>
                         ) : (
                           <span className="text-xs font-bold text-yellow-400">{item.cost} 🪙</span>
                         )}

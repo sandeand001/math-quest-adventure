@@ -6,14 +6,16 @@ import { WORLDS } from '../../data/worlds';
 import { getCrystalForWorld } from '../../data/crystals';
 import { getAvatarsUnlockedAtWorld } from '../../data/avatars';
 import { SIDEKICKS } from '../../data/sidekicks';
-import { getStory } from '../../data/stories';
+import { getStory, getStories } from '../../data/stories';
 import { xpForCorrectAnswer, applyXp, coinsForBossDefeat } from '../../engine/progression';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
 import { CrystalTracker } from '../ui/CrystalTracker';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
-import { Howl } from 'howler';
+import { AchievementToast } from '../ui/AchievementToast';
+import { playSfx as playCachedSfx } from '../../services/soundManager';
+import { checkAchievements } from '../../engine/achievements';
 
 type BossPose = 'base-position' | 'attack-position' | 'hit-position' | 'defeated-position';
 
@@ -76,6 +78,10 @@ export function BossFight() {
   // Queued post-victory dialogs (shown one at a time, in order)
   const [pendingDialogs, setPendingDialogs] = useState<import('../../data/stories').StoryEntry[]>([]);
 
+  // Achievement tracking
+  const [bossAchievements, setBossAchievements] = useState<string[]>([]);
+  const [toastIndex, setToastIndex] = useState(0);
+
   const dismissCurrentDialog = () => {
     setPendingDialogs((prev) => prev.slice(1));
   };
@@ -96,7 +102,7 @@ export function BossFight() {
     (action: 'attack' | 'hit' | 'victory') => {
       if (muted) return;
       const src = getBossSfx(boss, action);
-      new Howl({ src: [src], volume: 0.5 }).play();
+      playCachedSfx(src);
     },
     [boss, muted],
   );
@@ -196,10 +202,22 @@ export function BossFight() {
           }
         }
 
+        // Queue world-complete dialogs (final-world ending sequence)
+        if (isBossFight) {
+          const worldCompleteStories = getStories('world-complete', currentWorldIndex);
+          queuedDialogs.push(...worldCompleteStories);
+        }
+
         // Set all queued dialogs
         if (queuedDialogs.length > 0) {
           setPendingDialogs(queuedDialogs);
         }
+
+        // Check achievements after boss rewards are applied
+        // Use setTimeout to let store updates settle
+        setTimeout(() => {
+          setBossAchievements(checkAchievements());
+        }, 0);
       }
     } else if (playerHp <= 0) {
       // Defeat
@@ -470,6 +488,13 @@ export function BossFight() {
           key={pendingDialogs[0].speaker + '-' + pendingDialogs[0].lines[0]?.slice(0, 20)}
           story={pendingDialogs[0]}
           onComplete={dismissCurrentDialog}
+        />
+      )}
+      {bossAchievements.length > 0 && toastIndex < bossAchievements.length && (
+        <AchievementToast
+          key={bossAchievements[toastIndex]}
+          achievementId={bossAchievements[toastIndex]}
+          onDone={() => setToastIndex((i) => i + 1)}
         />
       )}
     </div>

@@ -1,4 +1,37 @@
 import type { CosmeticItem } from '../types';
+import { CRYSTALS } from './crystals';
+
+/** Check whether a cosmetic's unlock condition is satisfied for a given profile. */
+export function isCosmeticUnlocked(
+  item: CosmeticItem,
+  profile: { currentWorld: number; collectedCrystals?: string[] },
+): boolean {
+  if (!item.unlockCondition) return true;
+
+  const cond = item.unlockCondition;
+
+  // 'beat-world-N' → player must have beaten that world's boss
+  const worldMatch = cond.match(/^beat-world-(\d+)$/);
+  if (worldMatch) {
+    const worldIndex = parseInt(worldMatch[1], 10);
+    // Beating a world boss either advances currentWorld or collects the crystal (final world)
+    const crystal = CRYSTALS.find((c) => c.worldIndex === worldIndex);
+    return (
+      profile.currentWorld > worldIndex ||
+      (!!crystal && (profile.collectedCrystals ?? []).includes(crystal.id))
+    );
+  }
+
+  // 'defeat-archimedes' → beat world 7 boss
+  if (cond === 'defeat-archimedes') {
+    return (
+      profile.currentWorld > 7 ||
+      (profile.collectedCrystals ?? []).includes('crystal-champions')
+    );
+  }
+
+  return false;
+}
 
 export const COSMETICS: CosmeticItem[] = [
   // ── Nameplates (border/frame around name) ──

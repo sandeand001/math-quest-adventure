@@ -801,3 +801,17 @@ export function getStory(
       (stageIndex === undefined || s.stageIndex === undefined || s.stageIndex === stageIndex),
   );
 }
+
+/** Look up all matching story entries (e.g. multiple world-complete dialogs). */
+export function getStories(
+  trigger: StoryEntry['trigger'],
+  worldIndex: number,
+  stageIndex?: number,
+): StoryEntry[] {
+  return FANTASY_STORY.filter(
+    (s) =>
+      s.trigger === trigger &&
+      s.worldIndex === worldIndex &&
+      (stageIndex === undefined || s.stageIndex === undefined || s.stageIndex === stageIndex),
+  );
+}

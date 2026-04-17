@@ -72,7 +72,7 @@ export function ProfileSelect() {
               <div
                 key={profile.id}
                 className={`
-                  w-full relative overflow-hidden rounded-2xl border border-indigo-800/40
+                  w-full relative rounded-2xl border border-indigo-800/40
                   ${profileBgClass ? '' : 'bg-indigo-950/60'}
                   hover:border-indigo-600 transition-all
                 `}
@@ -82,12 +82,12 @@ export function ProfileSelect() {
                   <img
                     src={profileBgImage}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
+                    className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none rounded-2xl"
                   />
                 )}
                 {/* Background fill — gradient */}
                 {profileBgClass && !profileBgImage && (
-                  <div className={`absolute inset-0 ${profileBgClass} opacity-50 pointer-events-none`} />
+                  <div className={`absolute inset-0 ${profileBgClass} opacity-50 pointer-events-none rounded-2xl`} />
                 )}
 
                 {/* Primary action: select this profile */}

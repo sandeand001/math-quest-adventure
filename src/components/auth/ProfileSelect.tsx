@@ -264,7 +264,10 @@ export function ProfileSelect() {
             </button>
           )}
           <button
-            onClick={() => {
+            onClick={async () => {
+              const { auth } = await import('../../firebase/config');
+              const { signOut } = await import('firebase/auth');
+              await signOut(auth);
               setUid(null);
               setScreen('login');
             }}

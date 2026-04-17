@@ -13,6 +13,8 @@ export function ProfileSelect() {
   const [selectedAvatarId, setSelectedAvatarId] = useState<AvatarId | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  if (import.meta.env.DEV) console.log('ProfileSelect uid:', uid);
+
   const handleSelectProfile = (id: string) => {
     // Retroactively grant world background cosmetics for completed worlds
     const profile = profiles.find((p) => p.id === id);
@@ -94,7 +96,7 @@ export function ProfileSelect() {
                   onClick={() => handleSelectProfile(profile.id)}
                   aria-label={`Play as ${profile.name}`}
                   className="
-                    w-full flex flex-col items-center gap-2 p-6 text-center
+                    w-full flex flex-col items-center gap-3 p-8 pb-10 text-center
                     hover:bg-indigo-900/40 transition-all active:scale-[0.98]
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
                     rounded-2xl relative z-10

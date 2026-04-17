@@ -24,8 +24,6 @@ export type GameGet = () => GameState;
 export interface CoreSlice {
   screen: GameScreen;
   setScreen: (screen: GameScreen) => void;
-  pin: string | null;
-  setPin: (pin: string) => void;
   muted: boolean;
   toggleMute: () => void;
 }
@@ -37,7 +35,7 @@ export interface ProfileSlice {
   activeProfileId: string | null;
   setProfiles: (profiles: ChildProfile[]) => void;
   setActiveProfile: (id: string) => void;
-  addProfile: (name: string, theme: ThemeId, avatarId?: AvatarId) => ChildProfile;
+  addProfile: (name: string, theme: ThemeId, avatarId?: AvatarId, pin?: string) => ChildProfile;
   updateProfile: (id: string, updates: Partial<ChildProfile>) => void;
   unlockSidekick: (profileId: string, sidekickId: SidekickId) => void;
   setActiveSidekick: (profileId: string, sidekickId: SidekickId | null) => void;

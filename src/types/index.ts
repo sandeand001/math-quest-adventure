@@ -190,6 +190,7 @@ export interface PlayerStats {
 export interface ChildProfile {
   id: string;
   name: string;
+  pin: string;
   avatarId: AvatarId | null;
   equippedCosmetics: EquippedCosmetics;
   purchasedAvatars: AvatarId[];
@@ -234,7 +235,6 @@ export interface StageResult {  profileId: string;  worldIndex: number;
 // ── Game Session State ──────────────────────────────────────────────
 
 export type GameScreen =
-  | 'pin'
   | 'profile-select'
   | 'world-map'
   | 'zone-map'

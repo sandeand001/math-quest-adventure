@@ -12,11 +12,9 @@ export type { GameState } from './sliceTypes';
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
-      // ── Core (navigation / audio / pin) ──
-      screen: 'pin' as GameScreen,
+      // ── Core (navigation / audio) ──
+      screen: 'profile-select' as GameScreen,
       setScreen: (screen) => set({ screen }),
-      pin: null,
-      setPin: (pin) => set({ pin }),
       muted: false,
       toggleMute: () => set((state) => ({ muted: !state.muted })),
 
@@ -29,7 +27,6 @@ export const useGameStore = create<GameState>()(
     {
       name: 'mathquest-game',
       partialize: (state) => ({
-        pin: state.pin,
         profiles: state.profiles,
         activeProfileId: state.activeProfileId,
         stageResults: state.stageResults,
@@ -37,10 +34,6 @@ export const useGameStore = create<GameState>()(
         unlockedAchievements: state.unlockedAchievements,
         muted: state.muted,
       }),
-      // Always start at the PIN screen on app load, regardless of persisted screen
-      onRehydrateStorage: () => (state) => {
-        if (state) state.screen = 'pin';
-      },
     },
   ),
 );

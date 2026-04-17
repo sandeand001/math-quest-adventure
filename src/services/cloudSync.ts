@@ -1,6 +1,11 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import { useGameStore } from '../store/gameStore';
+
+/** Check if Firebase Auth has a valid session (not just a persisted uid). */
+function isAuthenticated(): boolean {
+  return auth.currentUser !== null;
+}
 
 /** The shape of data we sync to Firestore (matches the partialize config). */
 interface SyncPayload {
@@ -19,6 +24,7 @@ function getDocRef(uid: string) {
 
 /** Pull cloud data and merge into the store. Cloud wins on conflict. */
 export async function pullFromCloud(uid: string): Promise<void> {
+  if (!isAuthenticated()) return;
   try {
     const snap = await getDoc(getDocRef(uid));
     if (snap.exists()) {
@@ -49,6 +55,7 @@ export async function pullFromCloud(uid: string): Promise<void> {
 
 /** Push current store state to Firestore. */
 export async function pushToCloud(uid: string): Promise<void> {
+  if (!isAuthenticated()) return;
   try {
     const state = useGameStore.getState();
     const payload: SyncPayload = {

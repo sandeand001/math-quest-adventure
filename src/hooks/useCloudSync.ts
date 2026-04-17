@@ -15,6 +15,11 @@ export function useCloudSync() {
   const unlockedAchievements = useGameStore((s) => s.unlockedAchievements);
   const hasPulled = useRef(false);
 
+  // Reset pull flag when user changes (sign out → sign in as different user)
+  useEffect(() => {
+    if (!uid) hasPulled.current = false;
+  }, [uid]);
+
   // Pull from cloud on first login
   useEffect(() => {
     if (!uid || hasPulled.current) return;

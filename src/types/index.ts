@@ -234,6 +234,7 @@ export interface StageResult {  profileId: string;  worldIndex: number;
 // ── Game Session State ──────────────────────────────────────────────
 
 export type GameScreen =
+  | 'pin'
   | 'profile-select'
   | 'world-map'
   | 'zone-map'

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 
 async function loadFirebaseAuth() {
@@ -16,21 +16,6 @@ export function ParentLoginScreen() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Listen for auth state changes (handles redirect result + persisted sessions)
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    (async () => {
-      const { auth, onAuthStateChanged } = await loadFirebaseAuth();
-      unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setUid(user.uid);
-          setScreen('profile-select');
-        }
-      });
-    })();
-    return () => unsubscribe?.();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,13 +41,15 @@ export function ParentLoginScreen() {
     setError('');
     setLoading(true);
     try {
-      const { auth, signInWithRedirect, GoogleAuthProvider } = await loadFirebaseAuth();
-      await signInWithRedirect(auth, new GoogleAuthProvider());
-      // Page will redirect — no need to handle result here
+      const { auth, signInWithPopup, GoogleAuthProvider } = await loadFirebaseAuth();
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+      setUid(cred.user.uid);
+      setScreen('profile-select');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message.replace('Firebase: ', ''));
       }
+    } finally {
       setLoading(false);
     }
   };

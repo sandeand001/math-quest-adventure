@@ -130,8 +130,8 @@ export function AvatarDisplay({
 
   return (
     <div className={`relative inline-flex flex-col items-center ${className}`}>
-      {/* Avatar + sidekick row */}
-      <div className="relative flex items-end">
+      {/* Avatar + sidekick */}
+      <div className="relative">
         {/* Avatar container */}
         <div
           className={`relative flex items-center justify-center ${bgClass && !bgImageUrl ? 'rounded-xl overflow-hidden' : ''}`}
@@ -210,15 +210,14 @@ export function AvatarDisplay({
           <img
             src={`${sidekickDef.spritePath}/base-position.png`}
             alt={sidekickDef.name}
-            className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+            className="absolute drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
             style={{
               width: sidekickSize,
               height: sidekickSize,
               objectFit: 'contain',
-              marginLeft: size * -0.1,
-              alignSelf: isFlying ? 'flex-start' : 'flex-end',
-              marginBottom: isFlying ? undefined : size * 0.02,
-              marginTop: isFlying ? size * 0.05 : undefined,
+              right: size * -0.35,
+              bottom: isFlying ? undefined : size * 0.02,
+              top: isFlying ? size * 0.05 : undefined,
             }}
           />
         )}

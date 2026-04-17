@@ -106,7 +106,7 @@ export function ProfileSelect() {
                     avatarId={profile.avatarId ?? null}
                     name={profile.name}
                     equippedCosmetics={profile.equippedCosmetics ?? null}
-                    sidekick={null}
+                    sidekick={profile.activeSidekick ?? null}
                     collectedCrystals={profile.collectedCrystals ?? []}
                   />
                   <div>

@@ -147,6 +147,14 @@ export function useBossFight() {
         const crystal = getCrystalForWorld(currentWorldIndex);
         if (crystal) collectCrystal(prof.id, crystal.id);
 
+        // Auto-unlock world background cosmetic (free, no purchase needed)
+        const worldBgId = `bg-world-${currentWorldIndex}`;
+        if (!(prof.purchasedCosmetics ?? []).includes(worldBgId)) {
+          updateProfile(prof.id, {
+            purchasedCosmetics: [...(prof.purchasedCosmetics ?? []), worldBgId],
+          });
+        }
+
         const newAvatars = getAvatarsUnlockedAtWorld(currentWorldIndex);
         const alreadyUnlocked = new Set(prof.unlockedAvatars ?? []);
         const toUnlock = newAvatars.filter((a) => !alreadyUnlocked.has(a.id));

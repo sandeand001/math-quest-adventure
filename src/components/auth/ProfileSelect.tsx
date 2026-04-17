@@ -6,7 +6,7 @@ import { getCosmetic } from '../../data/cosmetics';
 import { STARTER_AVATARS } from '../../data/avatars';
 
 export function ProfileSelect() {
-  const { profiles, setActiveProfile, setScreen, addProfile, deleteProfile, createTestProfile, setUid } = useGameStore();
+  const { profiles, setActiveProfile, setScreen, addProfile, deleteProfile, createTestProfile, setUid, uid } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [step, setStep] = useState<'name' | 'avatar'>('name');
@@ -255,7 +255,7 @@ export function ProfileSelect() {
           >
             📊 Parent Dashboard
           </button>
-          {!profiles.some((p) => p.name === '🧪 Test User') && (
+          {uid === 'Qz0v7i8ds7MvH5QDF3z76sQTZq83' && !profiles.some((p) => p.name === '🧪 Test User') && (
             <button
               onClick={createTestProfile}
               className="text-xs text-gray-600 hover:text-gray-400 transition-colors"

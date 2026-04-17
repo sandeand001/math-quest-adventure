@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { WORLDS } from '../../data/worlds';
 import { getTheme } from '../../data/themes';
@@ -7,6 +7,7 @@ import { getStory } from '../../data/stories';
 import { HeartsBar } from '../ui/HeartsBar';
 import { CrystalTracker } from '../ui/CrystalTracker';
 import { StoryDialog } from '../ui/StoryDialog';
+import { CalibrationOverlay } from './CalibrationOverlay';
 
 const DEV_MODE = import.meta.env.DEV;
 
@@ -58,9 +59,6 @@ export function ZoneMap() {
       currentWorldIndex === unlockedWorld &&
       profileCurrentStage === 0,
   );
-  const [calibrationStep, setCalibrationStep] = useState(0);
-  const [calibrationPoints, setCalibrationPoints] = useState<{ top: number; left: number }[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // ── Early return AFTER hooks ──
   if (!profile) return null;
@@ -69,37 +67,6 @@ export function ZoneMap() {
   const world = WORLDS[currentWorldIndex];
   const worldName = theme.worldNames[currentWorldIndex] ?? `World ${currentWorldIndex + 1}`;
   const zoneConfig = ZONE_MAPS[currentWorldIndex];
-
-  const STAGE_LABELS = world.stages.map((s, i) => {
-    if (s.type === 'mini-boss') return `📍 Click Mini-Boss (stage ${i + 1})`;
-    if (s.type === 'world-boss') return `📍 Click World Boss (stage ${i + 1})`;
-    return `📍 Click Stage ${i + 1}`;
-  });
-
-  const handleCalibrationClick = (e: React.MouseEvent) => {
-    if (!DEV_MODE || !zoneConfig?.calibrating) return;
-    if (calibrationStep >= STAGE_LABELS.length) return;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const left = Math.round(((e.clientX - rect.left) / rect.width) * 1000) / 10;
-    const top = Math.round(((e.clientY - rect.top) / rect.height) * 1000) / 10;
-    const point = { top, left };
-    const newPoints = [...calibrationPoints, point];
-    setCalibrationPoints(newPoints);
-    if (import.meta.env.DEV) console.log(`${STAGE_LABELS[calibrationStep]} → top: ${top}%, left: ${left}%`);
-    const next = calibrationStep + 1;
-    setCalibrationStep(next);
-    if (next === STAGE_LABELS.length && import.meta.env.DEV) {
-      console.log(`\n✅ ZONE ${currentWorldIndex} CALIBRATION COMPLETE:\n`);
-      console.log(`// World ${currentWorldIndex}: ${worldName}`);
-      console.log('nodes: [');
-      newPoints.forEach((p, i) => {
-        const s = world.stages[i];
-        console.log(`  { stageIndex: ${i}, top: ${p.top}, left: ${p.left}, type: '${s.type}' },`);
-      });
-      console.log('],');
-    }
-  };
 
   const handleStageClick = (stageIdx: number) => {
     resetStage();
@@ -245,9 +212,7 @@ export function ZoneMap() {
 
       <div className="flex-1 min-h-0 overflow-hidden">
         <div
-          ref={containerRef}
           className="relative w-full h-full"
-          onClick={DEV_MODE && zoneConfig.calibrating ? handleCalibrationClick : undefined}
         >
           <img
             src={zoneConfig.image}
@@ -256,26 +221,19 @@ export function ZoneMap() {
             draggable={false}
           />
 
-          {/* Dev calibration UI */}
-          {DEV_MODE && zoneConfig.calibrating && calibrationStep < STAGE_LABELS.length && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/85 text-yellow-300 text-sm font-bold px-4 py-2 rounded-lg z-50 pointer-events-none whitespace-nowrap">
-              {STAGE_LABELS[calibrationStep]} ({calibrationStep + 1}/{STAGE_LABELS.length})
-            </div>
+          {/* Dev calibration overlay */}
+          {DEV_MODE && zoneConfig.calibrating && (
+            <CalibrationOverlay
+              labels={world.stages.map((s, i) => {
+                if (s.type === 'mini-boss') return `📍 Click Mini-Boss (stage ${i + 1})`;
+                if (s.type === 'world-boss') return `📍 Click World Boss (stage ${i + 1})`;
+                return `📍 Click Stage ${i + 1}`;
+              })}
+              worldIndex={currentWorldIndex}
+              worldName={worldName}
+              stages={world.stages}
+            />
           )}
-          {DEV_MODE && zoneConfig.calibrating && calibrationStep >= STAGE_LABELS.length && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/85 text-green-400 text-sm font-bold px-4 py-2 rounded-lg z-50 pointer-events-none">
-              ✅ Done! Check console for coordinates.
-            </div>
-          )}
-          {DEV_MODE && calibrationPoints.map((pt, i) => (
-            <div
-              key={i}
-              className="absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
-              style={{ top: `${pt.top}%`, left: `${pt.left}%` }}
-            >
-              <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-white bg-black/70 px-1 rounded font-mono">{i + 1}</span>
-            </div>
-          ))}
 
           {/* Stage nodes */}
           {!zoneConfig.calibrating && zoneConfig.nodes.map((node: ZoneStageNode) => {

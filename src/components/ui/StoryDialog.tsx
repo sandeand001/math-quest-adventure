@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { StoryEntry } from '../../data/stories';
 
 interface StoryDialogProps {
@@ -108,24 +108,52 @@ function getSpriteForLine(story: StoryEntry, line: string): string | null {
 
 export function StoryDialog({ story, onComplete }: StoryDialogProps) {
   const [lineIndex, setLineIndex] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const currentLine = story.lines[lineIndex];
   const isLast = lineIndex >= story.lines.length - 1;
   const spriteSrc = getSpriteForLine(story, currentLine);
   const isBossSpeaker = !(story.speaker === 'Pip' || story.speaker === 'Professor Hoot') && story.speaker;
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (isLast) {
       onComplete();
     } else {
       setLineIndex((i) => i + 1);
     }
+  }, [isLast, onComplete]);
+
+  // Focus trap: grab focus on mount, restore on unmount
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    return () => {
+      previousFocusRef.current?.focus();
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      handleNext();
+    }
+    // Keep focus trapped inside dialog
+    if (e.key === 'Tab') {
+      e.preventDefault();
+    }
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 cursor-pointer select-none flex flex-col"
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${story.speaker ?? 'Story'} dialog`}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 cursor-pointer select-none flex flex-col focus:outline-none"
       onClick={handleNext}
+      onKeyDown={handleKeyDown}
     >
       {/* Top spacer + centered character sprite */}
       <div className="flex-1 flex items-end justify-center pointer-events-none">
@@ -154,7 +182,10 @@ export function StoryDialog({ story, onComplete }: StoryDialogProps) {
           )}
 
           {/* Dialog text */}
-          <p className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line">
+          <p
+            className="text-white text-base sm:text-lg leading-relaxed min-h-[2.5rem] whitespace-pre-line"
+            aria-live="polite"
+          >
             {currentLine}
           </p>
 

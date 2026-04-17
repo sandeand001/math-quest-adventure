@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from 'firebase/auth';
-import { auth } from '../../firebase/config';
+
+async function loadFirebaseAuth() {
+  const [{ auth }, { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider }] =
+    await Promise.all([
+      import('../../firebase/config'),
+      import('firebase/auth'),
+    ]);
+  return { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider };
+}
 
 export function LoginScreen() {
   const { setUid, setScreen } = useGameStore();
@@ -22,6 +24,7 @@ export function LoginScreen() {
     setLoading(true);
 
     try {
+      const { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await loadFirebaseAuth();
       const fn = isSignUp ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
       const cred = await fn(auth, email, password);
       setUid(cred.user.uid);
@@ -38,6 +41,7 @@ export function LoginScreen() {
   const handleGoogle = async () => {
     setError('');
     try {
+      const { auth, signInWithPopup, GoogleAuthProvider } = await loadFirebaseAuth();
       const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       setUid(cred.user.uid);
       setScreen('profile-select');
@@ -66,22 +70,28 @@ export function LoginScreen() {
         </div>
 
         <form onSubmit={handleEmailAuth} className="space-y-3">
+          <label htmlFor="login-email" className="sr-only">Email</label>
           <input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
+            autoComplete="email"
             className="
               w-full px-4 py-3 rounded-xl
               bg-indigo-950/60 border border-indigo-800/40 text-white
               placeholder:text-gray-500 focus:outline-none focus:border-indigo-400
             "
           />
+          <label htmlFor="login-password" className="sr-only">Password</label>
           <input
+            id="login-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
+            autoComplete={isSignUp ? 'new-password' : 'current-password'}
             className="
               w-full px-4 py-3 rounded-xl
               bg-indigo-950/60 border border-indigo-800/40 text-white

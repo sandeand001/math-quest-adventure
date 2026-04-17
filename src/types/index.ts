@@ -190,7 +190,6 @@ export interface PlayerStats {
 export interface ChildProfile {
   id: string;
   name: string;
-  pin: string;
   avatarId: AvatarId | null;
   equippedCosmetics: EquippedCosmetics;
   purchasedAvatars: AvatarId[];

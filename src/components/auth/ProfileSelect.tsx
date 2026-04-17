@@ -5,180 +5,17 @@ import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { getCosmetic } from '../../data/cosmetics';
 import { STARTER_AVATARS } from '../../data/avatars';
 
-function PinPad({
-  title,
-  subtitle,
-  onComplete,
-  onBack,
-}: {
-  title: string;
-  subtitle: string;
-  onComplete: (pin: string) => void;
-  onBack?: () => void;
-}) {
-  const [entered, setEntered] = useState('');
-  const [error, setError] = useState('');
-
-  const handleDigit = (d: string) => {
-    setError('');
-    if (entered.length < 4) {
-      const next = entered + d;
-      setEntered(next);
-      if (next.length === 4) {
-        onComplete(next);
-      }
-    }
-  };
-
-  const handleBackspace = () => {
-    setError('');
-    setEntered((prev) => prev.slice(0, -1));
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center space-y-1">
-        <p className="text-lg font-semibold text-white">{title}</p>
-        <p className="text-sm text-gray-400">{subtitle}</p>
-      </div>
-
-      {/* PIN dots */}
-      <div
-        className="flex justify-center gap-4"
-        role="status"
-        aria-label={`${entered.length} of 4 digits entered`}
-      >
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className={`
-              w-5 h-5 rounded-full border-2 transition-all duration-200
-              ${i < entered.length
-                ? 'bg-indigo-400 border-indigo-400 scale-110'
-                : 'bg-transparent border-gray-600'}
-            `}
-          />
-        ))}
-      </div>
-
-      {error && (
-        <p className="text-center text-sm text-red-400 font-medium" role="alert">{error}</p>
-      )}
-
-      {/* Number pad */}
-      <div className="grid grid-cols-3 gap-3 max-w-[240px] mx-auto">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((key) => {
-          if (key === '') return <div key="empty" />;
-          if (key === 'del') {
-            return (
-              <button
-                key="del"
-                onClick={handleBackspace}
-                className="aspect-square rounded-2xl text-xl font-bold
-                  bg-gray-800/50 border border-gray-700/40 text-gray-400
-                  hover:bg-gray-700/50 hover:text-white active:scale-95 transition-all
-                  flex items-center justify-center"
-                aria-label="Delete last digit"
-              >
-                ⌫
-              </button>
-            );
-          }
-          return (
-            <button
-              key={key}
-              onClick={() => handleDigit(key)}
-              className="aspect-square rounded-2xl text-2xl font-bold
-                bg-indigo-950/60 border border-indigo-800/40 text-white
-                hover:bg-indigo-900/60 hover:border-indigo-600 active:scale-95 transition-all"
-              aria-label={`Digit ${key}`}
-            >
-              {key}
-            </button>
-          );
-        })}
-      </div>
-
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="block mx-auto text-sm text-gray-500 hover:text-gray-300 transition-colors"
-        >
-          ← Back
-        </button>
-      )}
-    </div>
-  );
-}
-
 export function ProfileSelect() {
-  const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile, setUid } = useGameStore();
+  const { profiles, setActiveProfile, setScreen, addProfile, deleteProfile, createTestProfile, setUid } = useGameStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
-  const [step, setStep] = useState<'name' | 'avatar' | 'pin-create' | 'pin-confirm'>('name');
+  const [step, setStep] = useState<'name' | 'avatar'>('name');
   const [selectedAvatarId, setSelectedAvatarId] = useState<AvatarId | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [newPin, setNewPin] = useState('');
-
-  // Per-profile PIN entry state
-  const [pinPromptId, setPinPromptId] = useState<string | null>(null);
-  const [pinMode, setPinMode] = useState<'enter' | 'setup' | 'setup-confirm'>('enter');
-  const [setupPin, setSetupPin] = useState('');
-  const [pinError, setPinError] = useState('');
-  const [pinKey, setPinKey] = useState(0); // key to force PinPad remount on error
 
   const handleSelectProfile = (id: string) => {
-    const profile = profiles.find((p) => p.id === id);
-    if (!profile) return;
-    setPinPromptId(id);
-    // If profile has no PIN (legacy profile), prompt to create one
-    if (!profile.pin) {
-      setPinMode('setup');
-    } else {
-      setPinMode('enter');
-    }
-    setPinError('');
-    setSetupPin('');
-    setPinKey((k) => k + 1);
-  };
-
-  const handlePinSubmit = (pin: string) => {
-    const profile = profiles.find((p) => p.id === pinPromptId);
-    if (!profile) return;
-
-    if (pinMode === 'setup') {
-      // First entry — save and ask to confirm
-      setSetupPin(pin);
-      setPinMode('setup-confirm');
-      setPinKey((k) => k + 1);
-      return;
-    }
-
-    if (pinMode === 'setup-confirm') {
-      if (pin === setupPin) {
-        // Save PIN to profile and enter
-        updateProfile(profile.id, { pin });
-        setPinPromptId(null);
-        setActiveProfile(profile.id);
-        setScreen('world-map');
-      } else {
-        setPinError('PINs don\u2019t match \u2014 try again');
-        setSetupPin('');
-        setPinMode('setup');
-        setPinKey((k) => k + 1);
-      }
-      return;
-    }
-
-    // Normal PIN entry
-    if (pin === profile.pin) {
-      setPinPromptId(null);
-      setActiveProfile(profile.id);
-      setScreen('world-map');
-    } else {
-      setPinError('Wrong PIN');
-      setPinKey((k) => k + 1);
-    }
+    setActiveProfile(id);
+    setScreen('world-map');
   };
 
   const handleNameSubmit = (e: React.FormEvent) => {
@@ -187,35 +24,15 @@ export function ProfileSelect() {
     setStep('avatar');
   };
 
-  const handleAvatarNext = () => {
-    if (!selectedAvatarId) return;
-    setStep('pin-create');
-  };
-
-  const handlePinCreate = (pin: string) => {
-    setNewPin(pin);
-    setStep('pin-confirm');
-  };
-
-  const handlePinConfirm = (pin: string) => {
-    if (pin === newPin) {
-      const profile = addProfile(newName.trim(), 'fantasy', selectedAvatarId!, newPin);
-      setActiveProfile(profile.id);
-      resetCreateForm();
-      setScreen('world-map');
-    } else {
-      // Mismatch — restart PIN setup
-      setNewPin('');
-      setStep('pin-create');
-    }
-  };
-
-  const resetCreateForm = () => {
+  const handleCreateProfile = () => {
+    if (!newName.trim() || !selectedAvatarId) return;
+    const profile = addProfile(newName.trim(), 'fantasy', selectedAvatarId);
+    setActiveProfile(profile.id);
     setNewName('');
     setSelectedAvatarId(null);
-    setNewPin('');
     setShowCreate(false);
     setStep('name');
+    setScreen('world-map');
   };
 
   return (
@@ -402,7 +219,7 @@ export function ProfileSelect() {
                   </button>
                   <button
                     type="button"
-                    onClick={handleAvatarNext}
+                    onClick={handleCreateProfile}
                     disabled={!selectedAvatarId}
                     className="
                       flex-1 py-2 rounded-xl font-bold
@@ -411,30 +228,10 @@ export function ProfileSelect() {
                       hover:from-indigo-500 hover:to-blue-500 transition-all
                     "
                   >
-                    Next →
+                    Start Adventure!
                   </button>
                 </div>
               </div>
-            )}
-
-            {step === 'pin-create' && (
-              <PinPad
-                key="create"
-                title="Create a 4-Digit PIN"
-                subtitle={`This keeps ${newName.trim()}'s profile safe`}
-                onComplete={handlePinCreate}
-                onBack={() => setStep('avatar')}
-              />
-            )}
-
-            {step === 'pin-confirm' && (
-              <PinPad
-                key="confirm"
-                title="Confirm Your PIN"
-                subtitle="Enter the same PIN again"
-                onComplete={handlePinConfirm}
-                onBack={() => { setNewPin(''); setStep('pin-create'); }}
-              />
             )}
           </div>
         ) : (
@@ -477,33 +274,6 @@ export function ProfileSelect() {
           </button>
         </div>
       </div>
-
-      {/* PIN prompt modal */}
-      {pinPromptId && (() => {
-        const promptName = profiles.find((p) => p.id === pinPromptId)?.name ?? 'Player';
-        const pinTitle =
-          pinMode === 'setup' ? `Create a PIN for ${promptName}`
-          : pinMode === 'setup-confirm' ? 'Confirm Your PIN'
-          : `Enter PIN for ${promptName}`;
-        const pinSubtitle =
-          pinError
-          || (pinMode === 'setup' ? 'Set a 4-digit PIN to protect this profile'
-            : pinMode === 'setup-confirm' ? 'Enter the same PIN again'
-            : 'Enter your 4-digit PIN');
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-            <div className="bg-indigo-950 border border-indigo-800/50 rounded-2xl p-6 max-w-xs w-full space-y-4">
-              <PinPad
-                key={pinKey}
-                title={pinTitle}
-                subtitle={pinSubtitle}
-                onComplete={handlePinSubmit}
-                onBack={() => setPinPromptId(null)}
-              />
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Delete confirmation modal */}
       {confirmDeleteId && (

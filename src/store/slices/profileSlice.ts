@@ -16,11 +16,10 @@ export function createProfileSlice(set: GameSet, get: GameGet): ProfileSlice {
     setProfiles: (profiles) => set({ profiles }),
     setActiveProfile: (id) => set({ activeProfileId: id }),
 
-    addProfile: (name, theme, avatarId, pin) => {
+    addProfile: (name, theme, avatarId) => {
       const profile: ChildProfile = {
         id: generateId(),
         name,
-        pin: pin ?? '0000',
         avatarId: avatarId ?? null,
         equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
         purchasedAvatars: [],
@@ -134,7 +133,6 @@ export function createProfileSlice(set: GameSet, get: GameGet): ProfileSlice {
         const testProfile: ChildProfile = {
           id: `test-${Date.now()}`,
           name: '🧪 Test User',
-          pin: '0000',
           avatarId: 'starting-male',
           equippedCosmetics: { nameplate: null, nameplateColor: null, nameplateFont: null, background: null, effect: null },
           purchasedAvatars: premiumAvatarIds,

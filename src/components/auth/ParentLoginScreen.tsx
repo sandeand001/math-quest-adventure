@@ -17,22 +17,19 @@ export function ParentLoginScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Handle Google redirect result on mount
+  // Listen for auth state changes (handles redirect result + persisted sessions)
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     (async () => {
-      try {
-        const { auth, getRedirectResult } = await loadFirebaseAuth();
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setUid(result.user.uid);
+      const { auth, onAuthStateChanged } = await loadFirebaseAuth();
+      unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUid(user.uid);
           setScreen('profile-select');
         }
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message.replace('Firebase: ', ''));
-        }
-      }
+      });
     })();
+    return () => unsubscribe?.();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEmailAuth = async (e: React.FormEvent) => {

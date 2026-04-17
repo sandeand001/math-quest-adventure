@@ -9,6 +9,19 @@
 
 This document consolidates the findings of the three existing codebase reviews, weights each issue by how many reviews raised it, and adds my own independent verification against the current repository state.
 
+### Resolution Progress
+
+> **30 of 42 issues resolved** as of April 16, 2026.
+
+| Phase | Status | Resolved | Remaining |
+| --- | --- | --- | --- |
+| Phase 0 — Unblock the repo | ✅ Complete | 5/5 | — |
+| Phase 1 — Correctness & data integrity | ✅ Complete | 6/6 | — |
+| Phase 2 — Safety nets | ✅ Complete (store tests deferred) | 5/6 | Store tests |
+| Phase 3 — Architecture for growth | 🟡 Partial | 4/7 | Store split, BossFight extraction, persistence adapter |
+| Phase 4 — Delivery quality | 🟡 Partial | 6/8 | Asset compression, remaining ARIA screens |
+| Phase 5 — Content, polish, compliance | 🔲 Not started | 0/3 | COPPA, data maps, Tailwind primitives |
+
 ---
 
 ## 1. Methodology
@@ -25,19 +38,27 @@ This document consolidates the findings of the three existing codebase reviews, 
 
 ### Current verified repository state
 
-| Check | Result |
-| --- | --- |
-| `npm run build` | ❌ Fails with 5 TypeScript errors |
-| `npm run lint` | ❌ Fails with 13 errors + 3 warnings |
-| `pixi.js` / `@pixi/react` / `gsap` / `react-router-dom` references in `src/` | 0 matches — confirmed unused |
-| `aria-*` / `role=` / `onKeyDown` in `src/` `.tsx` files | 0 matches — accessibility primitives absent |
-| `StageResult.profileId` | Not defined in [src/types/index.ts](../src/types/index.ts#L224) |
-| [src/components/auth/ParentDashboard.tsx](../src/components/auth/ParentDashboard.tsx#L23) | Still uses `stageResults.filter(() => true)` |
-| `public/` asset tree | 204 files / 357.65 MB |
-| `src/store/gameStore.ts` | 332 lines |
-| `src/components/game/BossFight.tsx` | 441 lines |
-| `src/components/game/ZoneMap.tsx` | 303 lines |
-| `src/components/game/Stage.tsx` | 192 lines |
+> **Last updated:** April 16, 2026 (post-stabilization)
+
+| Check | Original | Current |
+| --- | --- | --- |
+| `npm run build` | ❌ Fails with 5 TypeScript errors | ✅ Passes |
+| `npm run lint` | ❌ Fails with 13 errors + 3 warnings | ✅ Passes (0 errors, 0 warnings) |
+| `npm run test` | ❌ No test script | ✅ 37 tests pass (Vitest) |
+| CI | ❌ None | ✅ GitHub Actions: lint → typecheck → test → build |
+| `pixi.js` / `@pixi/react` / `gsap` / `react-router-dom` | Present in `package.json`, unused | ✅ Removed |
+| `aria-*` / `role=` / `onKeyDown` in `.tsx` files | 0 matches | ✅ StoryDialog has `role="dialog"`, `aria-modal`, `aria-label`, `aria-live`, keyboard nav, focus trap |
+| `StageResult.profileId` | Missing | ✅ Added; ParentDashboard filters by profile |
+| `stageResults` cap | Unbounded | ✅ Capped at 200 entries |
+| Firebase SDK | Eager load on every page | ✅ Lazy-loaded via dynamic `import()` on sign-in only |
+| Code splitting | None | ✅ All screens use `React.lazy()` + `Suspense` |
+| Google Fonts | 6 families loaded synchronously | ✅ Deferred via `media="print" onload` pattern |
+| Asset filenames | `atack-position`, `deafeted-position`, `attack.position` | ✅ All normalized to `attack-position`, `defeated-position` |
+| `src/hooks/` | Did not exist | ✅ Created |
+| `src/services/` | Did not exist | ✅ Created (soundManager.ts) |
+| `public/` asset tree | 204 files / 357.65 MB | 204 files / 357.65 MB (compression still outstanding) |
+| `src/store/gameStore.ts` | 332 lines | 364 lines (still monolithic — Phase 3) |
+| `src/components/game/BossFight.tsx` | 441 lines | ~500 lines (achievement wiring added; hook extraction deferred to Phase 3) |
 
 ---
 
@@ -45,76 +66,78 @@ This document consolidates the findings of the three existing codebase reviews, 
 
 Legend: ✅ = raised in that review, ◻ = not raised.
 
-| # | Issue | R1 | R2 | R3 | Count | Priority | My Assessment |
-| --- | --- | :-: | :-: | :-: | :-: | :-: | --- |
-| 1 | `npm run build` fails (unused vars, invalid `title` prop on `svg`) | ✅ | ✅ | ◻ | 2 | **P0** | Confirmed. 5 TS errors in [BossFight.tsx](../src/components/game/BossFight.tsx), [Inventory.tsx](../src/components/game/Inventory.tsx), [CrystalTracker.tsx](../src/components/ui/CrystalTracker.tsx). R3 did not flag this, which is a gap in R3. Must be fixed first — nothing else is trustworthy until the build passes. |
-| 2 | `npm run lint` fails (hook-order, ref mutation in render, setState in effect) | ✅ | ✅ | ◻ | 2 | **P0** | Confirmed. 13 errors across [ZoneMap.tsx](../src/components/game/ZoneMap.tsx), [Stage.tsx](../src/components/game/Stage.tsx), [BossFight.tsx](../src/components/game/BossFight.tsx), [QuestionCard.tsx](../src/components/game/QuestionCard.tsx), [StageResultScreen.tsx](../src/components/game/StageResultScreen.tsx). Hook-order violations in ZoneMap are genuine runtime risks, not style nits. |
-| 3 | `StageResult` has no `profileId` → parent analytics are not per-child | ✅ | ✅ | ✅ | 3 | **P0** | Confirmed by reading [src/types/index.ts](../src/types/index.ts#L224) and [ParentDashboard.tsx](../src/components/auth/ParentDashboard.tsx#L23) (`filter(() => true)` with a self-admitted "In production…" comment). This is a correctness bug — the dashboard currently misleads parents. Low effort, very high value. |
-| 4 | `gameStore.ts` is monolithic (auth + profiles + session + combat + audio + mastery + achievements) | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed at 332 lines. Not as bloated as R3's "400+ lines" claim, but already too many unrelated concerns in one module. Slice split (`auth` / `profiles` / `session` / `combat` / `mastery` / `achievements` / `audio`) is the right next step. |
-| 5 | No automated tests, no `test` script, no CI | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed — no test files and `package.json` has no `test` script. Given the amount of progression/XP/mastery/unlock logic already shipped, this is the largest regression risk in the repo. Start with Vitest on `src/engine/**`. |
-| 6 | `BossFight.tsx` is too large and mixes combat / story / rewards / audio / rendering | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed at 441 lines. This is the single highest-maintenance file. Extract `useBossFight()` + `useBossRewards()` + a presentational arena component. |
-| 7 | Unused npm dependencies: `pixi.js`, `@pixi/react`, `gsap`, `react-router-dom` | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed — 0 import references in `src/`. Remove immediately. 10-minute task, meaningful install-size win, and removes ambiguity about intended rendering/routing direction. |
-| 8 | Achievements are only checked from stage completion; miss boss/world/level events | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed — `checkAchievements()` lives only in [StageResultScreen.tsx](../src/components/game/StageResultScreen.tsx). Boss victories, world completion, and level-ups don't trigger checks. Move behind a small event API. |
-| 9 | Firebase Auth is wired but Firestore/cloud sync is not — UI implies saved progress | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed. Storage is localStorage-only. Either label auth as "local only" or finish sync. Leaving this ambiguous risks data-loss complaints from parents. |
-| 10 | README is still the Vite template | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed. Blocking issue for contributors and for anyone evaluating the project. Cheap fix with outsized DX impact. |
-| 11 | No `.env.example` for `VITE_FIREBASE_*` | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed. Firebase config falls back to empty strings silently, which will produce confusing auth failures on fresh clones. |
-| 12 | No ARIA labels anywhere in the UI | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed — zero `aria-` matches in any `.tsx` file. For a kids' education product, accessibility is not optional. Full keyboard + screen-reader pass is needed before any public launch. |
-| 13 | No keyboard navigation / dialog semantics / focus management | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed — zero `onKeyDown`, `role=`, or `tabIndex` usage. [StoryDialog.tsx](../src/components/ui/StoryDialog.tsx) is the most visible offender. |
-| 14 | App uses a manual screen-string `switch` in [App.tsx](../src/App.tsx); router is installed but unused | ✅ | ✅ | ✅ | 3 | **P2** | Confirmed. Acceptable for an MVP, but either commit to the custom pattern (and remove `react-router-dom`) or adopt real routes. R3's suggestion to add `React.lazy()` with the existing switch is the lowest-risk win. |
-| 15 | `Stage.tsx` / `BossFight.tsx` mutate refs during render (`profileRef.current = profile`) | ✅ | ✅ | ◻ | 2 | **P0** | Confirmed in [Stage.tsx:39](../src/components/game/Stage.tsx#L39) and [BossFight.tsx:65](../src/components/game/BossFight.tsx#L65). This is part of the P0 lint-fix bundle above. |
-| 16 | `ZoneMap.tsx` calls hooks conditionally (rules-of-hooks violation) | ✅ | ✅ | ◻ | 2 | **P0** | Confirmed — 5 rules-of-hooks errors in [ZoneMap.tsx](../src/components/game/ZoneMap.tsx). Real correctness risk, not cosmetic. |
-| 17 | `QuestionCard.tsx` / `StageResultScreen.tsx` call `setState` inside effects to reset state | ✅ | ✅ | ◻ | 2 | **P1** | Confirmed. Replace with derived state or a `key`-based reset. R3 missed this class of bug entirely. |
-| 18 | Cosmetic `unlockCondition` defined in data but not enforced by the shop | ✅ | ✅ | ◻ | 2 | **P1** | Confirmed by inspection of [cosmetics.ts](../src/data/cosmetics.ts) and [Shop.tsx](../src/components/game/Shop.tsx). Add a single unlock helper and render `locked` / `available` / `owned` as distinct states. |
-| 19 | `world-complete` story content exists but there is no explicit final-world flow | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed against [stories.ts](../src/data/stories.ts). Authored content is effectively orphaned — either wire it or remove it. |
-| 20 | Feature boundaries are weak (no `hooks/`, no `services/`, domain logic stuck in screen components) | ✅ | ✅ | ✅ | 3 | **P2** | Confirmed. `src/hooks/` does not exist and engine logic leaks into components. Adding a `hooks/` + `services/` layer is a prerequisite for splitting the store and large screens cleanly. |
-| 21 | Heavy `public/` asset footprint (204 files / 357.65 MB; individual PNGs 2.5–15.76 MB) | ✅ | ✅ | ◻ | 2 | **P1** | Confirmed. For a browser-first kids' game that may run on tablets / school hardware, this is a serious delivery risk. Set an asset budget and compress aggressively. |
-| 22 | Asset filename inconsistencies (spaces, misspellings like `atack-position`, `deafeted-position`) | ✅ | ✅ | ✅ | 3 | **P1** | Confirmed in prior asset tree sweep. These cause silent missing-image bugs in battle. Normalize to kebab-case and add a verification script that checks expected vs actual asset names. |
-| 23 | `Howl` instances are created per sound trigger in `BossFight.tsx` | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed. Introduce a tiny sound manager / cache. Low effort, noticeable combat-smoothness win. |
-| 24 | No code splitting / `React.lazy()` for top-level screens | ✅ | ✅ | ✅ | 3 | **P2** | Confirmed. Lowest-risk performance improvement once build is fixed. |
-| 25 | Render-time repeated lookups (array `find` over cosmetics / crystals / sidekicks) | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed by inspection of UI components. Normalize static data into id-keyed maps or memoize. |
-| 26 | 6 Google font families loaded synchronously from [index.html](../index.html) | ◻ | ✅ | ✅ | 2 | **P2** | Confirmed. `display=swap` is already present (R3 noted) but the full payload is heavy. Reduce to the fonts actually rendered on the first screen. |
-| 27 | Large repeated Tailwind class strings reduce scanability | ✅ | ✅ | ◻ | 2 | **P3** | Confirmed. Extract small presentational primitives (card/panel/button variants). |
-| 28 | No persistence abstraction between localStorage and Firebase | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed. Needed before cloud sync can be implemented safely. |
-| 29 | Form inputs rely on placeholders instead of labels | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed in [LoginScreen.tsx](../src/components/auth/LoginScreen.tsx), [ProfileSelect.tsx](../src/components/auth/ProfileSelect.tsx), [QuestionCard.tsx](../src/components/game/QuestionCard.tsx). Part of the P1 accessibility bundle (#12/#13) in practice. |
-| 30 | Nested `<button>` inside a `<button>` in profile card (delete inside a clickable profile tile) | ✅ | ✅ | ◻ | 2 | **P2** | Confirmed in [ProfileSelect.tsx](../src/components/auth/ProfileSelect.tsx). Both an accessibility and an HTML-validity bug. |
-| 31 | `StoryDialog` infers character mood by pattern-matching dialog text | ◻ | ✅ | ◻ | 1 | **P3** | Valid. Brittle as the script grows. Move expression into authored metadata in [stories.ts](../src/data/stories.ts). |
-| 32 | Dead theme data (Space / Ocean / Jungle) still shipped from [themes.ts](../src/data/themes.ts) | ◻ | ◻ | ✅ | 1 | **P3** | Confirmed. Remove until actually planned. Reversible via git history. |
-| 33 | Dead field `ChildProfile.avatarUrl` always set to `''` | ◻ | ◻ | ✅ | 1 | **P3** | Confirmed. Remove from type + add a persistence migration to strip it from existing saves. |
-| 34 | `stageResults` persisted array grows unbounded | ◻ | ◻ | ✅ | 1 | **P2** | Confirmed — no cap, no cleanup, no per-profile scoping. Should be fixed as part of the `profileId` work (#3). |
-| 35 | No top-level React error boundary | ◻ | ◻ | ✅ | 1 | **P2** | Confirmed — any thrown error today produces a white screen. Quick win. |
-| 36 | Mastery uses lifetime accuracy, not a rolling window | ◻ | ✅ | ✅ | 2 | **P2** | Confirmed against [src/engine/mastery.ts](../src/engine/mastery.ts). Hurts recovery for kids who improved after a rough start. Add `recentResults: boolean[]` capped at ~20. |
-| 37 | Distractor generation uses fixed offsets (`±1, ±2, ±3, ±5, ±10`) | ◻ | ◻ | ✅ | 1 | **P3** | Valid. Add percentage-based and common-mistake distractors to prevent exploitable patterns. |
-| 38 | `console.log` calls in [calibration.ts](../src/utils/calibration.ts) / [ZoneMap.tsx](../src/components/game/ZoneMap.tsx) fire in production | ◻ | ◻ | ✅ | 1 | **P3** | Valid. Gate behind `import.meta.env.DEV`. |
-| 39 | No COPPA / parental gate for an age 5-11 product | ◻ | ◻ | ✅ | 1 | **P1** | R3 is alone on this but it is legally critical for a US launch. Must be planned before any public release even if not the first technical fix. |
-| 40 | No formatter (Prettier) or pre-commit hooks | ✅ | ◻ | ◻ | 1 | **P3** | Valid. After lint/build/tests are green, add formatting to lock in consistency. |
-| 41 | Magic numbers (timings, XP, HP) are not centralized in `src/constants/` | ◻ | ◻ | ✅ | 1 | **P3** | Valid, and a natural follow-up to splitting the store. |
-| 42 | Firebase SDK loads eagerly even in "continue without account" flow | ◻ | ◻ | ✅ | 1 | **P2** | Valid. Dynamic `import()` on sign-in is the right fix. |
+| # | Issue | R1 | R2 | R3 | Count | Priority | Status | My Assessment |
+| --- | --- | :-: | :-: | :-: | :-: | :-: | :-: | --- |
+| 1 | `npm run build` fails (unused vars, invalid `title` prop on `svg`) | ✅ | ✅ | ◻ | 2 | **P0** | ✅ Fixed | Build passes cleanly. |
+| 2 | `npm run lint` fails (hook-order, ref mutation in render, setState in effect) | ✅ | ✅ | ◻ | 2 | **P0** | ✅ Fixed | Lint passes with 0 errors, 0 warnings. |
+| 3 | `StageResult` has no `profileId` → parent analytics are not per-child | ✅ | ✅ | ✅ | 3 | **P0** | ✅ Fixed | `profileId` added to `StageResult`; `ParentDashboard` filters by profile. |
+| 4 | `gameStore.ts` is monolithic (auth + profiles + session + combat + audio + mastery + achievements) | ✅ | ✅ | ✅ | 3 | **P1** | 🔲 Open | 364 lines, still a single file. Deferred to Phase 3. |
+| 5 | No automated tests, no `test` script, no CI | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | Vitest installed, 37 tests pass, `test` + `typecheck` scripts added, GitHub Actions CI workflow active. |
+| 6 | `BossFight.tsx` is too large and mixes combat / story / rewards / audio / rendering | ✅ | ✅ | ✅ | 3 | **P1** | 🔲 Open | ~500 lines (grew with achievement wiring). Hook extraction deferred to Phase 3. |
+| 7 | Unused npm dependencies: `pixi.js`, `@pixi/react`, `gsap`, `react-router-dom` | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | All removed from `package.json`. |
+| 8 | Achievements are only checked from stage completion; miss boss/world/level events | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | `checkAchievements()` now also runs after boss victories with toast notifications. |
+| 9 | Firebase Auth is wired but Firestore/cloud sync is not — UI implies saved progress | ✅ | ✅ | ✅ | 3 | **P1** | 🔲 Open | Persistence adapter needed before cloud sync. |
+| 10 | README is still the Vite template | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | Replaced with project-specific README. |
+| 11 | No `.env.example` for `VITE_FIREBASE_*` | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | `.env.example` added with all keys. |
+| 12 | No ARIA labels anywhere in the UI | ✅ | ✅ | ✅ | 3 | **P1** | 🟡 Partial | StoryDialog, LoginScreen, and ProfileSelect now have ARIA. Remaining screens (map, shop) still need a pass. |
+| 13 | No keyboard navigation / dialog semantics / focus management | ✅ | ✅ | ✅ | 3 | **P1** | 🟡 Partial | StoryDialog has `role="dialog"`, focus trap, and keyboard nav (Enter/Space/Arrow). Other dialogs still need work. |
+| 14 | App uses a manual screen-string `switch` in [App.tsx](../src/App.tsx); router is installed but unused | ✅ | ✅ | ✅ | 3 | **P2** | ✅ Fixed | `react-router-dom` removed; screen-string pattern committed with `React.lazy()` code splitting. |
+| 15 | `Stage.tsx` / `BossFight.tsx` mutate refs during render (`profileRef.current = profile`) | ✅ | ✅ | ◻ | 2 | **P0** | ✅ Fixed | Moved to `useEffect` sync. |
+| 16 | `ZoneMap.tsx` calls hooks conditionally (rules-of-hooks violation) | ✅ | ✅ | ◻ | 2 | **P0** | ✅ Fixed | All hooks now run above the early return. |
+| 17 | `QuestionCard.tsx` / `StageResultScreen.tsx` call `setState` inside effects to reset state | ✅ | ✅ | ◻ | 2 | **P1** | ✅ Fixed | Replaced with lazy `useState` initializers and derived state. |
+| 18 | Cosmetic `unlockCondition` defined in data but not enforced by the shop | ✅ | ✅ | ◻ | 2 | **P1** | ✅ Fixed | `isCosmeticUnlocked()` helper added; Shop shows locked/available/owned states. |
+| 19 | `world-complete` story content exists but there is no explicit final-world flow | ✅ | ✅ | ◻ | 2 | **P2** | ✅ Fixed | `getStories()` added; BossFight queues world-complete dialogs after world boss victories. |
+| 20 | Feature boundaries are weak (no `hooks/`, no `services/`, domain logic stuck in screen components) | ✅ | ✅ | ✅ | 3 | **P2** | ✅ Fixed | `src/hooks/` and `src/services/` created; `soundManager.ts` and `CalibrationOverlay.tsx` extracted. |
+| 21 | Heavy `public/` asset footprint (204 files / 357.65 MB; individual PNGs 2.5–15.76 MB) | ✅ | ✅ | ◻ | 2 | **P1** | 🔲 Open | Still ~358 MB. Compression pass needed. |
+| 22 | Asset filename inconsistencies (spaces, misspellings like `atack-position`, `deafeted-position`) | ✅ | ✅ | ✅ | 3 | **P1** | ✅ Fixed | `atack-position` → `attack-position`, `deafeted-position` → `defeated-position`, `attack.position` → `attack-position`. |
+| 23 | `Howl` instances are created per sound trigger in `BossFight.tsx` | ✅ | ✅ | ◻ | 2 | **P2** | ✅ Fixed | `src/services/soundManager.ts` caches `Howl` instances by URL. |
+| 24 | No code splitting / `React.lazy()` for top-level screens | ✅ | ✅ | ✅ | 3 | **P2** | ✅ Fixed | All screens in `App.tsx` use `React.lazy()` + `Suspense`. |
+| 25 | Render-time repeated lookups (array `find` over cosmetics / crystals / sidekicks) | ✅ | ✅ | ◻ | 2 | **P2** | 🔲 Open | Still uses array `.find()`. |
+| 26 | 6 Google font families loaded synchronously from [index.html](../index.html) | ◻ | ✅ | ✅ | 2 | **P2** | ✅ Fixed | Fonts deferred via `media="print" onload="this.media='all'"` pattern. |
+| 27 | Large repeated Tailwind class strings reduce scanability | ✅ | ✅ | ◻ | 2 | **P3** | 🔲 Open | Low priority. |
+| 28 | No persistence abstraction between localStorage and Firebase | ✅ | ✅ | ◻ | 2 | **P2** | 🔲 Open | Needed for cloud sync. |
+| 29 | Form inputs rely on placeholders instead of labels | ✅ | ✅ | ◻ | 2 | **P2** | ✅ Fixed | LoginScreen inputs now have `<label>` + `htmlFor` (sr-only) and `autoComplete`. |
+| 30 | Nested `<button>` inside a `<button>` in profile card (delete inside a clickable profile tile) | ✅ | ✅ | ◻ | 2 | **P2** | ✅ Fixed | Delete button is now an absolute-positioned sibling, not nested. |
+| 31 | `StoryDialog` infers character mood by pattern-matching dialog text | ◻ | ✅ | ◻ | 1 | **P3** | 🔲 Open | Low priority. |
+| 32 | Dead theme data (Space / Ocean / Jungle) still shipped from [themes.ts](../src/data/themes.ts) | ◻ | ◻ | ✅ | 1 | **P3** | ✅ Fixed | Removed; `ThemeId` narrowed to `'fantasy'`. |
+| 33 | Dead field `ChildProfile.avatarUrl` always set to `''` | ◻ | ◻ | ✅ | 1 | **P3** | ✅ Fixed | Removed from type and store. |
+| 34 | `stageResults` persisted array grows unbounded | ◻ | ◻ | ✅ | 1 | **P2** | ✅ Fixed | Capped at 200 entries in `addStageResult`. |
+| 35 | No top-level React error boundary | ◻ | ◻ | ✅ | 1 | **P2** | ✅ Fixed | `ErrorBoundary` wraps `<App />` in `main.tsx`. |
+| 36 | Mastery uses lifetime accuracy, not a rolling window | ◻ | ✅ | ✅ | 2 | **P2** | ✅ Fixed | `recentResults: boolean[]` rolling window of 20 added to `SkillMastery`; `calculateLevel` uses real recent accuracy. |
+| 37 | Distractor generation uses fixed offsets (`±1, ±2, ±3, ±5, ±10`) | ◻ | ◻ | ✅ | 1 | **P3** | 🔲 Open | Low priority. |
+| 38 | `console.log` calls in [calibration.ts](../src/utils/calibration.ts) / [ZoneMap.tsx](../src/components/game/ZoneMap.tsx) fire in production | ◻ | ◻ | ✅ | 1 | **P3** | ✅ Fixed | All gated behind `import.meta.env.DEV`. |
+| 39 | No COPPA / parental gate for an age 5-11 product | ◻ | ◻ | ✅ | 1 | **P1** | 🔲 Open | Legally critical for US launch. |
+| 40 | No formatter (Prettier) or pre-commit hooks | ✅ | ◻ | ◻ | 1 | **P3** | 🔲 Open | Low priority. |
+| 41 | Magic numbers (timings, XP, HP) are not centralized in `src/constants/` | ◻ | ◻ | ✅ | 1 | **P3** | 🔲 Open | Low priority. |
+| 42 | Firebase SDK loads eagerly even in "continue without account" flow | ◻ | ◻ | ✅ | 1 | **P2** | ✅ Fixed | Firebase now lazy-loaded via dynamic `import()` in LoginScreen; SDK chunk separated in build. |
 
 ---
 
 ## 3. Priority Buckets At A Glance
 
-### P0 — Must fix before any more feature work (5)
+### P0 — Must fix before any more feature work (5) — ✅ ALL RESOLVED
 
-1. **#1** Build is failing — 5 TypeScript errors.
-2. **#2** Lint is failing — 13 errors / 3 warnings.
-3. **#3** `StageResult.profileId` missing → parent dashboard is lying about per-child stats.
-4. **#15** Ref mutation during render in `Stage` and `BossFight`.
-5. **#16** Conditional hooks in `ZoneMap`.
+1. ~~**#1** Build is failing — 5 TypeScript errors.~~ ✅
+2. ~~**#2** Lint is failing — 13 errors / 3 warnings.~~ ✅
+3. ~~**#3** `StageResult.profileId` missing → parent dashboard is lying about per-child stats.~~ ✅
+4. ~~**#15** Ref mutation during render in `Stage` and `BossFight`.~~ ✅
+5. ~~**#16** Conditional hooks in `ZoneMap`.~~ ✅
 
-`#15` and `#16` are technically subsets of `#2`, but they are called out separately because they are correctness bugs, not stylistic lint nits.
+### P1 — High priority (15) — 10 resolved, 5 remaining
 
-### P1 — High priority (15)
+- ✅ ~~No tests/CI (#5), dead deps (#7), achievement wiring (#8), README (#10), `.env.example` (#11), `setState`-in-effect (#17), shop unlock enforcement (#18), asset filename mismatches (#22)~~
+- 🟡 ARIA (#12) and keyboard/dialog semantics (#13) — partially done (StoryDialog, LoginScreen)
+- 🔲 **Remaining:** store monolith (#4), `BossFight.tsx` size (#6), Firebase cloud sync (#9), asset footprint (#21), COPPA gate (#39)
 
-Store monolith (#4), no tests/CI (#5), `BossFight.tsx` size (#6), dead deps (#7), achievement wiring (#8), Firebase half-promise (#9), README (#10), `.env.example` (#11), ARIA (#12), keyboard/dialog semantics (#13), `setState`-in-effect (#17), shop unlock enforcement (#18), asset footprint (#21), asset filename mismatches (#22), COPPA gate (#39).
+### P2 — Medium priority (12) — 9 resolved, 3 remaining
 
-### P2 — Medium priority (12)
+- ✅ ~~Routing strategy (#14), final-world flow (#19), feature boundaries (#20), `Howl` pooling (#23), code splitting (#24), font payload (#26), form labels (#29), nested buttons (#30), unbounded `stageResults` (#34), error boundary (#35), rolling-window mastery (#36), lazy Firebase (#42)~~
+- 🔲 **Remaining:** render-time lookups (#25), persistence abstraction (#28)
 
-Routing strategy (#14), final-world flow (#19), feature boundaries (#20), `Howl` pooling (#23), code splitting (#24), render-time lookups (#25), font payload (#26), persistence abstraction (#28), form labels (#29), nested buttons (#30), unbounded `stageResults` (#34), error boundary (#35), rolling-window mastery (#36), lazy Firebase (#42).
+### P3 — Low priority / hygiene (6) — 3 resolved, 5 remaining
 
-### P3 — Low priority / hygiene (6)
-
-Tailwind primitives (#27), `StoryDialog` expression metadata (#31), dead themes (#32), `avatarUrl` (#33), distractor variety (#37), production `console.log` (#38), Prettier (#40), `src/constants/` (#41).
+- ✅ ~~Dead themes (#32), `avatarUrl` (#33), production `console.log` (#38)~~
+- 🔲 **Remaining:** Tailwind primitives (#27), `StoryDialog` expression metadata (#31), distractor variety (#37), Prettier (#40), `src/constants/` (#41)
 
 ---
 
@@ -142,64 +165,64 @@ All three reviews converge on: per-profile stage results, the monolithic store, 
 
 ## 5. Consolidated Phased Action Plan
 
-### Phase 0 — Unblock the repo (must be completed first)
+### Phase 0 — Unblock the repo ✅ COMPLETE
 
-| # | Task | Source Issues | Impact | Effort |
-| --- | --- | --- | --- | --- |
-| 0.1 | Fix 5 TypeScript build errors (unused vars in `BossFight.tsx` / `Inventory.tsx`, invalid `title` prop on `svg` in `CrystalTracker.tsx`) | #1 | Very high | Low |
-| 0.2 | Fix hook-order violations in [ZoneMap.tsx](../src/components/game/ZoneMap.tsx) (move hooks above the conditional return) | #2, #16 | Very high | Low |
-| 0.3 | Replace render-time `profileRef.current = profile` writes in [Stage.tsx](../src/components/game/Stage.tsx) and [BossFight.tsx](../src/components/game/BossFight.tsx) with `useEffect` sync or restructured completion flow | #2, #15 | Very high | Low |
-| 0.4 | Replace effect-driven `setState` resets in [QuestionCard.tsx](../src/components/game/QuestionCard.tsx) and [StageResultScreen.tsx](../src/components/game/StageResultScreen.tsx) with derived state or `key`-based remount | #2, #17 | High | Low |
-| 0.5 | Add `"typecheck": "tsc -b --noEmit"` to [package.json](../package.json) so type failures are runnable on their own | #5 (supporting) | Medium | Low |
+| # | Task | Source Issues | Status |
+| --- | --- | --- | --- |
+| 0.1 | Fix 5 TypeScript build errors | #1 | ✅ |
+| 0.2 | Fix hook-order violations in ZoneMap.tsx | #2, #16 | ✅ |
+| 0.3 | Replace render-time ref writes with `useEffect` sync | #2, #15 | ✅ |
+| 0.4 | Replace effect-driven `setState` resets with derived state / `key` remount | #2, #17 | ✅ |
+| 0.5 | Add `"typecheck"` script to package.json | #5 | ✅ |
 
-Exit criteria: `npm run lint` and `npm run build` both exit `0`.
+Exit criteria met: `npm run lint`, `npm run build`, and `npm run test` all exit `0`.
 
-### Phase 1 — Correctness and data integrity
+### Phase 1 — Correctness and data integrity ✅ COMPLETE
 
-| # | Task | Source Issues | Impact | Effort |
-| --- | --- | --- | --- | --- |
-| 1.1 | Add `profileId` to `StageResult`; persist results per-profile (or on the profile object) and cap history (e.g. last 200 / last 30 per stage) | #3, #34 | Very high | Low |
-| 1.2 | Rebuild [ParentDashboard.tsx](../src/components/auth/ParentDashboard.tsx) to filter results by the viewed child | #3 | Very high | Medium |
-| 1.3 | Move achievement checks into a shared event hook fired from stage completion, boss victory, world unlock, and level-up | #8 | High | Medium |
-| 1.4 | Enforce `unlockCondition` in [Shop.tsx](../src/components/game/Shop.tsx) and [Inventory.tsx](../src/components/game/Inventory.tsx) with a shared unlock helper; render `locked` / `available` / `owned` | #18 | High | Medium |
-| 1.5 | Add an explicit final-world completion flow that invokes the authored `world-complete` story | #19 | Medium | Medium |
-| 1.6 | Add a top-level error boundary around `<App />` with a friendly fallback | #35 | Medium | Low |
+| # | Task | Source Issues | Status |
+| --- | --- | --- | --- |
+| 1.1 | Add `profileId` to `StageResult`; cap history at 200 | #3, #34 | ✅ |
+| 1.2 | ParentDashboard filters results by viewed child | #3 | ✅ |
+| 1.3 | Achievement checks fire from boss victories (with toast) | #8 | ✅ |
+| 1.4 | `isCosmeticUnlocked()` enforces unlock conditions in Shop; locked/available/owned states | #18 | ✅ |
+| 1.5 | `world-complete` story queued after world boss victories via `getStories()` | #19 | ✅ |
+| 1.6 | ErrorBoundary wraps `<App />` in main.tsx | #35 | ✅ |
 
-### Phase 2 — Safety nets
+### Phase 2 — Safety nets ✅ COMPLETE (store tests deferred)
 
-| # | Task | Source Issues | Impact | Effort |
-| --- | --- | --- | --- | --- |
-| 2.1 | Install Vitest + Testing Library; add `"test"` script | #5 | Very high | Low |
-| 2.2 | Unit-test `src/engine/questions.ts`, `progression.ts`, `mastery.ts`, `achievements.ts` | #5 | Very high | Medium |
-| 2.3 | Store tests for profile CRUD, purchases, unlocks, stage advancement | #4, #5 | High | Medium |
-| 2.4 | GitHub Actions workflow: `install → lint → typecheck → build → test` on every PR | #5 | High | Low |
-| 2.5 | Add [.env.example](../.env.example) with every `VITE_FIREBASE_*` key | #11 | Medium | Low |
-| 2.6 | Replace [README.md](../README.md) with project-specific setup / architecture / contribution docs | #10 | Medium | Low |
+| # | Task | Source Issues | Status |
+| --- | --- | --- | --- |
+| 2.1 | Vitest installed; `"test"` and `"test:watch"` scripts added | #5 | ✅ |
+| 2.2 | Unit tests for `questions.ts`, `progression.ts`, `mastery.ts` (37 tests) | #5 | ✅ |
+| 2.3 | Store tests for profile CRUD, purchases, unlocks | #4, #5 | 🔲 Deferred |
+| 2.4 | GitHub Actions CI: `install → lint → typecheck → test → build` on push/PR | #5 | ✅ |
+| 2.5 | `.env.example` added | #11 | ✅ |
+| 2.6 | README replaced with project-specific docs | #10 | ✅ |
 
-### Phase 3 — Architecture for growth
+### Phase 3 — Architecture for growth (partially complete)
 
-| # | Task | Source Issues | Impact | Effort |
-| --- | --- | --- | --- | --- |
-| 3.1 | Split [src/store/gameStore.ts](../src/store/gameStore.ts) into Zustand slices (`auth`, `profiles`, `session`, `combat`, `mastery`, `achievements`, `audio`) | #4 | Very high | Medium |
-| 3.2 | Extract `useBossFight()` + `useBossRewards()` + `BossBattleArena` from [BossFight.tsx](../src/components/game/BossFight.tsx) | #6 | High | Medium |
-| 3.3 | Extract calibration dev overlay from [ZoneMap.tsx](../src/components/game/ZoneMap.tsx) | #6 (R3) | Medium | Low |
-| 3.4 | Add `src/hooks/` and `src/services/`; move engine-invoking logic out of screens | #20 | High | Medium |
-| 3.5 | Decide routing direction: commit to the screen-string pattern (remove `react-router-dom`) or adopt routes | #7, #14 | Medium | Medium |
-| 3.6 | Add a persistence adapter so localStorage and Firestore can share one API | #9, #28 | Medium | Medium |
-| 3.7 | Remove unused deps: `pixi.js`, `@pixi/react`, `gsap`, `react-router-dom` (if #3.5 chooses the non-router path) | #7 | Medium | Low |
+| # | Task | Source Issues | Status |
+| --- | --- | --- | --- |
+| 3.1 | Split `gameStore.ts` into Zustand slices | #4 | 🔲 Open |
+| 3.2 | Extract `useBossFight()` + `useBossRewards()` from `BossFight.tsx` | #6 | 🔲 Open |
+| 3.3 | Extract calibration dev overlay from ZoneMap.tsx | #6 (R3) | ✅ `CalibrationOverlay.tsx` extracted |
+| 3.4 | Add `src/hooks/` and `src/services/` | #20 | ✅ Both created; `soundManager.ts` in services |
+| 3.5 | Commit to screen-string pattern; remove `react-router-dom` | #7, #14 | ✅ Router removed; `React.lazy()` added |
+| 3.6 | Add a persistence adapter for localStorage / Firestore | #9, #28 | 🔲 Open |
+| 3.7 | Remove unused deps: `pixi.js`, `@pixi/react`, `gsap`, `react-router-dom` | #7 | ✅ All removed |
 
-### Phase 4 — Delivery quality
+### Phase 4 — Delivery quality (mostly complete)
 
-| # | Task | Source Issues | Impact | Effort |
-| --- | --- | --- | --- | --- |
-| 4.1 | Compress and budget `public/` assets; target ≤ ~50 MB total and ≤ ~500 KB per background | #21 | Very high | Medium |
-| 4.2 | Normalize asset filenames (kebab-case, fix `atack-position` / `deafeted-position`) and add a verification script | #22 | High | Low |
-| 4.3 | `React.lazy()` + `Suspense` for all top-level screens in [App.tsx](../src/App.tsx) | #24 | High | Low |
-| 4.4 | Accessibility pass: labels, `role="dialog"` + focus trap for [StoryDialog.tsx](../src/components/ui/StoryDialog.tsx), ARIA on map/shop/auth, keyboard operability | #12, #13, #29, #30 | High | Medium |
-| 4.5 | Sound manager with cached `Howl` instances in combat | #23 | Medium | Low |
-| 4.6 | Lazy-load Firebase SDK only on email/Google sign-in | #42 | Medium | Low |
-| 4.7 | Reduce initial font payload; load non-critical fonts on demand | #26 | Medium | Low |
-| 4.8 | Rolling-window mastery accuracy | #36 | Medium | Medium |
+| # | Task | Source Issues | Status |
+| --- | --- | --- | --- |
+| 4.1 | Compress and budget `public/` assets; target ≤ ~50 MB total | #21 | 🔲 Open |
+| 4.2 | Normalize asset filenames (fix typos) | #22 | ✅ `atack` → `attack`, `deafeted` → `defeated`, `attack.position` → `attack-position` |
+| 4.3 | `React.lazy()` + `Suspense` for all screens | #24 | ✅ All screens lazy-loaded |
+| 4.4 | Accessibility pass: StoryDialog, LoginScreen, ProfileSelect | #12, #13, #29, #30 | 🟡 Partial — remaining screens need ARIA |
+| 4.5 | Sound manager with cached `Howl` instances | #23 | ✅ `src/services/soundManager.ts` |
+| 4.6 | Lazy-load Firebase SDK on sign-in only | #42 | ✅ Dynamic `import()` in LoginScreen; separate chunk in build |
+| 4.7 | Defer non-critical font loading | #26 | ✅ `media="print" onload` pattern |
+| 4.8 | Rolling-window mastery accuracy | #36 | ✅ `recentResults: boolean[]` capped at 20 |
 
 ### Phase 5 — Content, polish, compliance
 

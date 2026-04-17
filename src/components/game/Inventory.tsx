@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { AVATARS, STARTER_AVATARS } from '../../data/avatars';
 import { getCosmeticsByCategory } from '../../data/cosmetics';
-import { SIDEKICKS } from '../../data/sidekicks';
+import { SIDEKICKS, getSidekick } from '../../data/sidekicks';
 import { CRYSTALS } from '../../data/crystals';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import type { CosmeticCategory, EquippedCosmetics } from '../../types';
@@ -240,7 +240,7 @@ export function Inventory() {
               </div>
               {profile.activeSidekick && (
                 <p className="text-xs text-indigo-300">
-                  {SIDEKICKS.find((s) => s.id === profile.activeSidekick)?.description}
+                  {getSidekick(profile.activeSidekick)?.description}
                 </p>
               )}
             </div>

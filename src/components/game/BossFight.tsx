@@ -1,343 +1,49 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useGameStore, useActiveProfile } from '../../store/gameStore';
-import { generateStageQuestions } from '../../engine/questions';
-import { getBoss, getBossSprite, getBossSfx } from '../../data/bosses';
-import { WORLDS } from '../../data/worlds';
-import { getCrystalForWorld } from '../../data/crystals';
-import { getAvatarsUnlockedAtWorld } from '../../data/avatars';
-import { SIDEKICKS } from '../../data/sidekicks';
-import { getStory, getStories } from '../../data/stories';
-import { xpForCorrectAnswer, applyXp, coinsForBossDefeat } from '../../engine/progression';
+import { getBossSprite } from '../../data/bosses';
+import { getSidekick } from '../../data/sidekicks';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
 import { CrystalTracker } from '../ui/CrystalTracker';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 import { AchievementToast } from '../ui/AchievementToast';
-import { playSfx as playCachedSfx } from '../../services/soundManager';
-import { checkAchievements } from '../../engine/achievements';
-
-type BossPose = 'base-position' | 'attack-position' | 'hit-position' | 'defeated-position';
+import { useBossFight } from '../../hooks/useBossFight';
 
 export function BossFight() {
   const {
-    currentWorldIndex,
-    currentStageIndex,
+    profile,
+    world,
+    boss,
     bossHp,
     bossMaxHp,
     playerHp,
     playerMaxHp,
     shieldActive,
-    setBossFight,
-    damageBoss,
-    damagePlayer,
-    setScreen,
-    resetStage,
-    updateProfile,
-    unlockSidekick,
-    collectCrystal,
-    unlockAvatars,
-    muted,
-    setCurrentStage,
-  } = useGameStore();
-
-  const profile = useActiveProfile();
-  const world = WORLDS[currentWorldIndex];
-  const stageDef = world?.stages[currentStageIndex];
-
-  // Determine which boss to use
-  const isBossFight = stageDef?.type === 'world-boss';
-  const bossId = isBossFight ? world.bossId : world.miniBossId;
-  const boss = getBoss(bossId);
-
-  const [pose, setPose] = useState<BossPose>('base-position');
-  const [sidekickPose, setSidekickPose] = useState<'base-position' | 'attack-position' | 'hit-position'>('base-position');
-  const [shaking, setShaking] = useState(false);
-  const [flashVisible, setFlashVisible] = useState(false);
-  const [questions, setQuestions] = useState(
-    generateStageQuestions(stageDef?.tier ?? 1, stageDef?.questionCount ?? 5, stageDef?.difficulty ?? 1.0),
-  );
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [fightOver, setFightOver] = useState(false);
-  const [victory, setVictory] = useState(false);
-  const [xpEarned, setXpEarned] = useState(0);
-  const [initialized, setInitialized] = useState(false);
-  const fightOverRef = useRef(false);
-  const profileRef = useRef(profile);
-  useEffect(() => {
-    profileRef.current = profile;
-  }, [profile]);
-
-  // Story dialogs
-  const bossIntro = isBossFight
-    ? getStory('boss-intro', currentWorldIndex, currentStageIndex)
-    : getStory('mini-boss-intro', currentWorldIndex, currentStageIndex);
-  const bossVictoryStory = isBossFight ? getStory('boss-victory', currentWorldIndex) : undefined;
-  const [showBossIntro, setShowBossIntro] = useState(!!bossIntro);
-  const [showVictoryStory, setShowVictoryStory] = useState(false);
-  // Queued post-victory dialogs (shown one at a time, in order)
-  const [pendingDialogs, setPendingDialogs] = useState<import('../../data/stories').StoryEntry[]>([]);
-
-  // Achievement tracking
-  const [bossAchievements, setBossAchievements] = useState<string[]>([]);
-  const [toastIndex, setToastIndex] = useState(0);
-
-  const dismissCurrentDialog = () => {
-    setPendingDialogs((prev) => prev.slice(1));
-  };
-
-  // Initialize boss fight
-  useEffect(() => {
-    const hp = isBossFight ? boss.hp : Math.max(3, boss.hp - 3);
-    const playerHpVal = profile?.stats.maxHp ?? 3;
-    const shield = profile?.stats.shieldUnlocked ?? false;
-
-    setBossFight(hp, playerHpVal, shield);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time init flag; refactor when extracting useBossFight() (Phase 3).
-    setInitialized(true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Play SFX
-  const playSfx = useCallback(
-    (action: 'attack' | 'hit' | 'victory') => {
-      if (muted) return;
-      const src = getBossSfx(boss, action);
-      playCachedSfx(src);
-    },
-    [boss, muted],
-  );
-
-  // Check for fight end (only after initialization)
-  useEffect(() => {
-    if (!initialized || fightOverRef.current) return;
-    const profile = profileRef.current;
-
-    if (bossHp <= 0) {
-      // Victory!
-      fightOverRef.current = true;
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- state-machine transition driven by game state; move into a reducer / useBossFight() in Phase 3.
-      setPose('defeated-position');
-      playSfx('victory');
-      setVictory(true);
-      setFightOver(true);
-      if (isBossFight && bossVictoryStory) {
-        setShowVictoryStory(true);
-      }
-
-      // Reward player
-      if (profile) {
-        const coins = coinsForBossDefeat(bossMaxHp, stageDef?.tier ?? 1);
-        const updatedStats = applyXp(
-          { ...profile.stats, coins: profile.stats.coins + coins },
-          xpEarned,
-        );
-        // Both mini-boss and world-boss victories advance stage progress
-        const nextStage = currentStageIndex + 1;
-        updateProfile(profile.id, {
-          stats: updatedStats,
-          currentWorld:
-            isBossFight && currentWorldIndex < WORLDS.length - 1
-              ? currentWorldIndex + 1
-              : profile.currentWorld,
-          currentStage: isBossFight
-            ? 0 // Reset stage for new world
-            : Math.max(profile.currentStage, nextStage), // Mini-boss: advance stage
-        });
-
-        const queuedDialogs: import('../../data/stories').StoryEntry[] = [];
-
-        // Unlock mini-boss as sidekick
-        if (!isBossFight) {
-          const sidekickId = bossId as import('../../types').SidekickId;
-          const alreadyOwned = (profile.unlockedSidekicks ?? []).includes(sidekickId);
-          unlockSidekick(profile.id, sidekickId);
-          if (!alreadyOwned) {
-            // Queue sidekick dialog (will show after victory story if any)
-            queuedDialogs.push({
-              trigger: 'boss-victory',
-              worldIndex: currentWorldIndex,
-              speaker: 'Pip',
-              portrait: '🦊',
-              lines: [
-                `OH MY WHISKERS! Did you see that?! We beat ${boss.name}!`,
-                `And... wait... is it... following us?! *looks behind nervously*`,
-                `It IS! ${boss.name} wants to be your sidekick! Without Zalthor's magic, it's actually really cute!`,
-                `You can equip ${boss.name} as your companion in the Inventory! It'll follow you everywhere!`,
-                `...I'm still your BEST friend though, right? RIGHT?! 🥺`,
-              ],
-            });
-          }
-        }
-
-        // Collect crystal on world-boss victory
-        if (isBossFight) {
-          const crystal = getCrystalForWorld(currentWorldIndex);
-          if (crystal) {
-            collectCrystal(profile.id, crystal.id);
-          }
-
-          // Unlock avatars tied to this world
-          const newAvatars = getAvatarsUnlockedAtWorld(currentWorldIndex);
-          const alreadyUnlocked = new Set(profile.unlockedAvatars ?? []);
-          const toUnlock = newAvatars.filter((a) => !alreadyUnlocked.has(a.id));
-          if (toUnlock.length > 0) {
-            unlockAvatars(profile.id, toUnlock.map((a) => a.id));
-            // Queue avatar unlock letter
-            queuedDialogs.push({
-              trigger: 'boss-victory',
-              worldIndex: currentWorldIndex,
-              speaker: 'Professor Hoot',
-              portrait: '🦉',
-              lines: [
-                '📜 *A magical letter floats down from the sky*',
-                `Splendid work, Hero! Your bravery has inspired new warriors to join your cause!`,
-                `New avatars unlocked: ${toUnlock.map((a) => a.name).join(', ')}!`,
-                ...(currentWorldIndex >= 3
-                  ? [`Visit the Shop on the world map to purchase and equip them!`]
-                  : [`These heroes will be waiting for you in the Shop — which will open once you've proven yourself in more worlds. Keep adventuring!`]
-                ),
-                'Yours in wisdom, Prof. Hoot 🦉',
-              ],
-            });
-          }
-        }
-
-        // Queue world-complete dialogs (final-world ending sequence)
-        if (isBossFight) {
-          const worldCompleteStories = getStories('world-complete', currentWorldIndex);
-          queuedDialogs.push(...worldCompleteStories);
-        }
-
-        // Set all queued dialogs
-        if (queuedDialogs.length > 0) {
-          setPendingDialogs(queuedDialogs);
-        }
-
-        // Check achievements after boss rewards are applied
-        // Use setTimeout to let store updates settle
-        setTimeout(() => {
-          setBossAchievements(checkAchievements());
-        }, 0);
-      }
-    } else if (playerHp <= 0) {
-      // Defeat
-      fightOverRef.current = true;
-      setPose('attack-position');
-      setFightOver(true);
-      setVictory(false);
-    }
-  }, [
-    initialized,
-    bossHp,
-    playerHp,
-    bossMaxHp,
+    fightOver,
+    victory,
     xpEarned,
-    isBossFight,
-    currentWorldIndex,
-    currentStageIndex,
-    stageDef,
-    bossId,
-    boss.name,
+    currentQuestion,
+    crystalReward,
+    pose,
+    sidekickPose,
+    shaking,
+    flashVisible,
+    bossIntro,
     bossVictoryStory,
-    updateProfile,
-    unlockSidekick,
-    collectCrystal,
-    unlockAvatars,
-    playSfx,
-  ]);
+    showBossIntro,
+    setShowBossIntro,
+    showVictoryStory,
+    setShowVictoryStory,
+    pendingDialogs,
+    dismissCurrentDialog,
+    bossAchievements,
+    toastIndex,
+    setToastIndex,
+    handleAnswer,
+    handleRetreat,
+    handlePostFight,
+  } = useBossFight();
 
-  const handleAnswer = useCallback(
-    (_userAnswer: number, isCorrect: boolean) => {
-      if (fightOver) return;
-
-      if (isCorrect) {
-        // Step 1: Sidekick attacks immediately (action)
-        setSidekickPose('attack-position');
-        playSfx('hit');
-        setXpEarned((prev) => prev + xpForCorrectAnswer(0, stageDef?.tier ?? 1));
-
-        // Step 2: Boss reacts (reaction)
-        setTimeout(() => {
-          damageBoss(1);
-          setPose('hit-position');
-          setShaking(true);
-          setFlashVisible(true);
-        }, 500);
-
-        // Step 3: Reset both
-        setTimeout(() => {
-          setSidekickPose('base-position');
-          setShaking(false);
-          setFlashVisible(false);
-          if (bossHp - 1 > 0) {
-            setPose('base-position');
-          }
-        }, 900);
-      } else {
-        // Step 1: Boss attacks immediately (action)
-        damagePlayer();
-        setPose('attack-position');
-        playSfx('attack');
-
-        // Step 2: Sidekick reacts (reaction)
-        setTimeout(() => {
-          setSidekickPose('hit-position');
-        }, 500);
-
-        // Step 3: Reset both
-        setTimeout(() => {
-          setSidekickPose('base-position');
-          if (playerHp - 1 > 0) {
-            setPose('base-position');
-          }
-        }, 900);
-      }
-
-      // Next question
-      setTimeout(() => {
-        if (questionIndex < questions.length - 1) {
-          setQuestionIndex((i) => i + 1);
-        } else {
-          // Generate more questions if boss is still alive
-          const newQ = generateStageQuestions(stageDef?.tier ?? 1, 5, stageDef?.difficulty ?? 1.0);
-          setQuestions((prev) => [...prev, ...newQ]);
-          setQuestionIndex((i) => i + 1);
-        }
-      }, 1100);
-    },
-    [
-      fightOver,
-      damageBoss,
-      damagePlayer,
-      playSfx,
-      bossHp,
-      playerHp,
-      questionIndex,
-      questions.length,
-      stageDef,
-    ],
-  );
-
-  const handleRetreat = () => {
-    resetStage();
-    setScreen('zone-map');
-  };
-
-  const handlePostFight = () => {
-    resetStage();
-    if (victory) {
-      // Return to zone map to see the completed state, or world map if world is done
-      const isFinalStage = currentStageIndex >= (world?.stages.length ?? 1) - 1;
-      setScreen(isFinalStage ? 'world-map' : 'zone-map');
-    } else {
-      // Go back to zone map to retry
-      setCurrentStage(Math.max(0, currentStageIndex - 2));
-      setScreen('zone-map');
-    }
-  };
-
-  const currentQuestion = questions[questionIndex];
-  const crystalReward = isBossFight ? getCrystalForWorld(currentWorldIndex) : null;
+  const crystalRewardData = crystalReward;
 
   return (
     <div
@@ -407,7 +113,7 @@ export function BossFight() {
             />
             {/* Sidekick with dynamic pose during fight */}
             {profile.activeSidekick && (() => {
-              const sk = SIDEKICKS.find((s) => s.id === profile.activeSidekick);
+              const sk = getSidekick(profile.activeSidekick);
               if (!sk) return null;
               const skSize = 400 * 0.45;
               const isFlying = sk.placement === 'flying';
@@ -439,15 +145,15 @@ export function BossFight() {
             <h2 className="text-2xl font-bold">
               {victory ? '🎉 Victory!' : '💀 Defeated...'}
             </h2>
-            {victory && crystalReward && (
+            {victory && crystalRewardData && (
               <div className="flex flex-col items-center gap-2 animate-bounce-slow">
                 <img
-                  src={crystalReward.spritePath}
-                  alt={crystalReward.name}
+                  src={crystalRewardData.spritePath}
+                  alt={crystalRewardData.name}
                   className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]"
                 />
-                <p className="text-sm font-semibold" style={{ color: crystalReward.color }}>
-                  {crystalReward.name} obtained!
+                <p className="text-sm font-semibold" style={{ color: crystalRewardData.color }}>
+                  {crystalRewardData.name} obtained!
                 </p>
               </div>
             )}

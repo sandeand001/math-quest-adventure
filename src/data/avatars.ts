@@ -33,11 +33,14 @@ export const AVATARS: AvatarDefinition[] = [
 export const STARTER_AVATARS = AVATARS.filter((a) => a.starter);
 export const UNLOCKABLE_AVATARS = AVATARS.filter((a) => !a.starter);
 
+/** Id-keyed map for O(1) lookups. */
+const AVATAR_MAP = new Map(AVATARS.map((a) => [a.id, a]));
+
 /** Get avatars unlocked at a specific world. */
 export function getAvatarsUnlockedAtWorld(worldIndex: number): AvatarDefinition[] {
   return AVATARS.filter((a) => a.unlockWorld === worldIndex);
 }
 
 export function getAvatar(id: string): AvatarDefinition | undefined {
-  return AVATARS.find((a) => a.id === id);
+  return AVATAR_MAP.get(id);
 }

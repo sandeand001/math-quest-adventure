@@ -1,5 +1,5 @@
 import type { SidekickId } from '../../types';
-import { SIDEKICKS } from '../../data/sidekicks';
+import { SIDEKICKS, getSidekick } from '../../data/sidekicks';
 
 interface SidekickPickerProps {
   unlockedSidekicks: SidekickId[];
@@ -71,7 +71,7 @@ export function SidekickPicker({ unlockedSidekicks, activeSidekick, onSelect }: 
 
       {activeSidekick && (
         <p className="text-xs text-indigo-300">
-          {SIDEKICKS.find((s) => s.id === activeSidekick)?.description}
+          {getSidekick(activeSidekick)?.description}
         </p>
       )}
     </div>

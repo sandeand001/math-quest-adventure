@@ -54,6 +54,7 @@ export function WorldMap() {
           onClick={() => setScreen('inventory')}
           className="text-sm shrink-0 hover:opacity-80 transition-opacity"
           title="Inventory"
+          aria-label="Open inventory"
         >
           🎒
         </button>
@@ -61,12 +62,14 @@ export function WorldMap() {
           onClick={toggleMute}
           className="text-sm shrink-0 hover:opacity-80 transition-opacity"
           title={muted ? 'Unmute' : 'Mute'}
+          aria-label={muted ? 'Unmute sound' : 'Mute sound'}
         >
           {muted ? '🔇' : '🔊'}
         </button>
         <button
           onClick={() => setScreen('parent-dashboard')}
           className="text-xs text-amber-200/40 hover:text-amber-200 transition-colors shrink-0"
+          aria-label="Parent dashboard"
         >
           📊
         </button>
@@ -104,6 +107,7 @@ export function WorldMap() {
                     left: `${node.left}%`,
                   }}
                   title={isUnlocked ? worldName : '🔒 Locked'}
+                  aria-label={isUnlocked ? `Enter ${worldName}${isCompleted ? ' (completed)' : isCurrent ? ' (current)' : ''}` : `${worldName} — locked`}
                 >
                   {/* Node circle */}
                   <div

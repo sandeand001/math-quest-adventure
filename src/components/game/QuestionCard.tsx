@@ -52,7 +52,7 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto">
+    <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto" role="region" aria-label="Math question">
       {/* Streak indicator */}
       {streak >= 3 && (
         <div className="text-sm font-bold text-orange-400 animate-pulse">
@@ -75,6 +75,7 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
           ${feedback === 'wrong' ? 'text-red-400' : ''}
           ${feedback === null ? 'text-white' : ''}
         `}
+        aria-label={`Solve: ${question.displayEquation}`}
       >
         {question.displayEquation}
       </div>
@@ -82,6 +83,8 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
       {/* Feedback message */}
       {feedback && (
         <div
+          role="status"
+          aria-live="polite"
           className={`text-lg font-bold ${
             feedback === 'correct' ? 'text-emerald-400' : 'text-red-400'
           }`}
@@ -92,7 +95,7 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
 
       {/* Multiple choice answers */}
       {question.format === 'multiple-choice' && question.choices && (
-        <div className="grid grid-cols-2 gap-3 w-full">
+        <div className="grid grid-cols-2 gap-3 w-full" role="group" aria-label="Answer choices">
           {question.choices.map((choice) => {
             let btnClass =
               'py-4 px-6 rounded-xl text-xl font-bold border-2 transition-all duration-200 cursor-pointer ';
@@ -116,6 +119,7 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
                 className={btnClass}
                 onClick={() => handleChoiceClick(choice)}
                 disabled={feedback !== null}
+                aria-label={`Answer: ${choice}`}
               >
                 {choice}
               </button>
@@ -127,7 +131,9 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
       {/* Fill-in-the-blank input */}
       {question.format !== 'multiple-choice' && (
         <form onSubmit={handleInputSubmit} className="flex gap-3 w-full max-w-xs">
+          <label htmlFor="answer-input" className="sr-only">Your answer</label>
           <input
+            id="answer-input"
             ref={inputRef}
             type="number"
             inputMode="numeric"

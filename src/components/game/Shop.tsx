@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
-import { AVATARS } from '../../data/avatars';
-import { COSMETICS, getCosmeticsByCategory, isCosmeticUnlocked } from '../../data/cosmetics';
+import { AVATARS, getAvatar } from '../../data/avatars';
+import { getCosmeticsByCategory, isCosmeticUnlocked, getCosmetic } from '../../data/cosmetics';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { AvatarGalleryPicker } from '../ui/AvatarGalleryPicker';
 import { SidekickPicker } from '../ui/SidekickPicker';
@@ -58,7 +58,7 @@ export function Shop() {
   };
 
   const handleBuyAvatar = (avatarId: string) => {
-    const avatar = AVATARS.find((a) => a.id === avatarId);
+    const avatar = getAvatar(avatarId);
     if (!avatar) return;
 
     if (avatar.starter) {
@@ -92,7 +92,7 @@ export function Shop() {
   };
 
   const handleBuyCosmetic = (itemId: string) => {
-    const item = COSMETICS.find((c) => c.id === itemId);
+    const item = getCosmetic(itemId);
     if (!item) return;
 
     const equipKey = EQUIP_KEY_MAP[item.category];

@@ -83,10 +83,14 @@ export const CRYSTALS: CrystalDefinition[] = [
   },
 ];
 
+/** Id-keyed map for O(1) lookups. */
+const CRYSTAL_MAP = new Map<string, CrystalDefinition>(CRYSTALS.map((c) => [c.id, c]));
+const CRYSTAL_WORLD_MAP = new Map(CRYSTALS.map((c) => [c.worldIndex, c]));
+
 export function getCrystal(id: string): CrystalDefinition | undefined {
-  return CRYSTALS.find((c) => c.id === id);
+  return CRYSTAL_MAP.get(id);
 }
 
 export function getCrystalForWorld(worldIndex: number): CrystalDefinition | undefined {
-  return CRYSTALS.find((c) => c.worldIndex === worldIndex);
+  return CRYSTAL_WORLD_MAP.get(worldIndex);
 }

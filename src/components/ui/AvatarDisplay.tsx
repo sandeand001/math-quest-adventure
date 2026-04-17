@@ -1,8 +1,8 @@
 import type { AvatarId, CrystalId, EquippedCosmetics, SidekickId } from '../../types';
 import { getAvatar } from '../../data/avatars';
 import { getCosmetic } from '../../data/cosmetics';
-import { SIDEKICKS } from '../../data/sidekicks';
-import { CRYSTALS } from '../../data/crystals';
+import { getSidekick } from '../../data/sidekicks';
+import { getCrystal } from '../../data/crystals';
 
 interface AvatarDisplayProps {
   avatarId: AvatarId | null;
@@ -26,7 +26,7 @@ export function AvatarDisplay({
   className = '',
 }: AvatarDisplayProps) {
   const avatarDef = avatarId ? getAvatar(avatarId) : null;
-  const sidekickDef = sidekick ? SIDEKICKS.find((s) => s.id === sidekick) : null;
+  const sidekickDef = sidekick ? getSidekick(sidekick) : null;
 
   const bgCosmetic = showBackground && equippedCosmetics?.background ? getCosmetic(equippedCosmetics.background) : null;
   const effectCosmetic = equippedCosmetics?.effect ? getCosmetic(equippedCosmetics.effect) : null;
@@ -177,7 +177,7 @@ export function AvatarDisplay({
               }}
             >
               {collectedCrystals.map((cId, idx) => {
-                const crystal = CRYSTALS.find((c) => c.id === cId);
+                const crystal = getCrystal(cId);
                 if (!crystal) return null;
                 const total = collectedCrystals.length;
                 const angle = (360 / total) * idx - 90;

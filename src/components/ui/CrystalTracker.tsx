@@ -1,5 +1,5 @@
 import type { CrystalId } from '../../types';
-import { CRYSTALS } from '../../data/crystals';
+import { getCrystal } from '../../data/crystals';
 
 interface CrystalTrackerProps {
   collectedCrystals: CrystalId[];
@@ -15,7 +15,7 @@ export function CrystalTracker({ collectedCrystals, size = 'md' }: CrystalTracke
 
   // Only show crystals the player has actually collected
   const collectedDefs = collectedCrystals
-    .map((id) => CRYSTALS.find((c) => c.id === id))
+    .map((id) => getCrystal(id))
     .filter(Boolean);
 
   return (

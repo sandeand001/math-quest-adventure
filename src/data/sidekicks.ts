@@ -59,6 +59,9 @@ export const SIDEKICKS: SidekickDefinition[] = [
   },
 ];
 
+/** Id-keyed map for O(1) lookups. */
+const SIDEKICK_MAP = new Map<string, SidekickDefinition>(SIDEKICKS.map((s) => [s.id, s]));
+
 export function getSidekick(id: string): SidekickDefinition | undefined {
-  return SIDEKICKS.find((s) => s.id === id);
+  return SIDEKICK_MAP.get(id);
 }

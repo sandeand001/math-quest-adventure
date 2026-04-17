@@ -95,8 +95,11 @@ export const COSMETICS: CosmeticItem[] = [
   { id: 'effect-rainbow', name: 'Rainbow Trail', category: 'effect', description: 'Colorful rainbow particles surround you.', cost: 800, cssClass: 'effect-rainbow' },
 ];
 
+/** Id-keyed map for O(1) lookups. */
+const COSMETIC_MAP = new Map(COSMETICS.map((c) => [c.id, c]));
+
 export function getCosmetic(id: string): CosmeticItem | undefined {
-  return COSMETICS.find((c) => c.id === id);
+  return COSMETIC_MAP.get(id);
 }
 
 export function getCosmeticsByCategory(category: CosmeticItem['category']): CosmeticItem[] {

@@ -176,7 +176,7 @@ export function AvatarDisplay({
                 height: size * 1.1,
               }}
             >
-              {collectedCrystals.map((cId, idx) => {
+              {[...collectedCrystals].reverse().map((cId, idx) => {
                 const crystal = getCrystal(cId);
                 if (!crystal) return null;
                 const total = collectedCrystals.length;

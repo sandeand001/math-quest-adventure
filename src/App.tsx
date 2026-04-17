@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { useGameStore } from './store/gameStore';
 
-const LoginScreen = lazy(() => import('./components/auth/LoginScreen').then((m) => ({ default: m.LoginScreen })));
 const ProfileSelect = lazy(() => import('./components/auth/ProfileSelect').then((m) => ({ default: m.ProfileSelect })));
 const ParentDashboard = lazy(() => import('./components/auth/ParentDashboard').then((m) => ({ default: m.ParentDashboard })));
 const WorldMap = lazy(() => import('./components/game/WorldMap').then((m) => ({ default: m.WorldMap })));
@@ -25,9 +24,6 @@ function App() {
 
   let content;
   switch (screen) {
-    case 'auth':
-      content = <LoginScreen />;
-      break;
     case 'profile-select':
       content = <ProfileSelect />;
       break;
@@ -56,7 +52,7 @@ function App() {
       content = <ParentDashboard />;
       break;
     default:
-      content = <LoginScreen />;
+      content = <ProfileSelect />;
   }
 
   return <Suspense fallback={<ScreenLoader />}>{content}</Suspense>;

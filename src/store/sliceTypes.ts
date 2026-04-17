@@ -24,8 +24,6 @@ export type GameGet = () => GameState;
 export interface CoreSlice {
   screen: GameScreen;
   setScreen: (screen: GameScreen) => void;
-  uid: string | null;
-  setUid: (uid: string | null) => void;
   muted: boolean;
   toggleMute: () => void;
 }

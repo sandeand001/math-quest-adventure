@@ -6,8 +6,6 @@ import { getStory } from '../../data/stories';
 import { WORLDS } from '../../data/worlds';
 import { getPipComment, type PipComment } from '../../data/pipComments';
 import { QuestionCard } from './QuestionCard';
-import { HeartsBar } from '../ui/HeartsBar';
-import { CrystalTracker } from '../ui/CrystalTracker';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 import { playCorrectSfx, playWrongSfx } from '../../services/soundManager';
@@ -242,19 +240,10 @@ export function Stage() {
       </div>
 
       <div className="relative z-10 flex flex-col flex-1">
-      {/* Top bar */}
-      <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
-        <button
-          onClick={() => {
-            useGameStore.getState().resetStage();
-            setScreen('zone-map');
-          }}
-          className="text-gray-400 hover:text-white transition-colors text-sm"
-        >
-          ← Back
-        </button>
+      {/* Progress bar */}
+      <div className="flex items-center gap-3 px-5 py-2 bg-black/20">
         <div className="flex-1">
-          <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -264,13 +253,7 @@ export function Stage() {
         <span className="text-sm text-gray-400 tabular-nums">
           {currentQuestionIndex + 1}/{totalQuestions}
         </span>
-        {activeProfile && (
-          <>
-            <HeartsBar current={activeProfile.stats.hp} max={activeProfile.stats.maxHp} size="sm" />
-            <CrystalTracker collectedCrystals={activeProfile.collectedCrystals ?? []} size="sm" />
-          </>
-        )}
-      </header>
+      </div>
 
       {/* Question area */}
       <main className="flex-1 flex items-center justify-center p-6">

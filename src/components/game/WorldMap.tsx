@@ -2,9 +2,6 @@ import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { getTheme } from '../../data/themes';
 import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE, SHOP_NODE } from '../../data/mapConfig';
-import { XPBar } from '../ui/XPBar';
-import { HeartsBar } from '../ui/HeartsBar';
-import { CrystalTracker } from '../ui/CrystalTracker';
 import { StoryDialog } from '../ui/StoryDialog';
 import { ONBOARDING_STORY } from '../../data/onboarding';
 
@@ -13,8 +10,6 @@ export function WorldMap() {
     setCurrentWorld,
     setScreen,
     resetStage,
-    muted,
-    toggleMute,
     updateProfile,
   } = useGameStore();
 
@@ -42,59 +37,6 @@ export function WorldMap() {
 
   return (
     <div className="min-h-screen bg-[#2a1f14] flex flex-col">
-      {/* Header */}
-      <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-amber-900/30 shrink-0 z-20">
-        <button
-          onClick={() => setScreen('profile-select')}
-          className="text-amber-200/60 hover:text-amber-100 transition-colors text-sm"
-        >
-          ← Profiles
-        </button>
-        <div className="flex-1 min-w-0">
-          <XPBar
-            xp={profile.stats.xp}
-            xpToNext={profile.stats.xpToNextLevel}
-            level={profile.stats.level}
-            name={profile.name}
-            equippedCosmetics={profile.equippedCosmetics ?? null}
-          />
-        </div>
-        <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
-        <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
-        <span className="text-yellow-400 text-sm font-bold shrink-0">🪙 {profile.stats.coins}</span>
-        <button
-          onClick={() => setScreen('inventory')}
-          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
-          title="Inventory"
-          aria-label="Open inventory"
-        >
-          🎒
-        </button>
-        <button
-          onClick={() => setScreen('daily-challenge')}
-          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
-          title="Daily Challenge"
-          aria-label="Daily challenge"
-        >
-          🌟
-        </button>
-        <button
-          onClick={toggleMute}
-          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
-          title={muted ? 'Unmute' : 'Mute'}
-          aria-label={muted ? 'Unmute sound' : 'Mute sound'}
-        >
-          {muted ? '🔇' : '🔊'}
-        </button>
-        <button
-          onClick={() => setScreen('parent-dashboard')}
-          className="text-xs text-amber-200/40 hover:text-amber-200 transition-colors shrink-0"
-          aria-label="Parent dashboard"
-        >
-          📊
-        </button>
-      </header>
-
       {/* Map area — nodes positioned relative to the image via inline aspect-ratio container */}
       <div className="flex-1 overflow-auto flex items-center justify-center bg-[#2a1f14] p-1">
         <div

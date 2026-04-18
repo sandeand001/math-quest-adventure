@@ -4,8 +4,6 @@ import { WORLDS } from '../../data/worlds';
 import { getTheme } from '../../data/themes';
 import { ZONE_MAPS, type ZoneStageNode } from '../../data/mapConfig';
 import { getStory } from '../../data/stories';
-import { HeartsBar } from '../ui/HeartsBar';
-import { CrystalTracker } from '../ui/CrystalTracker';
 import { StoryDialog } from '../ui/StoryDialog';
 import { CalibrationOverlay } from './CalibrationOverlay';
 
@@ -85,16 +83,11 @@ export function ZoneMap() {
   if (!zoneConfig?.image) {
     return (
       <div className={`h-screen bg-gradient-to-b ${zt.bg} flex flex-col`}>
-        <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-white/10 shrink-0 z-20">
-          <button onClick={() => setScreen('world-map')} className="text-amber-200/60 hover:text-amber-100 text-sm">
-            ← World Map
-          </button>
-          <h1 className="flex-1 text-center text-lg font-bold text-amber-100">
+        <div className="px-5 py-2 bg-black/40 text-center shrink-0 z-20">
+          <h1 className="text-lg font-bold text-amber-100">
             {zt.name} {worldName}
           </h1>
-          <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
-          <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
-        </header>
+        </div>
 
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="relative w-full h-full">
@@ -201,14 +194,9 @@ export function ZoneMap() {
   // Full zone map with image
   return (
     <div className="h-screen bg-[#2a1f14] flex flex-col">
-      <header className="flex items-center gap-4 px-5 py-2 bg-black/40 border-b border-amber-900/30 shrink-0 z-20">
-        <button onClick={() => setScreen('world-map')} className="text-amber-200/60 hover:text-amber-100 text-sm">
-          ← World Map
-        </button>
-        <h1 className="flex-1 text-center text-lg font-bold text-amber-100">{worldName}</h1>
-        <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="sm" />
-        <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="sm" />
-      </header>
+      <div className="px-5 py-2 bg-black/40 text-center shrink-0 z-20">
+        <h1 className="text-lg font-bold text-amber-100">{worldName}</h1>
+      </div>
 
       <div className="flex-1 min-h-0 overflow-hidden">
         <div

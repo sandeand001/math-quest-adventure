@@ -67,18 +67,20 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
         </div>
       )}
 
-      {/* Equation display */}
-      <div
-        className={`
-          text-4xl font-bold tracking-wider text-center py-4 transition-colors duration-300
-          ${feedback === 'correct' ? 'text-emerald-400' : ''}
-          ${feedback === 'wrong' ? 'text-red-400' : ''}
-          ${feedback === null ? 'text-white' : ''}
-        `}
-        aria-label={`Solve: ${question.displayEquation}`}
-      >
-        {question.displayEquation}
-      </div>
+      {/* Equation display — hidden for word problems (kids must figure out the operation) */}
+      {!question.wordProblem && (
+        <div
+          className={`
+            text-4xl font-bold tracking-wider text-center py-4 transition-colors duration-300
+            ${feedback === 'correct' ? 'text-emerald-400' : ''}
+            ${feedback === 'wrong' ? 'text-red-400' : ''}
+            ${feedback === null ? 'text-white' : ''}
+          `}
+          aria-label={`Solve: ${question.displayEquation}`}
+        >
+          {question.displayEquation}
+        </div>
+      )}
 
       {/* Feedback message */}
       {feedback && (

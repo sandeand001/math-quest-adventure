@@ -126,39 +126,6 @@ export function RemedialScreen() {
         />
       </div>
 
-      {/* Strategy cards — positioned around the question area during practice */}
-      {phase === 'practice' && lesson.strategies.length > 0 && (
-        <>
-          {/* Top-left strategy */}
-          {lesson.strategies[0] && (
-            <div className="absolute top-16 left-3 z-20 w-52 sm:w-60">
-              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
-                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[0].title}</p>
-                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[0].body}</p>
-              </div>
-            </div>
-          )}
-          {/* Top-right strategy */}
-          {lesson.strategies[1] && (
-            <div className="absolute top-16 right-3 z-20 w-52 sm:w-60">
-              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
-                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[1].title}</p>
-                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[1].body}</p>
-              </div>
-            </div>
-          )}
-          {/* Bottom-right strategy (above Hoot) */}
-          {lesson.strategies[2] && (
-            <div className="absolute bottom-4 right-3 z-20 w-52 sm:w-60">
-              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
-                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[2].title}</p>
-                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[2].body}</p>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
       <div className="relative z-10 flex flex-col flex-1">
         {/* Header */}
         <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
@@ -183,7 +150,22 @@ export function RemedialScreen() {
 
         {/* Practice questions */}
         {phase === 'practice' && currentQuestion && (
-          <main className="flex-1 flex items-center justify-center p-6">
+          <main className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
+            {/* Strategy cards — row above the question */}
+            {lesson.strategies.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2 w-full max-w-3xl">
+                {lesson.strategies.map((s, i) => (
+                  <div
+                    key={i}
+                    className="bg-indigo-950/70 border border-indigo-700/40 rounded-xl px-3 py-2 backdrop-blur-sm flex-1 min-w-[160px] max-w-[220px]"
+                  >
+                    <p className="text-[11px] font-bold text-indigo-300 mb-1">{s.title}</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed whitespace-pre-line">{s.body}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div
               className={`w-full max-w-lg transition-all duration-250 ${
                 slideState === 'in'

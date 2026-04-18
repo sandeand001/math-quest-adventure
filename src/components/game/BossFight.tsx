@@ -13,6 +13,8 @@ export function BossFight() {
     profile,
     world,
     boss,
+    isBossFight,
+    currentWorldIndex,
     bossHp,
     bossMaxHp,
     playerHp,
@@ -84,7 +86,13 @@ export function BossFight() {
           <img
             src={getBossSprite(boss, pose)}
             alt={boss.name}
-            className="w-[70vw] h-[55vh] sm:w-[60vw] sm:h-[60vh] max-w-[700px] max-h-[550px] object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-opacity duration-200"
+            className={`object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-opacity duration-200 ${
+              currentWorldIndex === 7 && isBossFight
+                ? 'w-[90vw] h-[70vh] max-w-[1000px] max-h-[750px]'
+                : isBossFight
+                  ? 'w-[80vw] h-[60vh] max-w-[850px] max-h-[650px]'
+                  : 'w-[70vw] h-[55vh] max-w-[700px] max-h-[550px]'
+            }`}
           />
           {/* Flash hit overlay */}
           {flashVisible && (

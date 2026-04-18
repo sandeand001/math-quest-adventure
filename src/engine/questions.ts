@@ -203,7 +203,7 @@ const FORMAT_COMPLEXITY: QuestionFormat[] = [
   'multiple-choice',
   'fill-result',
   'fill-operand',
-  'fill-operator',
+
   'word-problem',
 ];
 

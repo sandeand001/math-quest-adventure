@@ -75,7 +75,7 @@ export const TIERS: TierDefinition[] = [
     operations: ['addition', 'subtraction', 'multiplication', 'division'],
     numberRange: { min: 0, max: 10000 },
     tables: { min: 1, max: 10 },
-    formats: ['fill-result', 'fill-operand', 'fill-operator', 'word-problem'],
+    formats: ['fill-result', 'fill-operand', 'word-problem'],
     description: 'All four operations with larger numbers — the ultimate test',
   },
 ];

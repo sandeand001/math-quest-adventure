@@ -1,9 +1,9 @@
 # MathQuest: Adventure Math — Project TODO
 
 ## Current Status
-- **Phase 1 (MVP Core)**: ~95% complete
-- **Phase 2 (Visuals & Curriculum)**: ~60% complete
-- **Phase 3 (Polish)**: ~20% complete
+- **Phase 1 (MVP Core)**: ✅ Complete
+- **Phase 2 (Visuals & Curriculum)**: ~85% complete
+- **Phase 3 (Polish)**: ~70% complete
 
 ---
 
@@ -18,38 +18,44 @@
 
 ## Sprint 2 — Avatar & Economy
 
-- [ ] Avatar creation screen — pick base character when creating profile
+- [x] Avatar creation screen — pick base character when creating profile
 - [ ] Avatar customization parts — head, body, accessory layers composited together
-- [ ] Coin shop — browse/buy cosmetic items with earned coins, owned vs locked display
+- [x] Coin shop — browse/buy cosmetic items with earned coins, owned vs locked display
 
 ## Sprint 3 — Game Feel & Feedback
 
-- [ ] Level-up animation — celebratory VFX when player levels up
-- [ ] Streak effects — fire/lightning visuals on 5+ and 10+ streaks
+- [x] Level-up animation — celebratory VFX + SFX on stage result screen
+- [x] Streak effects — screen border glow on 5+, golden burst on 10+
 - [x] Achievement badges — 19 achievements defined, checker + toast notifications
 - [x] Sound mute toggle — visible button in world map header
-- [ ] Hint system — free hints in practice stages (visual aids, reduce choices), disabled during boss fights
+- [x] Hint system — free hints in practice stages (eliminates 2 wrong choices or shows range)
+- [x] SFX on correct/wrong answers — synthesized audio chime/buzz via Web Audio API
+- [x] Pip commentary — persistent Pip on stages with randomized reactions
+- [x] Question slide transitions — cards slide out/in between questions
 
 ## Sprint 4 — Engagement & Retention
 
-- [ ] Onboarding tutorial — first-time flow explaining map, stages, boss fights
-- [ ] Daily challenges — 5 bonus problems per day for extra coins
+- [x] Onboarding tutorial — first-time flow on world map explaining map, stages, boss fights
+- [x] Daily challenges — 5 bonus problems per day for extra coins, accessible from world map
+- [x] Remedial training — Prof Hoot lessons with visual strategies + practice after stage failures
 
 ## Sprint 5 — Infrastructure & Data
 
-- [ ] PWA manifest & service worker — installable on tablets/phones, offline play
-- [ ] Firebase cloud sync — persist profiles/progress to Firestore (currently localStorage only)
-- [ ] Configure Firebase security rules — COPPA-compliant, parent-scoped data access
-- [ ] Detailed parent analytics — per-skill breakdown, time graphs, mastery visualization
+- [x] PWA manifest & service worker — installable on tablets/phones, offline-capable
+- [x] Firebase cloud sync — persist profiles/progress to Firestore
+- [x] Firebase security rules — parent-scoped data access
+- [x] Detailed parent analytics — per-skill mastery breakdown, recent stage history
 
 ## UI Polish
 
-- [ ] ProfileSelect crystal layout — move crystals to bottom of player card instead of circling around it (looks odd)
+- [x] ProfileSelect layout — wider cards, centered avatar, visible sidekick
+- [x] Boss sprite scaling — final boss (Archimedes) much larger than other bosses
 
 ## Housekeeping
 
-- [ ] Restore GAME_PLAN.md — updated plan reflecting current 8-tier structure
-- [ ] Accessibility audit — screen reader labels, keyboard nav, WCAG AA contrast
+- [x] Codebase review — 34+ of 42 issues resolved
+- [x] Accessibility audit — ARIA labels, keyboard nav, focus management on key screens
+- [ ] Asset compression — ~358 MB of PNGs needs optimization
 
 ---
 

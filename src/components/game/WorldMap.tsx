@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useGameStore, useActiveProfile } from '../../store/gameStore';
 import { getTheme } from '../../data/themes';
 import { OVERWORLD_NODES, OVERWORLD_MAP_IMAGE, SHOP_NODE } from '../../data/mapConfig';
 import { XPBar } from '../ui/XPBar';
 import { HeartsBar } from '../ui/HeartsBar';
 import { CrystalTracker } from '../ui/CrystalTracker';
+import { StoryDialog } from '../ui/StoryDialog';
+import { ONBOARDING_STORY } from '../../data/onboarding';
 
 export function WorldMap() {
   const {
@@ -12,9 +15,16 @@ export function WorldMap() {
     resetStage,
     muted,
     toggleMute,
+    updateProfile,
   } = useGameStore();
 
   const profile = useActiveProfile();
+
+  // Onboarding state (must be before early return for hooks-order rule)
+  const [onboardingIdx, setOnboardingIdx] = useState(
+    () => profile && !profile.onboardingComplete ? 0 : -1,
+  );
+
   if (!profile) return null;
 
   const theme = getTheme(profile.theme);
@@ -27,6 +37,8 @@ export function WorldMap() {
   };
 
   const shopUnlocked = unlockedWorld >= 3;
+
+  const showOnboarding = onboardingIdx >= 0 && onboardingIdx < ONBOARDING_STORY.length;
 
   return (
     <div className="min-h-screen bg-[#2a1f14] flex flex-col">
@@ -57,6 +69,14 @@ export function WorldMap() {
           aria-label="Open inventory"
         >
           🎒
+        </button>
+        <button
+          onClick={() => setScreen('daily-challenge')}
+          className="text-sm shrink-0 hover:opacity-80 transition-opacity"
+          title="Daily Challenge"
+          aria-label="Daily challenge"
+        >
+          🌟
         </button>
         <button
           onClick={toggleMute}
@@ -196,6 +216,23 @@ export function WorldMap() {
             </button>
         </div>
       </div>
+
+      {/* Onboarding tutorial dialogs */}
+      {showOnboarding && (
+        <StoryDialog
+          key={onboardingIdx}
+          story={ONBOARDING_STORY[onboardingIdx]}
+          onComplete={() => {
+            const next = onboardingIdx + 1;
+            if (next >= ONBOARDING_STORY.length) {
+              setOnboardingIdx(-1);
+              updateProfile(profile.id, { onboardingComplete: true });
+            } else {
+              setOnboardingIdx(next);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

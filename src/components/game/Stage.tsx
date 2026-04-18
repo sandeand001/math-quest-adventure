@@ -11,6 +11,7 @@ import { CrystalTracker } from '../ui/CrystalTracker';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 import { playCorrectSfx, playWrongSfx } from '../../services/soundManager';
+import type { StageResult } from '../../types';
 
 export function Stage() {
   const {
@@ -85,7 +86,7 @@ export function Stage() {
     const timeSpent = Date.now() - stageStartTime;
     const passed = accuracy >= stageDef.requiredAccuracy;
 
-    const result = {
+    const result: StageResult = {
       profileId: profile.id,
       worldIndex: currentWorldIndex,
       stageIndex: currentStageIndex,
@@ -102,9 +103,16 @@ export function Stage() {
     // Apply XP (use average streak for bonus — simplified)
     const avgStreak = correctCount > 0 ? Math.floor(correctCount / 2) : 0;
     const xpEarned = correctCount * xpForCorrectAnswer(avgStreak, stageDef.tier);
+    const oldLevel = profile.stats.level;
     const updatedStats = applyXp(profile.stats, xpEarned);
     updatedStats.totalCorrect += correctCount;
     updatedStats.totalAttempts += totalQuestions;
+
+    // Record level-up info on the result
+    if (updatedStats.level > oldLevel) {
+      result.levelsGained = updatedStats.level - oldLevel;
+      result.newLevel = updatedStats.level;
+    }
 
     // Update stats AND advance stage progress in one call
     const profileUpdates: Record<string, unknown> = { stats: updatedStats };
@@ -278,6 +286,7 @@ export function Stage() {
             question={currentQuestion}
             onAnswer={handleAnswer}
             streak={streak}
+            hintAvailable={stageDef.type === 'practice'}
           />
         </div>
       </main>

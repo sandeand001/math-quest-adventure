@@ -4,6 +4,7 @@ import { StarRating } from '../ui/StarRating';
 import { AchievementToast } from '../ui/AchievementToast';
 import { checkAchievements } from '../../engine/achievements';
 import { WORLDS } from '../../data/worlds';
+import { playCorrectSfx } from '../../services/soundManager';
 
 export function StageResultScreen() {
   const {
@@ -37,6 +38,13 @@ export function StageResultScreen() {
       recordFailure();
     } else {
       clearFailures();
+    }
+    // Play level-up SFX
+    if (result?.levelsGained && result.levelsGained > 0) {
+      const muted = useGameStore.getState().muted;
+      if (!muted) {
+        setTimeout(() => { playCorrectSfx(); setTimeout(playCorrectSfx, 200); }, 300);
+      }
     }
   });
 
@@ -77,6 +85,16 @@ export function StageResultScreen() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
       <div className="bg-indigo-950/80 border border-indigo-800/40 rounded-3xl p-8 max-w-sm w-full text-center space-y-6">
+        {/* Level-up celebration */}
+        {result.levelsGained && result.levelsGained > 0 && (
+          <div className="bg-gradient-to-r from-yellow-600/30 to-amber-600/30 border border-yellow-500/50 rounded-2xl p-4 space-y-2 animate-[slideUp_0.5s_ease-out]">
+            <div className="text-3xl">🎉⬆️🎉</div>
+            <p className="text-lg font-bold text-yellow-300">LEVEL UP!</p>
+            <p className="text-2xl font-extrabold text-white">Level {result.newLevel}</p>
+            <p className="text-xs text-yellow-200/70">New abilities unlocked!</p>
+          </div>
+        )}
+
         <h2 className="text-2xl font-bold">
           {passed ? '🎉 Stage Complete!' : 'Keep Practicing!'}
         </h2>

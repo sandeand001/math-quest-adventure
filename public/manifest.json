@@ -1,0 +1,17 @@
+{
+  "name": "MathQuest: Adventure Math",
+  "short_name": "MathQuest",
+  "description": "Learn math through epic boss battles! A fantasy adventure game for ages 5-11.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1222",
+  "theme_color": "#0f1222",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

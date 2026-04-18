@@ -5,12 +5,15 @@ interface QuestionCardProps {
   question: Question;
   onAnswer: (userAnswer: number, isCorrect: boolean) => void;
   streak: number;
+  hintAvailable?: boolean;
 }
 
-export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) {
+export function QuestionCard({ question, onAnswer, streak, hintAvailable = false }: QuestionCardProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
+  const [eliminatedChoices, setEliminatedChoices] = useState<Set<number>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus the input for non-multiple-choice questions. This is a DOM-side
@@ -95,10 +98,42 @@ export function QuestionCard({ question, onAnswer, streak }: QuestionCardProps) 
         </div>
       )}
 
+      {/* Hint button */}
+      {hintAvailable && !hintUsed && feedback === null && (
+        <button
+          onClick={() => {
+            setHintUsed(true);
+            if (question.format === 'multiple-choice' && question.choices) {
+              // Eliminate 2 wrong choices
+              const wrong = question.choices.filter((c) => c !== question.answer);
+              const toRemove = new Set<number>();
+              while (toRemove.size < Math.min(2, wrong.length)) {
+                toRemove.add(wrong[Math.floor(Math.random() * wrong.length)]);
+              }
+              setEliminatedChoices(toRemove);
+            }
+          }}
+          className="px-4 py-1.5 rounded-lg text-xs font-medium bg-indigo-800/60 border border-indigo-600/40 text-indigo-300 hover:bg-indigo-700/60 hover:text-white transition-all"
+        >
+          💡 Use Hint
+        </button>
+      )}
+
+      {/* Hint text for fill-in questions */}
+      {hintUsed && question.format !== 'multiple-choice' && (
+        <p className="text-sm text-indigo-300 font-medium">
+          💡 The answer is between {Math.max(0, question.answer - 5)} and {question.answer + 5}
+        </p>
+      )}
+
       {/* Multiple choice answers */}
       {question.format === 'multiple-choice' && question.choices && (
         <div className="grid grid-cols-2 gap-3 w-full" role="group" aria-label="Answer choices">
           {question.choices.map((choice) => {
+            const eliminated = eliminatedChoices.has(choice);
+            if (eliminated && feedback === null) return (
+              <div key={choice} className="py-4 px-6 rounded-xl border-2 border-gray-800/30 bg-gray-900/20 opacity-30" />
+            );
             let btnClass =
               'py-4 px-6 rounded-xl text-xl font-bold border-2 transition-all duration-200 cursor-pointer ';
 

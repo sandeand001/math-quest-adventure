@@ -203,6 +203,8 @@ export interface ChildProfile {
   currentStage: number;
   stats: PlayerStats;
   createdAt: number;
+  onboardingComplete?: boolean;
+  dailyChallengeDate?: string;   // YYYY-MM-DD of last completed daily challenge
 }
 
 // ── Adventure Themes ────────────────────────────────────────────────
@@ -229,6 +231,8 @@ export interface StageResult {  profileId: string;  worldIndex: number;
   stars: number;           // 1-3
   timeSpent: number;       // ms
   completedAt: number;
+  levelsGained?: number;   // how many levels gained from this stage's XP
+  newLevel?: number;       // the level after XP was applied
 }
 
 // ── Game Session State ──────────────────────────────────────────────
@@ -244,4 +248,5 @@ export type GameScreen =
   | 'boss-fight'
   | 'stage-result'
   | 'remedial'
+  | 'daily-challenge'
   | 'parent-dashboard';

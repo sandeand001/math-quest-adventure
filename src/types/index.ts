@@ -243,4 +243,5 @@ export type GameScreen =
   | 'stage'
   | 'boss-fight'
   | 'stage-result'
+  | 'remedial'
   | 'parent-dashboard';

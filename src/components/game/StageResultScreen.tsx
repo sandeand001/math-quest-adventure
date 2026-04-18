@@ -14,6 +14,9 @@ export function StageResultScreen() {
     setScreen,
     resetStage,
     updateProfile,
+    consecutiveFailures,
+    recordFailure,
+    clearFailures,
   } = useGameStore();
   const profile = useActiveProfile();
 
@@ -27,6 +30,20 @@ export function StageResultScreen() {
   // Check achievements on mount (lazy initializer runs once)
   const [newAchievements] = useState<string[]>(() => checkAchievements());
   const [toastIndex, setToastIndex] = useState(0);
+
+  // Track failures for remedial training (lazy initializer runs once on mount)
+  useState(() => {
+    if (!passed) {
+      recordFailure();
+    } else {
+      clearFailures();
+    }
+  });
+
+  // After 2+ consecutive failures, remedial is mandatory
+  const failCount = consecutiveFailures;
+  const remedialRequired = !passed && failCount >= 2;
+  const remedialOffered = !passed && failCount === 1;
 
   if (!result) {
     return null;
@@ -84,8 +101,28 @@ export function StageResultScreen() {
         {!passed && (
           <p className="text-sm text-amber-400">
             Need {Math.round((stageDef?.requiredAccuracy ?? 0.7) * 100)}% to advance.
-            You can do it!
+            {remedialRequired
+              ? " Let's practice with Professor Hoot first!"
+              : ' You can do it!'}
           </p>
+        )}
+
+        {/* Remedial training button */}
+        {remedialRequired && (
+          <button
+            onClick={() => {
+              resetStage();
+              setScreen('remedial');
+            }}
+            className="
+              w-full py-3 rounded-xl text-lg font-bold
+              bg-gradient-to-r from-amber-600 to-orange-600
+              hover:from-amber-500 hover:to-orange-500
+              text-white transition-all active:scale-95
+            "
+          >
+            📚 Study with Professor Hoot
+          </button>
         )}
 
         <button
@@ -99,6 +136,19 @@ export function StageResultScreen() {
         >
           {passed ? (isLastStage ? 'Back to Map' : 'Continue →') : 'Try Again'}
         </button>
+
+        {/* Optional remedial on first failure */}
+        {remedialOffered && (
+          <button
+            onClick={() => {
+              resetStage();
+              setScreen('remedial');
+            }}
+            className="text-sm text-amber-400 hover:text-amber-300 transition-colors"
+          >
+            📚 Practice with Professor Hoot first?
+          </button>
+        )}
 
         <button
           onClick={() => {

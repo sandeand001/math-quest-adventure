@@ -10,6 +10,7 @@ const ZoneMap = lazy(() => import('./components/game/ZoneMap').then((m) => ({ de
 const Stage = lazy(() => import('./components/game/Stage').then((m) => ({ default: m.Stage })));
 const StageResultScreen = lazy(() => import('./components/game/StageResultScreen').then((m) => ({ default: m.StageResultScreen })));
 const BossFight = lazy(() => import('./components/game/BossFight').then((m) => ({ default: m.BossFight })));
+const RemedialScreen = lazy(() => import('./components/game/RemedialScreen').then((m) => ({ default: m.RemedialScreen })));
 const Shop = lazy(() => import('./components/game/Shop').then((m) => ({ default: m.Shop })));
 const Inventory = lazy(() => import('./components/game/Inventory').then((m) => ({ default: m.Inventory })));
 
@@ -49,6 +50,9 @@ function App() {
       break;
     case 'boss-fight':
       content = <BossFight />;
+      break;
+    case 'remedial':
+      content = <RemedialScreen />;
       break;
     case 'shop':
       content = <Shop />;

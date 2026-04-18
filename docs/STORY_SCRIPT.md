@@ -121,6 +121,8 @@ I think it's one of Zalthor's guardians! A small one! We can take it!
 
 Quick — answer the questions to fight back! Every right answer is a hit!
 
+But be careful, each one you get wrong you lose a heart. 
+
 ---
 
 #### SCENE: Stage 6 Intro

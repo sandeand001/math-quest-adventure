@@ -69,6 +69,11 @@ export interface SessionSlice {
 
   stageResults: StageResult[];
   addStageResult: (result: StageResult) => void;
+
+  /** Track consecutive failures on the same stage for remedial training. */
+  consecutiveFailures: number;
+  recordFailure: () => void;
+  clearFailures: () => void;
 }
 
 // ── Combat slice ──

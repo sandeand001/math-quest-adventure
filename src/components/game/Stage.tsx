@@ -4,11 +4,13 @@ import { generateStageQuestions } from '../../engine/questions';
 import { starsFromAccuracy, xpForCorrectAnswer, applyXp } from '../../engine/progression';
 import { getStory } from '../../data/stories';
 import { WORLDS } from '../../data/worlds';
+import { getPipComment, type PipComment } from '../../data/pipComments';
 import { QuestionCard } from './QuestionCard';
 import { HeartsBar } from '../ui/HeartsBar';
 import { CrystalTracker } from '../ui/CrystalTracker';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
+import { playCorrectSfx, playWrongSfx } from '../../services/soundManager';
 
 export function Stage() {
   const {
@@ -43,6 +45,17 @@ export function Stage() {
   // Stage intro story
   const stageStory = getStory('stage-intro', currentWorldIndex, currentStageIndex);
   const [showStory, setShowStory] = useState(!!stageStory);
+
+  // Pip commentary
+  const [pipComment, setPipComment] = useState<PipComment | null>(null);
+  const pipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Question transition animation
+  const [slideState, setSlideState] = useState<'in' | 'out'>('in');
+
+  // Streak visual effects
+  const [streakGlow, setStreakGlow] = useState(false);
+  const [streakBurst, setStreakBurst] = useState(false);
 
   // Generate questions when stage mounts
   useEffect(() => {
@@ -120,6 +133,8 @@ export function Stage() {
     setScreen,
   ]);
 
+  const muted = useGameStore((s) => s.muted);
+
   const handleAnswer = useCallback(
     (_userAnswer: number, isCorrect: boolean) => {
       answerQuestion(isCorrect);
@@ -129,12 +144,39 @@ export function Stage() {
         recordMastery(currentQuestion.operation, currentQuestion.tier, isCorrect);
       }
 
-      // Small delay then advance
+      // SFX
+      if (!muted) {
+        if (isCorrect) playCorrectSfx();
+        else playWrongSfx();
+      }
+
+      // Pip commentary
+      const newStreak = isCorrect ? streak + 1 : 0;
+      const comment = getPipComment(isCorrect ? 'correct' : 'wrong', newStreak);
+      setPipComment(comment);
+      if (pipTimer.current) clearTimeout(pipTimer.current);
+      pipTimer.current = setTimeout(() => setPipComment(null), 2500);
+
+      // Streak effects
+      if (isCorrect && newStreak >= 5) {
+        setStreakGlow(true);
+        setTimeout(() => setStreakGlow(false), 1500);
+      }
+      if (isCorrect && newStreak >= 10) {
+        setStreakBurst(true);
+        setTimeout(() => setStreakBurst(false), 1000);
+      }
+
+      // Slide out → advance → slide in
       setTimeout(() => {
-        nextQuestion();
-      }, 200);
+        setSlideState('out');
+        setTimeout(() => {
+          nextQuestion();
+          setSlideState('in');
+        }, 250);
+      }, 600);
     },
-    [answerQuestion, nextQuestion, recordMastery, currentQuestion],
+    [answerQuestion, nextQuestion, recordMastery, currentQuestion, streak, muted],
   );
 
   if (!stageDef || !currentQuestion) {
@@ -149,7 +191,7 @@ export function Stage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col relative"
+      className={`min-h-screen flex flex-col relative ${streakGlow ? 'ring-4 ring-orange-500/50 ring-inset' : ''}`}
       style={{ background: '#0f1222' }}
     >
       {/* Background image */}
@@ -157,6 +199,11 @@ export function Stage() {
         className="absolute inset-0 bg-cover bg-center opacity-30"
         style={{ backgroundImage: `url("${encodeURI(world?.background ?? '')}")` }}
       />
+
+      {/* Streak burst overlay */}
+      {streakBurst && (
+        <div className="absolute inset-0 z-30 pointer-events-none animate-ping bg-gradient-radial from-yellow-400/20 to-transparent" />
+      )}
 
       {/* Player avatar — bottom left corner, large */}
       {activeProfile && (
@@ -170,6 +217,21 @@ export function Stage() {
           />
         </div>
       )}
+
+      {/* Pip commentary — right side */}
+      {pipComment && (
+        <div className="absolute bottom-8 right-4 z-30 flex flex-col items-center gap-1 animate-[slideUp_0.3s_ease-out]">
+          <div className="bg-[#1a1530]/90 border border-indigo-700/40 rounded-xl px-3 py-2 max-w-[160px] text-center">
+            <p className="text-xs text-white leading-snug">{pipComment.text}</p>
+          </div>
+          <img
+            src={pipComment.sprite}
+            alt="Pip"
+            className="w-20 h-20 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+          />
+        </div>
+      )}
+
       <div className="relative z-10 flex flex-col flex-1">
       {/* Top bar */}
       <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
@@ -203,12 +265,20 @@ export function Stage() {
 
       {/* Question area */}
       <main className="flex-1 flex items-center justify-center p-6">
-        <QuestionCard
-          key={currentQuestion.id}
-          question={currentQuestion}
-          onAnswer={handleAnswer}
-          streak={streak}
-        />
+        <div
+          className={`w-full max-w-lg transition-all duration-250 ${
+            slideState === 'in'
+              ? 'opacity-100 translate-x-0'
+              : 'opacity-0 -translate-x-8'
+          }`}
+        >
+          <QuestionCard
+            key={currentQuestion.id}
+            question={currentQuestion}
+            onAnswer={handleAnswer}
+            streak={streak}
+          />
+        </div>
       </main>
       {showStory && stageStory && (
         <StoryDialog story={stageStory} onComplete={() => setShowStory(false)} />

@@ -52,5 +52,9 @@ export function createSessionSlice(set: GameSet): SessionSlice {
               : next,
         };
       }),
+
+    consecutiveFailures: 0,
+    recordFailure: () => set((state) => ({ consecutiveFailures: state.consecutiveFailures + 1 })),
+    clearFailures: () => set({ consecutiveFailures: 0 }),
   };
 }

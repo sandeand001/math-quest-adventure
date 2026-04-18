@@ -116,15 +116,27 @@ export function RemedialScreen() {
         style={{ backgroundImage: `url("${encodeURI(world?.background ?? '')}")` }}
       />
 
-      {/* Hoot image */}
-      <div className="absolute bottom-4 left-4 z-20">
+      {/* Hoot — always visible, large, bottom-left */}
+      <div className="absolute bottom-4 left-2 z-20">
         <img
           src="/assets/characters/professor-hoot/wise.png"
           alt="Professor Hoot"
-          className="w-28 h-28 object-contain drop-shadow-lg"
+          className="w-32 h-32 sm:w-40 sm:h-40 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)]"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       </div>
+
+      {/* Tips panel — visible during practice, top-right corner */}
+      {phase === 'practice' && (
+        <div className="absolute top-16 right-3 z-20 w-48 sm:w-56">
+          <div className="bg-amber-950/80 border border-amber-700/40 rounded-xl p-3 space-y-1.5 backdrop-blur-sm">
+            <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">💡 Remember</p>
+            {lesson.tips.map((tip, i) => (
+              <p key={i} className="text-[11px] text-amber-100/90 leading-snug">• {tip}</p>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="relative z-10 flex flex-col flex-1">
         {/* Header */}

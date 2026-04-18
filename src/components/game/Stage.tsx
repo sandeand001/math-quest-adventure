@@ -218,19 +218,20 @@ export function Stage() {
         </div>
       )}
 
-      {/* Pip commentary — right side */}
-      {pipComment && (
-        <div className="absolute bottom-8 right-4 z-30 flex flex-col items-center gap-1 animate-[slideUp_0.3s_ease-out]">
-          <div className="bg-[#1a1530]/90 border border-indigo-700/40 rounded-xl px-3 py-2 max-w-[160px] text-center">
+      {/* Pip — always visible on the right side */}
+      <div className="absolute bottom-4 right-4 z-30 flex flex-col items-center gap-1">
+        {/* Speech bubble (fades in/out with comment) */}
+        {pipComment && (
+          <div className="bg-[#1a1530]/90 border border-indigo-700/40 rounded-xl px-3 py-2 max-w-[160px] text-center animate-[slideUp_0.2s_ease-out]">
             <p className="text-xs text-white leading-snug">{pipComment.text}</p>
           </div>
-          <img
-            src={pipComment.sprite}
-            alt="Pip"
-            className="w-20 h-20 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-          />
-        </div>
-      )}
+        )}
+        <img
+          src={pipComment?.sprite ?? '/assets/characters/pip/happy.png'}
+          alt="Pip"
+          className="w-32 h-32 sm:w-36 sm:h-36 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all duration-300"
+        />
+      </div>
 
       <div className="relative z-10 flex flex-col flex-1">
       {/* Top bar */}

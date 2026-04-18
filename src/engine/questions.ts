@@ -320,7 +320,8 @@ export function generateStageQuestions(tier: number, count: number, difficulty: 
     const isDuplicate = questions.some((existing) =>
       existing.operandA === q.operandA &&
       existing.operandB === q.operandB &&
-      existing.operation === q.operation
+      existing.operation === q.operation &&
+      existing.format === q.format
     );
 
     if (!isDuplicate) {

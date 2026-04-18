@@ -121,21 +121,42 @@ export function RemedialScreen() {
         <img
           src="/assets/characters/professor-hoot/wise.png"
           alt="Professor Hoot"
-          className="w-32 h-32 sm:w-40 sm:h-40 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)]"
+          className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)]"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       </div>
 
-      {/* Tips panel — visible during practice, top-right corner */}
-      {phase === 'practice' && (
-        <div className="absolute top-16 right-3 z-20 w-48 sm:w-56">
-          <div className="bg-amber-950/80 border border-amber-700/40 rounded-xl p-3 space-y-1.5 backdrop-blur-sm">
-            <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">💡 Remember</p>
-            {lesson.tips.map((tip, i) => (
-              <p key={i} className="text-[11px] text-amber-100/90 leading-snug">• {tip}</p>
-            ))}
-          </div>
-        </div>
+      {/* Strategy cards — positioned around the question area during practice */}
+      {phase === 'practice' && lesson.strategies.length > 0 && (
+        <>
+          {/* Top-left strategy */}
+          {lesson.strategies[0] && (
+            <div className="absolute top-16 left-3 z-20 w-52 sm:w-60">
+              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[0].title}</p>
+                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[0].body}</p>
+              </div>
+            </div>
+          )}
+          {/* Top-right strategy */}
+          {lesson.strategies[1] && (
+            <div className="absolute top-16 right-3 z-20 w-52 sm:w-60">
+              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[1].title}</p>
+                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[1].body}</p>
+              </div>
+            </div>
+          )}
+          {/* Bottom-right strategy (above Hoot) */}
+          {lesson.strategies[2] && (
+            <div className="absolute bottom-4 right-3 z-20 w-52 sm:w-60">
+              <div className="bg-amber-950/85 border border-amber-600/40 rounded-xl p-3 backdrop-blur-sm">
+                <p className="text-[11px] font-bold text-amber-300 mb-1">{lesson.strategies[2].title}</p>
+                <p className="text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-line">{lesson.strategies[2].body}</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <div className="relative z-10 flex flex-col flex-1">

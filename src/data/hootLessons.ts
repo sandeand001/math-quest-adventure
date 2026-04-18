@@ -18,6 +18,8 @@ const HOOT = '🦉';
 export interface HootLesson {
   dialog: StoryEntry;
   tips: string[];
+  /** Full strategy cards shown around the question area during practice. */
+  strategies: { title: string; body: string }[];
 }
 
 const LESSONS: Record<number, HootLesson> = {
@@ -43,6 +45,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Use Making Ten: fill up to 10 first',
       'You can swap the order: 3+7 = 7+3',
     ],
+    strategies: [
+      { title: '🔢 Count On', body: 'Start with the BIGGER number and count up.\n5 + 3 → Start at 5: 6, 7, 8!' },
+      { title: '🎯 Making Ten', body: '8 + 5 → 8 needs 2 to make 10.\nTake 2 from 5 → 10 + 3 = 13!' },
+      { title: '🔄 Swap It', body: 'Order doesn\'t matter!\n3 + 7 is the same as 7 + 3' },
+    ],
   },
 
   // ─── Tier 2 — Addition & Subtraction (0–20) ────────────────────
@@ -66,6 +73,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Think Addition: 12-7 → "7 + ? = 12"',
       'Make Ten: go down to 10 first, then subtract the rest',
       'Fact families: if 5+7=12, then 12-7=5',
+    ],
+    strategies: [
+      { title: '🔁 Think Addition', body: '12 - 7 = ?\nAsk: 7 + ___ = 12?\nCount up from 7: 8,9,10,11,12 → 5!' },
+      { title: '🎯 Make Ten', body: '13 - 5 → go to 10 first:\n13 - 3 = 10\nStill need to subtract 2 more:\n10 - 2 = 8!' },
+      { title: '👨‍👩‍👧‍👦 Fact Families', body: '5 + 7 = 12\n7 + 5 = 12\n12 - 5 = 7\n12 - 7 = 5\nKnow one, know all!' },
     ],
   },
 
@@ -92,6 +104,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Missing numbers: use Think Addition',
       'Compensation: round to a friendly number, then adjust',
     ],
+    strategies: [
+      { title: '✂️ Split & Solve', body: '34 + 25:\nTens: 3+2 = 5\nOnes: 4+5 = 9\nAnswer: 59!' },
+      { title: '🔁 Think Addition', body: '___ + 15 = 42\nAsk: 15 + ? = 42\nWork it out part by part!' },
+      { title: '🔄 Compensation', body: '38 + 27 →\nRound 38 to 40 (+2 extra)\n40 + 27 = 67\nSubtract 2 back → 65!' },
+    ],
   },
 
   // ─── Tier 4 — Multiplication (tables 1–5) ──────────────────────
@@ -116,6 +133,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Picture equal groups or an array',
       '×2: double it. ×4: double twice',
       '×5: skip count by 5s (always ends in 0 or 5)',
+    ],
+    strategies: [
+      { title: '🟡 Arrays', body: '3 × 4 = 3 rows of 4:\n🟡🟡🟡🟡\n🟡🟡🟡🟡\n🟡🟡🟡🟡\n= 12!' },
+      { title: '✖️ Doubling', body: '×2: double it! 2×7 = 14\n×4: double TWICE!\n4×6 → 12 → 24!' },
+      { title: '5️⃣ Fives Trick', body: '×5: always ends in 0 or 5\nOr: ×10 then halve!\n5×8 → 10×8=80 → 40!' },
     ],
   },
 
@@ -142,6 +164,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Fact families: know ×, get ÷ free',
       'Skip count backwards to check your answer',
     ],
+    strategies: [
+      { title: '🔁 Think Multiplication', body: '12 ÷ 3 = ?\nAsk: 3 × ___ = 12?\n3 × 4 = 12 ✓\nSo 12 ÷ 3 = 4!' },
+      { title: '🍬 Fair Sharing', body: '12 shared among 3:\n👤: 🍬🍬🍬🍬\n👤: 🍬🍬🍬🍬\n👤: 🍬🍬🍬🍬\nEach gets 4!' },
+      { title: '⏪ Skip Count Back', body: '20 ÷ 4 →\n20, 16, 12, 8, 4, 0\nThat\'s 5 jumps!\n20 ÷ 4 = 5' },
+    ],
   },
 
   // ─── Tier 6 — Multiply & Divide (tables 1–10) ──────────────────
@@ -166,6 +193,11 @@ const LESSONS: Record<number, HootLesson> = {
       '9s trick: use the finger method',
       'Near-tens: 9×7 = 10×7 - 7 = 63',
       'Word problems: find the action (each=×, share=÷, more=−)',
+    ],
+    strategies: [
+      { title: '🖐️ Nines Trick', body: '9 × 4: put down finger 4\nLeft: 3  Right: 6\nAnswer: 36!' },
+      { title: '🔟 Near-Tens', body: '9×7 = 10×7 - 7\n= 70 - 7 = 63!\n8×6 = 10×6 - 2×6\n= 60 - 12 = 48!' },
+      { title: '📖 Word Problem Keys', body: '"each" or "per" → MULTIPLY\n"share" or "split" → DIVIDE\n"how many more" → SUBTRACT\n"altogether" → ADD' },
     ],
   },
 
@@ -192,6 +224,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Estimate first to catch big mistakes',
       'Check: use the inverse operation',
     ],
+    strategies: [
+      { title: '➕➖✖️➗ Pick the Operation', body: '➕ Joining, "in total"\n➖ Taking away, "how many left"\n✖️ Equal groups, "each"\n➗ Sharing, "how many per"' },
+      { title: '📐 Column Method', body: '  347\n+ 128\n-----\nOnes: 7+8=15 (write 5, carry 1)\nTens: 4+2+1=7\nHundreds: 3+1=4\nAnswer: 475!' },
+      { title: '📏 Estimate & Check', body: '347 + 128 ≈ 350 + 130 = 480\nActual: 475 ✓ (close!)\nUse inverse to verify:\n475 - 128 = 347 ✓' },
+    ],
   },
 
   // ─── Tier 8 — Super Challenge (0–10000) ─────────────────────────
@@ -216,6 +253,11 @@ const LESSONS: Record<number, HootLesson> = {
       'Column by column: ones, tens, hundreds, thousands',
       'Compensation: round to friendly numbers, adjust back',
       'Estimate first, solve, then check with estimation',
+    ],
+    strategies: [
+      { title: '🏛️ Place Value', body: '4,521\n= 4 thousands\n+ 5 hundreds\n+ 2 tens\n+ 1 one' },
+      { title: '🔄 Compensation', body: '2,998 + 1,456\nRound 2,998 → 3,000 (+2)\n3,000 + 1,456 = 4,456\nSubtract 2 → 4,454!' },
+      { title: '🔍 Find the Operator', body: '24 ○ 6 = 4\n24+6=30 ✗\n24-6=18 ✗\n24×6=144 ✗\n24÷6=4 ✓ Division!' },
     ],
   },
 };

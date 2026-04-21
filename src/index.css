@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Prevent document-level scrolling — all scroll is within components */
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* Custom shake animation for boss fights */
 @keyframes shake {
   10% { transform: translateX(-10px); }

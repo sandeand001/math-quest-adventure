@@ -36,7 +36,7 @@ export function WorldMap() {
   const showOnboarding = onboardingIdx >= 0 && onboardingIdx < ONBOARDING_STORY.length;
 
   return (
-    <div className="min-h-screen bg-[#2a1f14] flex flex-col">
+    <div className="h-full bg-[#2a1f14] flex flex-col">
       {/* Map area — nodes positioned relative to the image via inline aspect-ratio container */}
       <div className="flex-1 overflow-auto flex items-center justify-center bg-[#2a1f14] p-1">
         <div

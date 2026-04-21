@@ -82,7 +82,7 @@ export function ZoneMap() {
 
   if (!zoneConfig?.image) {
     return (
-      <div className={`h-screen bg-gradient-to-b ${zt.bg} flex flex-col`}>
+      <div className={`h-full bg-gradient-to-b ${zt.bg} flex flex-col`}>
         <div className="px-5 py-2 bg-black/40 text-center shrink-0 z-20">
           <h1 className="text-lg font-bold text-amber-100">
             {zt.name} {worldName}
@@ -193,7 +193,7 @@ export function ZoneMap() {
 
   // Full zone map with image
   return (
-    <div className="h-screen bg-[#2a1f14] flex flex-col">
+    <div className="h-full bg-[#2a1f14] flex flex-col">
       <div className="px-5 py-2 bg-black/40 text-center shrink-0 z-20">
         <h1 className="text-lg font-bold text-amber-100">{worldName}</h1>
       </div>

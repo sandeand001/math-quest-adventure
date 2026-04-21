@@ -67,7 +67,7 @@ export function DailyChallenge() {
   if (alreadyCompleted || done) {
     const earned = correctCount * COINS_PER_CORRECT + (correctCount === DAILY_COUNT ? BONUS_ALL_CORRECT : 0);
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
+      <div className="h-full bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
         <div className="bg-indigo-950/80 border border-indigo-800/40 rounded-3xl p-8 max-w-sm w-full text-center space-y-6">
           {allAnswered ? (
             <>
@@ -100,7 +100,7 @@ export function DailyChallenge() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: '#0f1222' }}>
+    <div className="h-full flex flex-col relative" style={{ background: '#0f1222' }}>
       <div className="relative z-10 flex flex-col flex-1">
         <header className="flex items-center gap-4 px-5 py-3 bg-black/20">
           <button

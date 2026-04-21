@@ -197,7 +197,7 @@ export function Stage() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col relative ${streakGlow ? 'ring-4 ring-orange-500/50 ring-inset' : ''}`}
+      className={`h-full flex flex-col relative ${streakGlow ? 'ring-4 ring-orange-500/50 ring-inset' : ''}`}
       style={{ background: '#0f1222' }}
     >
       {/* Background image */}

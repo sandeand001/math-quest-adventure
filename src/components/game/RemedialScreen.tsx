@@ -58,7 +58,7 @@ export function RemedialScreen() {
     const passed = correctCount / PRACTICE_COUNT >= PASS_THRESHOLD;
 
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
+      <div className="h-full bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
         <div className="bg-indigo-950/80 border border-indigo-800/40 rounded-3xl p-8 max-w-sm w-full text-center space-y-6">
           <img
             src="/assets/characters/professor-hoot/wise.png"
@@ -109,7 +109,7 @@ export function RemedialScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: '#0f1222' }}>
+    <div className="h-full flex flex-col relative" style={{ background: '#0f1222' }}>
       {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-20"

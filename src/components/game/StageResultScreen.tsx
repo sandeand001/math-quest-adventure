@@ -83,15 +83,31 @@ export function StageResultScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
+    <div className="h-full bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-center p-6">
       <div className="bg-indigo-950/80 border border-indigo-800/40 rounded-3xl p-8 max-w-sm w-full text-center space-y-6">
         {/* Level-up celebration */}
-        {result.levelsGained && result.levelsGained > 0 && (
+        {result.levelsGained && result.levelsGained > 0 && result.newLevel && (
           <div className="bg-gradient-to-r from-yellow-600/30 to-amber-600/30 border border-yellow-500/50 rounded-2xl p-4 space-y-2 animate-[slideUp_0.5s_ease-out]">
             <div className="text-3xl">🎉⬆️🎉</div>
             <p className="text-lg font-bold text-yellow-300">LEVEL UP!</p>
             <p className="text-2xl font-extrabold text-white">Level {result.newLevel}</p>
-            <p className="text-xs text-yellow-200/70">New abilities unlocked!</p>
+            {(() => {
+              const lvl = result.newLevel!;
+              const rewards: string[] = [];
+              if (lvl === 3 || lvl === 5 || lvl === 7) rewards.push('❤️ +1 Max HP');
+              if (lvl === 4 || lvl === 6) rewards.push('⚔️ +1 Attack');
+              if (lvl === 5) rewards.push('🛡️ Shield unlocked!');
+              if (rewards.length > 0) {
+                return (
+                  <div className="space-y-0.5">
+                    {rewards.map((r, i) => (
+                      <p key={i} className="text-sm text-yellow-200 font-medium">{r}</p>
+                    ))}
+                  </div>
+                );
+              }
+              return <p className="text-xs text-yellow-200/70">Keep leveling for new powers!</p>;
+            })()}
           </div>
         )}
 

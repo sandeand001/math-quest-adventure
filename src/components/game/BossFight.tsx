@@ -49,7 +49,7 @@ export function BossFight() {
 
   return (
     <div
-      className="h-screen relative overflow-hidden"
+      className="h-full relative overflow-hidden"
       style={{ background: '#0f1222' }}
     >
       {/* Background image */}

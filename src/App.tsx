@@ -72,10 +72,13 @@ function App() {
       content = <ParentLoginScreen />;
   }
 
+  // Screens that need scrolling
+  const scrollable = screen === 'profile-select' || screen === 'shop' || screen === 'inventory' || screen === 'parent-dashboard';
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
       <GameHeader />
-      <div className="flex-1 min-h-0 overflow-auto">
+      <div className={`flex-1 min-h-0 ${scrollable ? 'overflow-auto' : 'overflow-hidden'}`}>
         <Suspense fallback={<ScreenLoader />}>{content}</Suspense>
       </div>
     </div>

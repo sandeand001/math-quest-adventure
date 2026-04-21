@@ -36,23 +36,23 @@ export function XPBar({ xp, xpToNext, level, name, equippedCosmetics, size = 'sm
       {/* Default dark bg when no cosmetic */}
       {!bgCosmetic && <div className="absolute inset-0 bg-black/20" />}
 
-      <div className={`relative ${isLg ? 'px-4 py-2' : 'px-3 py-1.5'} flex items-center gap-3`}>
+      <div className={`relative ${isLg ? 'px-4 py-2.5 sm:py-3' : 'px-3 py-1.5'} flex items-center gap-3`}>
         {/* Name with nameplate */}
         {name && (
           <div className={`shrink-0 ${npCosmetic?.cssClass ?? ''}`}>
-            <span className={`${isLg ? 'text-base' : 'text-sm'} font-bold ${ncCosmetic?.cssClass ?? 'text-white'} ${nfCosmetic?.cssClass ?? ''}`}>
+            <span className={`${isLg ? 'text-lg sm:text-xl' : 'text-sm'} font-bold ${ncCosmetic?.cssClass ?? 'text-white'} ${nfCosmetic?.cssClass ?? ''}`}>
               {name}
             </span>
           </div>
         )}
 
         {/* Level badge */}
-        <span className={`${isLg ? 'text-sm' : 'text-xs'} font-bold text-yellow-400 shrink-0`}>
+        <span className={`${isLg ? 'text-base sm:text-lg' : 'text-xs'} font-bold text-yellow-400 shrink-0`}>
           Lv.{level}
         </span>
 
         {/* XP bar */}
-        <div className={`flex-1 ${isLg ? 'h-4' : 'h-3'} bg-gray-800/60 rounded-full overflow-hidden border border-gray-700/50`}>
+        <div className={`flex-1 ${isLg ? 'h-5 sm:h-6' : 'h-3'} bg-gray-800/60 rounded-full overflow-hidden border border-gray-700/50`}>
           <div
             className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full transition-all duration-500"
             style={{ width: `${pct}%` }}
@@ -60,7 +60,7 @@ export function XPBar({ xp, xpToNext, level, name, equippedCosmetics, size = 'sm
         </div>
 
         {/* XP numbers */}
-        <span className={`${isLg ? 'text-sm' : 'text-xs'} text-gray-300 shrink-0 tabular-nums`}>
+        <span className={`${isLg ? 'text-sm sm:text-base' : 'text-xs'} text-gray-300 shrink-0 tabular-nums`}>
           {xp}/{xpToNext}
         </span>
       </div>

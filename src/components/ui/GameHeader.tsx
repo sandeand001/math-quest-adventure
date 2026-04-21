@@ -17,7 +17,7 @@ export function GameHeader() {
   }
 
   return (
-    <header className="flex items-center gap-3 px-4 py-2.5 bg-black/50 backdrop-blur-sm border-b border-white/10 shrink-0 z-40">
+    <header className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 bg-black/50 backdrop-blur-sm border-b border-white/10 shrink-0 z-40">
       {/* Back button */}
       <button
         onClick={() => {
@@ -32,9 +32,9 @@ export function GameHeader() {
             setScreen('zone-map');
           }
         }}
-        className="text-gray-300 hover:text-white transition-colors text-sm font-medium shrink-0"
+        className="text-gray-300 hover:text-white transition-colors text-base sm:text-lg font-medium shrink-0"
       >
-        ← Back
+        ←
       </button>
 
       {/* Player info — name, level, XP bar */}
@@ -50,19 +50,19 @@ export function GameHeader() {
       </div>
 
       {/* Hearts */}
-      <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="md" />
+      <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="lg" />
 
       {/* Crystals */}
-      <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="md" />
+      <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="lg" />
 
       {/* Coins */}
-      <span className="text-yellow-400 text-base font-bold shrink-0">🪙 {profile.stats.coins}</span>
+      <span className="text-yellow-400 text-lg sm:text-xl font-bold shrink-0">🪙 {profile.stats.coins}</span>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
           onClick={() => setScreen('inventory')}
-          className="text-lg hover:opacity-80 transition-opacity"
+          className="text-xl sm:text-2xl hover:opacity-80 transition-opacity"
           title="Inventory"
           aria-label="Open inventory"
         >
@@ -70,7 +70,7 @@ export function GameHeader() {
         </button>
         <button
           onClick={() => setScreen('daily-challenge')}
-          className="text-lg hover:opacity-80 transition-opacity"
+          className="text-xl sm:text-2xl hover:opacity-80 transition-opacity"
           title="Daily Challenge"
           aria-label="Daily challenge"
         >
@@ -78,7 +78,7 @@ export function GameHeader() {
         </button>
         <button
           onClick={toggleMute}
-          className="text-lg hover:opacity-80 transition-opacity"
+          className="text-xl sm:text-2xl hover:opacity-80 transition-opacity"
           title={muted ? 'Unmute' : 'Mute'}
           aria-label={muted ? 'Unmute sound' : 'Mute sound'}
         >
@@ -86,7 +86,7 @@ export function GameHeader() {
         </button>
         <button
           onClick={() => setScreen('parent-dashboard')}
-          className="text-base text-amber-200/40 hover:text-amber-200 transition-colors"
+          className="text-lg sm:text-xl text-amber-200/40 hover:text-amber-200 transition-colors"
           aria-label="Parent dashboard"
         >
           📊

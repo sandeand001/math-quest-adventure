@@ -76,7 +76,7 @@ function App() {
   const scrollable = screen === 'profile-select' || screen === 'shop' || screen === 'inventory' || screen === 'parent-dashboard';
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden bg-slate-950">
       <GameHeader />
       <div className={`flex-1 min-h-0 ${scrollable ? 'overflow-auto' : 'overflow-hidden'}`}>
         <Suspense fallback={<ScreenLoader />}>{content}</Suspense>

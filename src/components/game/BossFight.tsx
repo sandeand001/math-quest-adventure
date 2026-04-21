@@ -81,7 +81,7 @@ export function BossFight() {
         {/* Boss image — fixed position, unaffected by question box */}
         <div
           className={`absolute left-1/2 -translate-x-1/2 transition-transform duration-200 ${shaking ? 'animate-shake' : ''}`}
-          style={{ bottom: '25%' }}
+          style={{ bottom: '30%' }}
         >
           <img
             src={getBossSprite(boss, pose)}
@@ -110,34 +110,35 @@ export function BossFight() {
           )}
         </div>
 
-        {/* Player avatar — bottom left, large floating character */}
+        {/* Player avatar — bottom left, above question box */}
         {profile && (
-          <div className="absolute left-2 z-30 flex items-end" style={{ bottom: '20%' }}>
+          <div className="absolute left-2 z-30 flex items-end" style={{ bottom: '35%' }}>
             <AvatarDisplay
               avatarId={profile.avatarId ?? null}
               name={profile.name}
               equippedCosmetics={profile.equippedCosmetics ?? null}
               collectedCrystals={profile.collectedCrystals ?? []}
+              size={250}
             />
-            {/* Sidekick with dynamic pose during fight */}
+            {/* Sidekick — to the LEFT of the player (away from boss) */}
             {profile.activeSidekick && (() => {
               const sk = getSidekick(profile.activeSidekick);
               if (!sk) return null;
-              const skSize = 400 * 0.45;
+              const skSize = 120;
               const isFlying = sk.placement === 'flying';
               return (
                 <img
                   src={`${sk.spritePath}/${sidekickPose}.png`}
                   alt={sk.name}
-                  className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] transition-all duration-200"
+                  className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] transition-all duration-200 -order-1"
                   style={{
                     width: skSize,
                     height: skSize,
                     objectFit: 'contain',
-                    marginLeft: 400 * -0.1,
+                    marginRight: -10,
                     alignSelf: isFlying ? 'flex-start' : 'flex-end',
-                    marginBottom: isFlying ? undefined : 400 * 0.15,
-                    marginTop: isFlying ? 400 * 0.05 : undefined,
+                    marginBottom: isFlying ? undefined : 10,
+                    marginTop: isFlying ? 10 : undefined,
                   }}
                 />
               );
@@ -146,8 +147,8 @@ export function BossFight() {
         )}
       </div>
 
-      {/* Question area — pinned to bottom, overlays on top of boss area */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/70 backdrop-blur-sm border-t border-indigo-800/30 p-6">
+      {/* Question area — pinned to bottom, compact */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/70 backdrop-blur-sm border-t border-indigo-800/30 px-4 py-3">
         {fightOver ? (
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold">

@@ -211,31 +211,32 @@ export function Stage() {
         <div className="absolute inset-0 z-30 pointer-events-none animate-ping bg-gradient-radial from-yellow-400/20 to-transparent" />
       )}
 
-      {/* Player avatar — bottom left corner, large */}
+      {/* Player avatar — bottom left, smaller to avoid blocking */}
       {activeProfile && (
-        <div className="absolute bottom-4 left-2 z-20">
+        <div className="absolute bottom-2 left-1 z-20 opacity-80 scale-75 origin-bottom-left">
           <AvatarDisplay
             avatarId={activeProfile.avatarId ?? null}
             name={activeProfile.name}
             equippedCosmetics={activeProfile.equippedCosmetics ?? null}
             sidekick={activeProfile.activeSidekick ?? null}
             collectedCrystals={activeProfile.collectedCrystals ?? []}
+            size={200}
           />
         </div>
       )}
 
-      {/* Pip — always visible on the right side */}
-      <div className="absolute bottom-4 right-4 z-30 flex flex-col items-center gap-1">
-        {/* Speech bubble (fades in/out with comment) */}
+      {/* Pip — always visible on the right side, smaller */}
+      <div className="absolute bottom-2 right-2 z-20 opacity-80 flex flex-col items-center gap-1">
+        {/* Speech bubble */}
         {pipComment && (
-          <div className="bg-[#1a1530]/90 border border-indigo-700/40 rounded-xl px-3 py-2 max-w-[180px] text-center animate-[slideUp_0.2s_ease-out]">
-            <p className="text-xs text-white leading-snug">{pipComment.text}</p>
+          <div className="bg-[#1a1530]/90 border border-indigo-700/40 rounded-xl px-2 py-1.5 max-w-[150px] text-center animate-[slideUp_0.2s_ease-out]">
+            <p className="text-[10px] text-white leading-snug">{pipComment.text}</p>
           </div>
         )}
         <img
           src={pipComment?.sprite ?? '/assets/characters/pip/happy.png'}
           alt="Pip"
-          className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)] transition-all duration-300"
+          className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all duration-300"
         />
       </div>
 

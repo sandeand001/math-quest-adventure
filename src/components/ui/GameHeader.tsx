@@ -17,7 +17,7 @@ export function GameHeader() {
   }
 
   return (
-    <header className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 bg-black/50 backdrop-blur-sm border-b border-white/10 shrink-0 z-40">
+    <header className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 bg-black/30 border-b border-white/5 shrink-0 z-40">
       {/* Back button */}
       <button
         onClick={() => {

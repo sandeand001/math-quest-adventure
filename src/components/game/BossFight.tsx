@@ -169,7 +169,7 @@ export function BossFight() {
             <p className="text-gray-300">
               {victory
                 ? `You defeated ${boss.name}! +${xpEarned} XP`
-                : `${boss.name} was too strong. Practice more and try again!`}
+                : `${boss.name} was too strong. Let's train with Professor Hoot!`}
             </p>
             <button
               onClick={handlePostFight}
@@ -180,7 +180,7 @@ export function BossFight() {
                 text-white transition-all active:scale-95
               "
             >
-              {victory ? 'Continue →' : 'Back to Practice'}
+              {victory ? 'Continue →' : '📚 Train with Prof. Hoot'}
             </button>
           </div>
         ) : currentQuestion ? (

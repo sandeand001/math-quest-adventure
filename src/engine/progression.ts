@@ -42,9 +42,6 @@ export function applyXp(stats: PlayerStats, xpGained: number): PlayerStats {
       updated.maxHp += 1;
       updated.hp = updated.maxHp;
     }
-    if (updated.level === 4 || updated.level === 6) {
-      updated.attack += 1;
-    }
     if (updated.level === 5) {
       updated.shieldUnlocked = true;
     }

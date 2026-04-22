@@ -95,7 +95,6 @@ export function StageResultScreen() {
               const lvl = result.newLevel!;
               const rewards: string[] = [];
               if (lvl === 3 || lvl === 5 || lvl === 7) rewards.push('❤️ +1 Max HP');
-              if (lvl === 4 || lvl === 6) rewards.push('⚔️ +1 Attack');
               if (lvl === 5) rewards.push('🛡️ Shield unlocked!');
               if (rewards.length > 0) {
                 return (

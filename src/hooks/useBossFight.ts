@@ -34,7 +34,6 @@ export function useBossFight() {
     collectCrystal,
     unlockAvatars,
     muted,
-    setCurrentStage,
   } = useGameStore();
 
   const profile = useActiveProfile();
@@ -283,8 +282,8 @@ export function useBossFight() {
       const isFinalStage = currentStageIndex >= (world?.stages.length ?? 1) - 1;
       setScreen(isFinalStage ? 'world-map' : 'zone-map');
     } else {
-      setCurrentStage(Math.max(0, currentStageIndex - 2));
-      setScreen('zone-map');
+      // Defeated — send to remedial training with Prof Hoot
+      setScreen('remedial');
     }
   };
 

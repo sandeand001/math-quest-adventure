@@ -7,9 +7,10 @@ interface QuestionCardProps {
   streak: number;
   hintAvailable?: boolean;
   compact?: boolean;
+  onHintUsed?: () => void;
 }
 
-export function QuestionCard({ question, onAnswer, streak, hintAvailable = false, compact = false }: QuestionCardProps) {
+export function QuestionCard({ question, onAnswer, streak, hintAvailable = false, compact = false, onHintUsed }: QuestionCardProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
@@ -104,6 +105,7 @@ export function QuestionCard({ question, onAnswer, streak, hintAvailable = false
         <button
           onClick={() => {
             setHintUsed(true);
+            onHintUsed?.();
             if (question.format === 'multiple-choice' && question.choices) {
               // Eliminate 2 wrong choices
               const wrong = question.choices.filter((c) => c !== question.answer);

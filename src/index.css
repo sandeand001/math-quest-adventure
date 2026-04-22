@@ -36,6 +36,41 @@ html, body, #root {
   animation: bounce-slow 2s ease-in-out infinite;
 }
 
+/* ── Level-up aura effects ── */
+@keyframes sparkle-pulse {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255, 255, 200, 0.3); }
+  50% { box-shadow: 0 0 16px 4px rgba(255, 255, 200, 0.5); }
+}
+@keyframes flame-pulse {
+  0%, 100% { box-shadow: 0 0 10px 3px rgba(255, 100, 0, 0.3), 0 0 20px 6px rgba(255, 50, 0, 0.15); }
+  50% { box-shadow: 0 0 18px 5px rgba(255, 100, 0, 0.5), 0 0 30px 10px rgba(255, 50, 0, 0.25); }
+}
+@keyframes lightning-pulse {
+  0%, 100% { box-shadow: 0 0 10px 3px rgba(100, 150, 255, 0.3), 0 0 20px 6px rgba(60, 100, 255, 0.15); }
+  33% { box-shadow: 0 0 20px 6px rgba(150, 200, 255, 0.6), 0 0 35px 12px rgba(60, 100, 255, 0.3); }
+  66% { box-shadow: 0 0 8px 2px rgba(100, 150, 255, 0.2); }
+}
+@keyframes rainbow-pulse {
+  0% { box-shadow: 0 0 15px 4px rgba(255, 0, 0, 0.4); }
+  16% { box-shadow: 0 0 15px 4px rgba(255, 165, 0, 0.4); }
+  33% { box-shadow: 0 0 15px 4px rgba(255, 255, 0, 0.4); }
+  50% { box-shadow: 0 0 15px 4px rgba(0, 255, 0, 0.4); }
+  66% { box-shadow: 0 0 15px 4px rgba(0, 100, 255, 0.4); }
+  83% { box-shadow: 0 0 15px 4px rgba(150, 0, 255, 0.4); }
+  100% { box-shadow: 0 0 15px 4px rgba(255, 0, 0, 0.4); }
+}
+
+.aura-sparkle { animation: sparkle-pulse 2s ease-in-out infinite; }
+.aura-flame { animation: flame-pulse 1.5s ease-in-out infinite; }
+.aura-lightning { animation: lightning-pulse 1s ease-in-out infinite; }
+.aura-rainbow { animation: rainbow-pulse 3s linear infinite; }
+
+/* ── Profile card borders ── */
+.border-tier-bronze { border: 2px solid #cd7f32; box-shadow: 0 0 6px rgba(205, 127, 50, 0.3); }
+.border-tier-silver { border: 2px solid #c0c0c0; box-shadow: 0 0 8px rgba(192, 192, 192, 0.3); }
+.border-tier-gold { border: 2px solid #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+.border-tier-diamond { border: 2px solid #b9f2ff; box-shadow: 0 0 14px rgba(185, 242, 255, 0.5), 0 0 28px rgba(185, 242, 255, 0.2); }
+
 /* Smooth body defaults */
 html, body, #root {
   height: 100%;

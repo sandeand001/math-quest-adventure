@@ -4,6 +4,7 @@ import type { AvatarId } from '../../types';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { getCosmetic } from '../../data/cosmetics';
 import { STARTER_AVATARS } from '../../data/avatars';
+import { getBorderTier, getEffectTier } from '../../data/levelRewards';
 
 export function ProfileSelect() {
   const { profiles, setActiveProfile, setScreen, addProfile, updateProfile, deleteProfile, createTestProfile, setUid, uid } = useGameStore();
@@ -67,12 +68,28 @@ export function ProfileSelect() {
             const profileBgIsWorld = profileBg?.cssClass?.startsWith('avatar-bg-world-');
             const profileBgImage = profileBgIsWorld ? profileBg?.preview : null;
             const profileBgClass = !profileBgIsWorld ? profileBg?.cssClass : null;
+            const borderClass = {
+              none: '',
+              bronze: 'border-tier-bronze',
+              silver: 'border-tier-silver',
+              gold: 'border-tier-gold',
+              diamond: 'border-tier-diamond',
+            }[getBorderTier(profile.stats.level)];
+            const auraClass = {
+              none: '',
+              sparkle: 'aura-sparkle',
+              flame: 'aura-flame',
+              lightning: 'aura-lightning',
+              rainbow: 'aura-rainbow',
+            }[getEffectTier(profile.stats.level)];
 
             return (
               <div
                 key={profile.id}
                 className={`
-                  w-full relative rounded-2xl border border-indigo-800/40
+                  w-full relative rounded-2xl
+                  ${borderClass || 'border border-indigo-800/40'}
+                  ${auraClass}
                   ${profileBgClass ? '' : 'bg-indigo-950/60'}
                   hover:border-indigo-600 transition-all
                 `}

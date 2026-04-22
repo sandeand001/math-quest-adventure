@@ -38,7 +38,7 @@ export function applyXp(stats: PlayerStats, xpGained: number): PlayerStats {
     updated.xpToNextLevel = xpForLevel(updated.level);
 
     // Stat boosts on level up
-    if (updated.level === 3 || updated.level === 5 || updated.level === 7) {
+    if (updated.level === 3 || updated.level === 5 || updated.level === 7 || updated.level === 15) {
       updated.maxHp += 1;
       updated.hp = updated.maxHp;
     }

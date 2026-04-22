@@ -6,6 +6,8 @@ import { checkAchievements } from '../../engine/achievements';
 import { WORLDS } from '../../data/worlds';
 import { playCorrectSfx } from '../../services/soundManager';
 
+import { getRewardsForLevel } from '../../data/levelRewards';
+
 export function StageResultScreen() {
   const {
     stageResults,
@@ -92,15 +94,14 @@ export function StageResultScreen() {
             <p className="text-lg font-bold text-yellow-300">LEVEL UP!</p>
             <p className="text-2xl font-extrabold text-white">Level {result.newLevel}</p>
             {(() => {
-              const lvl = result.newLevel!;
-              const rewards: string[] = [];
-              if (lvl === 3 || lvl === 5 || lvl === 7) rewards.push('❤️ +1 Max HP');
-              if (lvl === 5) rewards.push('🛡️ Shield unlocked!');
+              const rewards = getRewardsForLevel(result.newLevel!);
               if (rewards.length > 0) {
                 return (
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {rewards.map((r, i) => (
-                      <p key={i} className="text-sm text-yellow-200 font-medium">{r}</p>
+                      <p key={i} className="text-sm text-yellow-200 font-medium">
+                        {r.icon} {r.label}
+                      </p>
                     ))}
                   </div>
                 );

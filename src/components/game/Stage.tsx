@@ -9,6 +9,7 @@ import { QuestionCard } from './QuestionCard';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 import { playCorrectSfx, playWrongSfx } from '../../services/soundManager';
+import { getHintCount, hasReward } from '../../data/levelRewards';
 import type { StageResult } from '../../types';
 
 export function Stage() {
@@ -55,6 +56,15 @@ export function Stage() {
   // Streak visual effects
   const [streakGlow, setStreakGlow] = useState(false);
   const [streakBurst, setStreakBurst] = useState(false);
+
+  // Hint tracking
+  const maxHints = activeProfile ? getHintCount(activeProfile.stats.level) : 1;
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const hintsRemaining = maxHints - hintsUsed;
+
+  // Streak saver
+  const hasStreakSaver = activeProfile ? hasReward(activeProfile.stats.level, 'streak-saver') : false;
+  const streakSaverUsed = useRef(false);
 
   // Generate questions when stage mounts
   useEffect(() => {
@@ -143,7 +153,17 @@ export function Stage() {
 
   const handleAnswer = useCallback(
     (_userAnswer: number, isCorrect: boolean) => {
-      answerQuestion(isCorrect);
+      // Streak saver: first wrong answer doesn't break streak
+      const preserveStreak = !isCorrect && hasStreakSaver && !streakSaverUsed.current && streak > 0;
+      if (preserveStreak) {
+        streakSaverUsed.current = true;
+        // Count as wrong for accuracy but don't reset streak
+        answerQuestion(isCorrect);
+        // Manually restore streak (answerQuestion set it to 0)
+        useGameStore.setState({ streak: streak });
+      } else {
+        answerQuestion(isCorrect);
+      }
 
       // Track mastery for this skill
       if (currentQuestion) {
@@ -182,7 +202,7 @@ export function Stage() {
         }, 250);
       }, 600);
     },
-    [answerQuestion, nextQuestion, recordMastery, currentQuestion, streak, muted],
+    [answerQuestion, nextQuestion, recordMastery, currentQuestion, streak, muted, hasStreakSaver],
   );
 
   if (!stageDef || !currentQuestion) {
@@ -270,7 +290,8 @@ export function Stage() {
             question={currentQuestion}
             onAnswer={handleAnswer}
             streak={streak}
-            hintAvailable={stageDef.type === 'practice'}
+            hintAvailable={stageDef.type === 'practice' && hintsRemaining > 0}
+            onHintUsed={() => setHintsUsed((h) => h + 1)}
           />
         </div>
       </main>

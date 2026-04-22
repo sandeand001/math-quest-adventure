@@ -9,6 +9,7 @@ import { getStory, getStories } from '../data/stories';
 import type { StoryEntry } from '../data/stories';
 import type { SidekickId } from '../types';
 import { xpForCorrectAnswer, applyXp, coinsForBossDefeat } from '../engine/progression';
+import { hasReward } from '../data/levelRewards';
 import { playSfx as playCachedSfx } from '../services/soundManager';
 import { checkAchievements } from '../engine/achievements';
 
@@ -104,7 +105,10 @@ export function useBossFight() {
   // ── Reward processing (called on victory) ──
   const applyBossRewards = useCallback(
     (prof: NonNullable<ReturnType<typeof useActiveProfile>>) => {
-      const coins = coinsForBossDefeat(bossMaxHp, stageDef?.tier ?? 1);
+      let coins = coinsForBossDefeat(bossMaxHp, stageDef?.tier ?? 1);
+      // Apply coin multipliers from level rewards
+      if (hasReward(prof.stats.level, 'double-coins')) coins *= 2;
+      else if (hasReward(prof.stats.level, 'coin-boost')) coins = Math.floor(coins * 1.5);
       const updatedStats = applyXp(
         { ...prof.stats, coins: prof.stats.coins + coins },
         xpEarned,

@@ -189,6 +189,7 @@ export function BossFight() {
             question={currentQuestion}
             onAnswer={handleAnswer}
             streak={0}
+            compact
           />
         ) : null}
       </div>

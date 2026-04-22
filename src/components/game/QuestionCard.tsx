@@ -6,9 +6,10 @@ interface QuestionCardProps {
   onAnswer: (userAnswer: number, isCorrect: boolean) => void;
   streak: number;
   hintAvailable?: boolean;
+  compact?: boolean;
 }
 
-export function QuestionCard({ question, onAnswer, streak, hintAvailable = false }: QuestionCardProps) {
+export function QuestionCard({ question, onAnswer, streak, hintAvailable = false, compact = false }: QuestionCardProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
@@ -85,8 +86,8 @@ export function QuestionCard({ question, onAnswer, streak, hintAvailable = false
         </div>
       )}
 
-      {/* Feedback message */}
-      {feedback && (
+      {/* Feedback message (hidden in compact/boss mode) */}
+      {feedback && !compact && (
         <div
           role="status"
           aria-live="polite"

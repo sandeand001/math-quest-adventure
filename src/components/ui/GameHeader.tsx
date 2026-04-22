@@ -8,13 +8,18 @@ import { CrystalTracker } from './CrystalTracker';
  * Displays player name, level, XP, hearts, crystals, coins, and action buttons.
  */
 export function GameHeader() {
-  const { screen, setScreen, muted, toggleMute } = useGameStore();
+  const { screen, setScreen, muted, toggleMute, playerHp, playerMaxHp } = useGameStore();
   const profile = useActiveProfile();
 
   // Don't show on auth/login/profile-select screens
   if (!profile || screen === 'login' || screen === 'profile-select' || screen === 'parent-dashboard') {
     return null;
   }
+
+  // During boss fights, use combat HP (changes in real-time); otherwise use profile stats
+  const isCombat = screen === 'boss-fight';
+  const displayHp = isCombat ? playerHp : profile.stats.hp;
+  const displayMaxHp = isCombat ? playerMaxHp : profile.stats.maxHp;
 
   return (
     <header className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 bg-black/30 border-b border-white/5 shrink-0 z-40">
@@ -50,7 +55,7 @@ export function GameHeader() {
       </div>
 
       {/* Hearts */}
-      <HeartsBar current={profile.stats.hp} max={profile.stats.maxHp} size="lg" />
+      <HeartsBar current={displayHp} max={displayMaxHp} size="lg" />
 
       {/* Crystals */}
       <CrystalTracker collectedCrystals={profile.collectedCrystals ?? []} size="lg" />

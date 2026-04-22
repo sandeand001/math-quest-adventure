@@ -109,6 +109,8 @@ export function useBossFight() {
         { ...prof.stats, coins: prof.stats.coins + coins },
         xpEarned,
       );
+      // Refill hearts on boss/mini-boss victory
+      updatedStats.hp = updatedStats.maxHp;
       const nextStage = currentStageIndex + 1;
       updateProfile(prof.id, {
         stats: updatedStats,

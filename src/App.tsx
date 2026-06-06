@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { useGameStore } from './store/gameStore';
 import { useCloudSync } from './hooks/useCloudSync';
 import { GameHeader } from './components/ui/GameHeader';
+import { OfflineBanner } from './components/ui/OfflineBanner';
 
 const ParentLoginScreen = lazy(() => import('./components/auth/ParentLoginScreen').then((m) => ({ default: m.ParentLoginScreen })));
 const ProfileSelect = lazy(() => import('./components/auth/ProfileSelect').then((m) => ({ default: m.ProfileSelect })));
@@ -77,6 +78,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-950">
+      <OfflineBanner />
       <GameHeader />
       <div className={`flex-1 min-h-0 ${scrollable ? 'overflow-auto' : 'overflow-hidden'}`}>
         <Suspense fallback={<ScreenLoader />}>{content}</Suspense>

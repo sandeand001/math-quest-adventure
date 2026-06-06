@@ -158,6 +158,7 @@ export function AvatarDisplay({
               src={avatarDef.spritePath}
               alt={`${name}'s avatar`}
               className="relative w-full h-full object-contain drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)]"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           ) : (
             <span className="relative text-white font-bold" style={{ fontSize: size * 0.4 }}>
@@ -210,6 +211,7 @@ export function AvatarDisplay({
           <img
             src={`${sidekickDef.spritePath}/base-position.png`}
             alt={sidekickDef.name}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className="absolute drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
             style={{
               width: sidekickSize,

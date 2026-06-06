@@ -257,6 +257,7 @@ export function Stage() {
           src={pipComment?.sprite ?? '/assets/characters/pip/happy.png'}
           alt="Pip"
           className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all duration-300"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
       </div>
 

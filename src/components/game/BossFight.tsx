@@ -86,6 +86,7 @@ export function BossFight() {
           <img
             src={getBossSprite(boss, pose)}
             alt={boss.name}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className={`object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-opacity duration-200 ${
               currentWorldIndex === 7 && isBossFight
                 ? 'w-[90vw] h-[70vh] max-w-[1000px] max-h-[750px]'
@@ -130,6 +131,7 @@ export function BossFight() {
                 <img
                   src={`${sk.spritePath}/${sidekickPose}.png`}
                   alt={sk.name}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] transition-all duration-200 -order-1"
                   style={{
                     width: skSize,

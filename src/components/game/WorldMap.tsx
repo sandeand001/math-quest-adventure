@@ -49,6 +49,11 @@ export function WorldMap() {
             alt="Fantasy World Map"
             className="absolute inset-0 w-full h-full object-fill rounded-lg"
             draggable={false}
+            onError={(e) => {
+              const t = e.currentTarget;
+              t.style.display = 'none';
+              t.parentElement!.classList.add('bg-gradient-to-br', 'from-amber-900', 'to-emerald-900');
+            }}
           />
 
             {OVERWORLD_NODES.map((node) => {

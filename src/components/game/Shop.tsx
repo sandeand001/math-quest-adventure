@@ -46,6 +46,7 @@ export function Shop() {
   const profile = useActiveProfile();
   const [activeTab, setActiveTab] = useState<ShopTab>('avatars');
   const [message, setMessage] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<{ name: string; cost: number; onConfirm: () => void } | null>(null);
 
   if (!profile) {
     setScreen('profile-select');
@@ -62,33 +63,42 @@ export function Shop() {
     if (!avatar) return;
 
     if (avatar.starter) {
-      // Starter avatar — just equip
       updateProfile(profile.id, { avatarId });
       showMessage(`Equipped ${avatar.name}!`);
       return;
     }
 
     if (profile.purchasedAvatars?.includes(avatarId)) {
-      // Already owned — equip it
       updateProfile(profile.id, { avatarId });
       showMessage(`Equipped ${avatar.name}!`);
       return;
     }
 
-    // Must be unlocked to purchase
     if (!(profile.unlockedAvatars ?? []).includes(avatarId)) {
       showMessage(`This avatar is still locked!`);
       return;
     }
 
-    // Purchase
-    const success = purchaseItem(profile.id, 'avatar', avatarId, avatar.cost);
-    if (success) {
-      updateProfile(profile.id, { avatarId });
-      showMessage(`Purchased & equipped ${avatar.name}!`);
-    } else {
+    if (profile.stats.coins < avatar.cost) {
       showMessage(`Not enough coins! Need ${avatar.cost} 🪙`);
+      return;
     }
+
+    // Show confirmation
+    setConfirm({
+      name: avatar.name,
+      cost: avatar.cost,
+      onConfirm: () => {
+        const success = purchaseItem(profile.id, 'avatar', avatarId, avatar.cost);
+        if (success) {
+          updateProfile(profile.id, { avatarId });
+          showMessage(`Purchased & equipped ${avatar.name}!`);
+        } else {
+          showMessage(`Not enough coins! Need ${avatar.cost} 🪙`);
+        }
+        setConfirm(null);
+      },
+    });
   };
 
   const handleBuyCosmetic = (itemId: string) => {
@@ -99,27 +109,37 @@ export function Shop() {
     if (!equipKey) return;
 
     if (profile.purchasedCosmetics?.includes(itemId)) {
-      // Already owned — equip/unequip
       const isEquipped = profile.equippedCosmetics?.[equipKey] === itemId;
       equipCosmetic(profile.id, equipKey, isEquipped ? null : itemId);
       showMessage(isEquipped ? `Unequipped ${item.name}` : `Equipped ${item.name}!`);
       return;
     }
 
-    // Check unlock condition
     if (!isCosmeticUnlocked(item, profile)) {
       showMessage(`🔒 ${item.name} is locked!`);
       return;
     }
 
-    // Purchase
-    const success = purchaseItem(profile.id, 'cosmetic', itemId, item.cost);
-    if (success) {
-      equipCosmetic(profile.id, equipKey, itemId);
-      showMessage(`Purchased & equipped ${item.name}!`);
-    } else {
+    if (profile.stats.coins < item.cost) {
       showMessage(`Not enough coins! Need ${item.cost} 🪙`);
+      return;
     }
+
+    // Show confirmation
+    setConfirm({
+      name: item.name,
+      cost: item.cost,
+      onConfirm: () => {
+        const success = purchaseItem(profile.id, 'cosmetic', itemId, item.cost);
+        if (success) {
+          equipCosmetic(profile.id, equipKey, itemId);
+          showMessage(`Purchased & equipped ${item.name}!`);
+        } else {
+          showMessage(`Not enough coins! Need ${item.cost} 🪙`);
+        }
+        setConfirm(null);
+      },
+    });
   };
 
   const cosmeticCategory = CATEGORY_MAP[activeTab];
@@ -285,6 +305,40 @@ export function Shop() {
           )}
         </div>
       </div>
+
+      {/* Purchase confirmation modal */}
+      {confirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-indigo-950 border border-indigo-700/50 rounded-2xl p-6 max-w-xs w-full mx-4 space-y-4 shadow-2xl animate-[slideUp_0.15s_ease-out]">
+            <h2 className="text-lg font-bold text-white text-center">Confirm Purchase</h2>
+            <p className="text-sm text-gray-300 text-center">
+              Buy <span className="text-white font-semibold">{confirm.name}</span> for{' '}
+              <span className="text-yellow-400 font-bold">{confirm.cost} 🪙</span>?
+            </p>
+            <p className="text-xs text-gray-500 text-center">
+              You have <span className="text-yellow-400 font-medium">{profile.stats.coins} 🪙</span>
+              {' · '}
+              <span className="text-gray-400">
+                {profile.stats.coins - confirm.cost} 🪙 remaining
+              </span>
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirm(null)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gray-700/60 text-gray-300 hover:bg-gray-600/60 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirm.onConfirm}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:from-amber-400 hover:to-yellow-400 transition-all active:scale-95"
+              >
+                Buy 🪙
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

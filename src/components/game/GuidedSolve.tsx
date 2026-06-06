@@ -11,14 +11,29 @@ interface GuidedSolveProps {
   onComplete: () => void;
 }
 
+/** Render markdown-style bold (**text**) */
+function renderText(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <span key={i} className="text-yellow-300 font-bold">
+          {part.slice(2, -2)}
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 /**
- * Full-screen overlay that walks the user through a similar practice problem
- * step by step, then dismisses so the original question can be retried.
+ * Full-screen overlay that walks the user through a similar practice problem.
+ * All steps are shown on a single cohesive screen — completed steps remain
+ * visible with their answers, building up like working on a chalkboard.
  */
 export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
   const [steps] = useState<HintStep[]>(() => {
     const practice = generatePracticeQuestion(question);
-    // Build a minimal Question-shaped object for the step generator
     const practiceQ: Question = {
       ...question,
       id: 'practice',
@@ -26,7 +41,6 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
       operandB: practice.b,
       answer: practice.answer,
       operation: practice.operation,
-      // Force fill-result so the walkthrough solves a straight equation
       format: question.format === 'word-problem' ? 'word-problem' : 'fill-result',
       blankPosition: 'result',
     };
@@ -34,37 +48,31 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
   });
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [completedAnswers, setCompletedAnswers] = useState<Map<number, number>>(new Map());
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
-  const [slideIn, setSlideIn] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const step = steps[currentStep];
-  const isLastStep = currentStep >= steps.length;
-  const totalSteps = steps.length;
+  const isFinished = currentStep >= steps.length;
 
   // Focus input on interactive steps
   useEffect(() => {
+    const step = steps[currentStep];
     if (step?.type === 'interactive' && feedback === null) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [currentStep, step?.type, feedback]);
+  }, [currentStep, steps, feedback]);
 
-  // Trigger slide-in animation on step change
+  // Auto-scroll to current step
   useEffect(() => {
-    setSlideIn(false);
-    const t = requestAnimationFrame(() => setSlideIn(true));
-    return () => cancelAnimationFrame(t);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [currentStep]);
 
   const advanceStep = () => {
     setInputValue('');
     setFeedback(null);
-    if (currentStep + 1 >= totalSteps) {
-      setCurrentStep(totalSteps); // triggers "done" state
-    } else {
-      setCurrentStep((s) => s + 1);
-    }
+    setCurrentStep((s) => s + 1);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,126 +80,148 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
     if (feedback !== null) return;
     const num = parseInt(inputValue, 10);
     if (isNaN(num)) return;
+    const step = steps[currentStep];
 
     if (num === step?.intermediateAnswer) {
       setFeedback('correct');
-      setTimeout(advanceStep, 800);
+      setCompletedAnswers((prev) => new Map(prev).set(currentStep, num));
+      setTimeout(advanceStep, 600);
     } else {
       setFeedback('wrong');
       setInputValue('');
       setTimeout(() => {
         setFeedback(null);
         inputRef.current?.focus();
-      }, 600);
+      }, 500);
     }
   };
 
-  // Render markdown-style bold (**text**)
-  const renderText = (text: string) => {
-    const parts = text.split(/(\*\*[^*]+\*\*)/g);
-    return parts.map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return (
-          <span key={i} className="text-yellow-300 font-bold">
-            {part.slice(2, -2)}
-          </span>
-        );
-      }
-      return <span key={i}>{part}</span>;
-    });
-  };
-
-  const hootSprite = step
-    ? `/assets/characters/professor-hoot/${step.character}.png`
-    : '/assets/characters/professor-hoot/celebrating.png';
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-gradient-to-b from-indigo-950 to-slate-950 border border-indigo-700/40 rounded-3xl p-5 max-w-md w-full mx-4 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-indigo-300">
-            {isLastStep ? 'All done!' : `Step ${currentStep + 1} of ${totalSteps}`}
-          </h2>
-          <span className="text-xs text-gray-500">Professor Hoot</span>
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-[#0c0e1a] via-indigo-950 to-[#0c0e1a]">
+      {/* Header bar */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-black/30 border-b border-indigo-800/30 shrink-0">
+        <img
+          src="/assets/characters/professor-hoot/wise.png"
+          alt="Professor Hoot"
+          className="w-10 h-10 object-contain"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+        <div className="flex-1 min-w-0">
+          <h2 className="text-sm font-bold text-white">Professor Hoot's Walkthrough</h2>
+          <p className="text-xs text-indigo-300">Let's work through a similar problem together</p>
         </div>
+        <span className="text-xs text-gray-500 tabular-nums shrink-0">
+          {isFinished ? 'Done!' : `${currentStep + 1} / ${steps.length}`}
+        </span>
+      </div>
 
-        {/* Hoot + speech bubble */}
-        <div className="flex items-start gap-3 mb-5">
-          <img
-            src={hootSprite}
-            alt="Professor Hoot"
-            className="w-20 h-20 object-contain shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
+      {/* Scrollable working area — all steps visible, builds up like a worksheet */}
+      <div ref={scrollRef} className="flex-1 overflow-auto px-4 py-4 space-y-3">
+        {steps.map((s, idx) => {
+          const isCompleted = idx < currentStep;
+          const isCurrent = idx === currentStep && !isFinished;
+          const isFuture = idx > currentStep;
+          const completedAnswer = completedAnswers.get(idx);
 
-          <div
-            className={`flex-1 bg-indigo-900/50 border border-indigo-700/30 rounded-2xl rounded-bl-sm px-4 py-3 transition-all duration-200 ${
-              slideIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-            }`}
-          >
-            {isLastStep ? (
-              <p className="text-sm text-white leading-relaxed">
-                Great work! You learned the method. Now <span className="text-yellow-300 font-bold">try your question again!</span>
+          if (isFuture) return null;
+
+          return (
+            <div
+              key={idx}
+              className={`rounded-xl px-4 py-3 transition-all duration-300 ${
+                isCurrent
+                  ? 'bg-indigo-900/60 border border-indigo-600/50 shadow-lg shadow-indigo-900/30'
+                  : 'bg-indigo-950/30 border border-indigo-800/20'
+              }`}
+            >
+              {/* Step text */}
+              <p className={`text-sm leading-relaxed ${isCompleted ? 'text-gray-400' : 'text-white'}`}>
+                {renderText(s.text)}
               </p>
-            ) : (
-              <p className="text-sm text-white leading-relaxed">
-                {renderText(step!.text)}
-              </p>
-            )}
+
+              {/* Completed interactive step — show the answer inline */}
+              {isCompleted && s.type === 'interactive' && completedAnswer !== undefined && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-emerald-400 font-bold text-lg">{completedAnswer}</span>
+                  <span className="text-emerald-400 text-xs">✓</span>
+                </div>
+              )}
+
+              {/* Current interactive step — show the input */}
+              {isCurrent && s.type === 'interactive' && (
+                <div className="mt-3 space-y-2">
+                  {feedback === 'wrong' && (
+                    <p className="text-xs font-medium text-red-400">Not quite — try again!</p>
+                  )}
+                  <form onSubmit={handleSubmit} className="flex gap-2">
+                    <input
+                      ref={inputRef}
+                      type="number"
+                      inputMode="numeric"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      disabled={feedback === 'correct'}
+                      className={`flex-1 px-3 py-2.5 text-xl text-center font-bold rounded-lg text-white focus:outline-none transition-colors ${
+                        feedback === 'correct'
+                          ? 'bg-emerald-900/40 border-2 border-emerald-500'
+                          : feedback === 'wrong'
+                            ? 'bg-red-900/30 border-2 border-red-500/50'
+                            : 'bg-indigo-950/60 border-2 border-indigo-600/50 focus:border-indigo-400'
+                      }`}
+                      placeholder="?"
+                      autoComplete="off"
+                    />
+                    <button
+                      type="submit"
+                      disabled={feedback !== null || inputValue === ''}
+                      className="px-5 py-2.5 rounded-lg text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
+                    >
+                      Go
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Current info step — show "Next" inline */}
+              {isCurrent && s.type === 'info' && (
+                <button
+                  onClick={advanceStep}
+                  className="mt-3 px-4 py-2 rounded-lg text-xs font-bold bg-indigo-700/50 border border-indigo-600/30 text-indigo-200 hover:bg-indigo-600/50 transition-all active:scale-95"
+                >
+                  Next →
+                </button>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Completion message */}
+        {isFinished && (
+          <div className="rounded-xl px-4 py-5 bg-emerald-900/30 border border-emerald-700/40 text-center space-y-3">
+            <img
+              src="/assets/characters/professor-hoot/celebrating.png"
+              alt="Professor Hoot celebrating"
+              className="w-16 h-16 object-contain mx-auto"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+            <p className="text-sm text-white font-medium">
+              Great work! Now <span className="text-yellow-300 font-bold">try your question again.</span>
+            </p>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Interactive input or action buttons */}
-        {isLastStep ? (
+      {/* Bottom action bar */}
+      {isFinished && (
+        <div className="px-4 py-3 bg-black/30 border-t border-indigo-800/30 shrink-0">
           <button
             onClick={onComplete}
             className="w-full py-3 rounded-xl text-base font-bold bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white transition-all active:scale-95"
           >
             Try Again →
           </button>
-        ) : step!.type === 'interactive' ? (
-          <div className="space-y-3">
-            {feedback === 'correct' && (
-              <div className="text-center text-sm font-bold text-emerald-400 animate-pulse">
-                ✓ Correct!
-              </div>
-            )}
-            {feedback === 'wrong' && (
-              <div className="text-center text-sm font-bold text-red-400 animate-[shake_0.3s_ease-in-out]">
-                Not quite — try again!
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="flex gap-3">
-              <input
-                ref={inputRef}
-                type="number"
-                inputMode="numeric"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                disabled={feedback === 'correct'}
-                className="flex-1 px-4 py-3 text-xl text-center font-bold bg-indigo-950/60 border-2 border-indigo-700/50 rounded-xl text-white focus:outline-none focus:border-indigo-400 disabled:opacity-50"
-                placeholder="?"
-                autoComplete="off"
-              />
-              <button
-                type="submit"
-                disabled={feedback !== null || inputValue === ''}
-                className="px-6 py-3 rounded-xl text-base font-bold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
-              >
-                Go
-              </button>
-            </form>
-          </div>
-        ) : (
-          <button
-            onClick={advanceStep}
-            className="w-full py-3 rounded-xl text-base font-bold bg-indigo-700/60 border border-indigo-600/40 text-white hover:bg-indigo-600/60 transition-all active:scale-95"
-          >
-            Next →
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

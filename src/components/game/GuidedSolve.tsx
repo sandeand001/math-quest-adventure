@@ -129,21 +129,21 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
           />
         )}
         </div>
+      </div>
 
-        {/* Hoot + guidance — centered below the visual */}
-        <div className="flex items-center gap-3 px-6 py-3 max-w-lg w-full">
-          <img
-            src="/assets/characters/professor-hoot/wise.png"
-            alt="Professor Hoot"
-            className="w-14 h-14 sm:w-16 sm:h-16 object-contain shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
-          <p className="flex-1 text-sm sm:text-base text-white font-medium leading-snug">
-            {isFinished
-              ? 'Great work! Now try your question again.'
-              : step!.text}
-          </p>
-        </div>
+      {/* Hoot + guidance — pinned to bottom, above footer input */}
+      <div className="flex items-center justify-center gap-3 px-6 py-3 bg-black/20 shrink-0">
+        <img
+          src="/assets/characters/professor-hoot/wise.png"
+          alt="Professor Hoot"
+          className="w-14 h-14 sm:w-16 sm:h-16 object-contain shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+        <p className="flex-1 max-w-md text-sm sm:text-base text-white font-medium leading-snug">
+          {isFinished
+            ? 'Great work! Now try your question again.'
+            : step!.text}
+        </p>
       </div>
 
       {/* Footer — input or action */}

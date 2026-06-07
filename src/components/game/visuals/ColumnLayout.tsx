@@ -51,6 +51,19 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
   return (
     <div className="flex flex-col items-center justify-center h-full select-none">
       <div className="relative font-mono text-4xl sm:text-5xl leading-relaxed tracking-widest">
+        {/* Carry row — sits above the top number, aligned to the same grid */}
+        {carry === 1 && (
+          <div className="flex justify-end gap-0" style={{ height: onesAnswer !== undefined ? undefined : 0, overflow: 'hidden' }}>
+            <span className="w-12 text-center">&nbsp;</span>
+            {onesAnswer !== undefined ? (
+              <span className="w-12 text-center text-2xl text-white font-bold animate-[fadeIn_0.3s_ease-out]">1</span>
+            ) : (
+              <span className="w-12">&nbsp;</span>
+            )}
+            <span className="w-12">&nbsp;</span>
+          </div>
+        )}
+
         {/* Top number (a) */}
         <div className="flex justify-end gap-0">
           <span className="w-12 text-center relative">
@@ -110,13 +123,6 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
             )}
           </span>
         </div>
-
-        {/* Carry indicator — positioned above the tens column */}
-        {carry === 1 && onesAnswer !== undefined && (
-          <div className="absolute -top-9 right-12 animate-[fadeIn_0.3s_ease-out]">
-            <span className="text-2xl font-bold text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]">1</span>
-          </div>
-        )}
       </div>
     </div>
   );

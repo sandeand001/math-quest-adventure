@@ -160,7 +160,7 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
             {feedback === 'wrong' && (
               <p className="text-center text-xs font-medium text-red-400">Not quite — try again!</p>
             )}
-            <form onSubmit={handleSubmit} className="flex gap-3">
+            <form onSubmit={handleSubmit} className="flex gap-2 max-w-xs mx-auto">
               <input
                 ref={inputRef}
                 type="number"
@@ -168,7 +168,7 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={feedback === 'correct'}
-                className={`flex-1 px-4 py-3 text-xl text-center font-bold rounded-xl text-white focus:outline-none transition-colors ${
+                className={`w-24 px-3 py-2.5 text-xl text-center font-bold rounded-xl text-white focus:outline-none transition-colors ${
                   feedback === 'correct'
                     ? 'bg-emerald-900/40 border-2 border-emerald-500'
                     : feedback === 'wrong'

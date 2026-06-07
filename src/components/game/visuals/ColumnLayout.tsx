@@ -29,13 +29,13 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
   const borrowedOnesA = needsBorrow ? onesA + 10 : onesA;
   const borrowedTensA = needsBorrow ? tensA - 1 : tensA;
 
-  // Figure out which interactive steps map to ones/tens answers
-  // Step 0 is always info ("start with ones")
-  // For addition: step 1 = ones interactive, then step 2 or 3 = tens interactive
-  // For subtraction: borrow adds an info step
-
-  const onesInteractiveIdx = needsBorrow ? 2 : 1; // after borrow info
-  const tensInteractiveIdx = needsBorrow ? 3 : (carry ? 3 : 2);
+  // Step indices for interactive answers — must match engine/hintSteps.ts output
+  // Addition: [info, interactive(ones), info, interactive(tens), info]
+  // Addition with carry: same — carry info replaces the no-carry info
+  // Subtraction: [info, interactive(ones), interactive(tens), info]
+  // Subtraction with borrow: [info, info(can't), info(borrow), interactive(ones), interactive(tens), info]
+  const onesInteractiveIdx = needsBorrow ? 3 : 1;
+  const tensInteractiveIdx = needsBorrow ? 4 : (isAdd ? 3 : 2);
 
   const onesAnswer = completedAnswers.get(onesInteractiveIdx);
   const tensAnswer = completedAnswers.get(tensInteractiveIdx);
@@ -109,7 +109,7 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
           {/* Tens digit */}
           <span className="w-12 text-center">
             {tensAnswer !== undefined ? (
-              <span className="text-emerald-400 animate-[fadeIn_0.3s_ease-out]">{tensAnswer}</span>
+              <span className="text-emerald-400 animate-[fadeIn_0.3s_ease-out]">{isAdd ? tensA + tensB + carry : borrowedTensA - tensB}</span>
             ) : (
               <span className="text-gray-600">_</span>
             )}

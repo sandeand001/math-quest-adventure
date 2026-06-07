@@ -113,8 +113,8 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
 
         {/* Carry indicator — positioned above the tens column */}
         {carry === 1 && onesAnswer !== undefined && (
-          <div className="absolute -top-7 right-12 text-lg text-amber-400 font-bold animate-[fadeIn_0.3s_ease-out]">
-            <span className="bg-amber-900/40 rounded-full w-7 h-7 inline-flex items-center justify-center text-sm">1</span>
+          <div className="absolute -top-9 right-12 animate-[fadeIn_0.3s_ease-out]">
+            <span className="text-2xl font-bold text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]">1</span>
           </div>
         )}
       </div>

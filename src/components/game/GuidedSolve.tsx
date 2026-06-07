@@ -84,31 +84,13 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-[#0c0e1a] via-indigo-950 to-[#0c0e1a]">
-      {/* Caption bar — Hoot + guidance text */}
-      <div className="flex items-start gap-3 px-4 py-3 bg-black/40 border-b border-indigo-800/30 shrink-0">
-        <img
-          src="/assets/characters/professor-hoot/wise.png"
-          alt="Professor Hoot"
-          className="w-10 h-10 object-contain shrink-0 mt-0.5"
-          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-        />
-        <p className="flex-1 text-sm text-white font-medium min-w-0 leading-snug">
-          {isFinished
-            ? 'Great work! Now try your question.'
-            : step!.text}
-        </p>
-        <span className="text-xs text-gray-500 tabular-nums shrink-0">
-          {isFinished ? '✓' : `${stepIndex + 1}/${steps.length}`}
+      {/* Top bar — step counter + problem */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-black/40 border-b border-indigo-800/30 shrink-0">
+        <span className="text-xs text-gray-400">
+          Practice: <span className="text-indigo-300 font-bold">{practiceA} {opSym} {practiceB} = ?</span>
         </span>
-      </div>
-
-      {/* Problem header — shows what we're solving */}
-      <div className="text-center py-2 bg-black/20">
-        <span className="text-xs text-gray-400">Practice problem: </span>
-        <span className="text-sm text-indigo-300 font-bold">
-          {operation === 'division'
-            ? `${practiceA} ${opSym} ${practiceB} = ?`
-            : `${practiceA} ${opSym} ${practiceB} = ?`}
+        <span className="text-xs text-gray-500 tabular-nums">
+          {isFinished ? '✓' : `${stepIndex + 1}/${steps.length}`}
         </span>
       </div>
 
@@ -144,6 +126,21 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
             isDivision={operation === 'division'}
           />
         )}
+      </div>
+
+      {/* Hoot + guidance — between visual and input, close to the action */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-black/20 shrink-0">
+        <img
+          src="/assets/characters/professor-hoot/wise.png"
+          alt="Professor Hoot"
+          className="w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+        <p className="flex-1 text-sm sm:text-base text-white font-medium leading-snug">
+          {isFinished
+            ? 'Great work! Now try your question again.'
+            : step!.text}
+        </p>
       </div>
 
       {/* Footer — input or action */}

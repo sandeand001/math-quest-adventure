@@ -1,0 +1,221 @@
+import type { Question, Operation } from '../types';
+
+// ── Types ────────────────────────────────────────────────────────────
+
+export type VisualType = 'column' | 'number-line' | 'dot-groups';
+
+export interface HintStep {
+  text: string;
+  type: 'info' | 'interactive';
+  intermediateAnswer?: number;
+}
+
+export interface GuidedSolveData {
+  visual: VisualType;
+  steps: HintStep[];
+  practiceA: number;
+  practiceB: number;
+  practiceAnswer: number;
+  operation: Operation;
+}
+
+// ── Practice question generator ──────────────────────────────────────
+
+function randInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function generatePracticeQuestion(original: Question): {
+  a: number; b: number; answer: number; operation: Operation;
+} {
+  const { operandA, operandB, operation } = original;
+  for (let i = 0; i < 30; i++) {
+    const p = generateSimilar(operandA, operandB, operation);
+    if (p.a !== operandA || p.b !== operandB) return p;
+  }
+  return generateSimilar(operandA, operandB, operation);
+}
+
+function generateSimilar(origA: number, origB: number, op: Operation) {
+  switch (op) {
+    case 'addition': { const a = nearby(origA); const b = nearby(origB); return { a, b, answer: a + b, operation: op }; }
+    case 'subtraction': { let a = nearby(origA); let b = nearby(origB); if (b > a) [a, b] = [b, a]; if (a === b) a++; return { a, b, answer: a - b, operation: op }; }
+    case 'multiplication': { const a = Math.max(1, nearbySmall(origA)); const b = Math.max(1, nearbySmall(origB)); return { a, b, answer: a * b, operation: op }; }
+    case 'division': { const d = Math.max(1, nearbySmall(origB)); const q = Math.max(1, nearbySmall(Math.round(origA / Math.max(origB, 1)))); return { a: d * q, b: d, answer: q, operation: op }; }
+  }
+}
+
+function nearby(n: number): number {
+  if (n <= 10) return Math.max(0, n + randInt(-3, 3));
+  if (n <= 100) return Math.max(1, n + randInt(-15, 15));
+  return Math.max(1, n + randInt(-50, 50));
+}
+
+function nearbySmall(n: number): number {
+  if (n <= 5) return Math.max(1, n + randInt(-2, 2));
+  return Math.max(1, n + randInt(-3, 3));
+}
+
+// ── Visual type selection ────────────────────────────────────────────
+
+function selectVisual(operation: Operation, tier: number): VisualType {
+  if (operation === 'addition' || operation === 'subtraction') {
+    return tier <= 2 ? 'number-line' : 'column';
+  }
+  if (operation === 'multiplication') {
+    return tier <= 5 ? 'dot-groups' : 'number-line';
+  }
+  // division
+  return tier <= 5 ? 'dot-groups' : 'number-line';
+}
+
+// ── Step generators ──────────────────────────────────────────────────
+
+function columnAddSteps(a: number, b: number, answer: number): HintStep[] {
+  const onesA = a % 10, onesB = b % 10;
+  const onesSum = onesA + onesB;
+  const carry = onesSum >= 10 ? 1 : 0;
+  const tensA = Math.floor(a / 10), tensB = Math.floor(b / 10);
+  const tensSum = tensA + tensB + carry;
+  const steps: HintStep[] = [];
+
+  steps.push({ text: 'Start with the ones place.', type: 'info' });
+  steps.push({ text: `What is ${onesA} + ${onesB}?`, type: 'interactive', intermediateAnswer: onesSum });
+
+  if (carry) {
+    steps.push({ text: `${onesSum} is more than 9 — write ${onesSum % 10} and carry the 1.`, type: 'info' });
+  }
+
+  steps.push({ text: carry ? `Now the tens: ${tensA} + ${tensB} + 1 (carried) = ?` : `Now the tens: ${tensA} + ${tensB} = ?`, type: 'interactive', intermediateAnswer: tensSum });
+  steps.push({ text: `The answer is ${answer}!`, type: 'info' });
+  return steps;
+}
+
+function columnSubSteps(a: number, b: number, answer: number): HintStep[] {
+  let onesA = a % 10;
+  let tensA = Math.floor(a / 10);
+  const onesB = b % 10, tensB = Math.floor(b / 10);
+  const borrow = onesA < onesB;
+  const steps: HintStep[] = [];
+
+  steps.push({ text: 'Start with the ones place.', type: 'info' });
+
+  if (borrow) {
+    steps.push({ text: `Can't take ${onesB} from ${onesA} — need to borrow!`, type: 'info' });
+    tensA -= 1;
+    onesA += 10;
+  }
+
+  steps.push({ text: `What is ${onesA} − ${onesB}?`, type: 'interactive', intermediateAnswer: onesA - onesB });
+  steps.push({ text: `Now the tens: ${tensA} − ${tensB} = ?`, type: 'interactive', intermediateAnswer: tensA - tensB });
+  steps.push({ text: `The answer is ${answer}!`, type: 'info' });
+  return steps;
+}
+
+function numberLineAddSteps(a: number, b: number, answer: number): HintStep[] {
+  const bigger = Math.max(a, b), smaller = Math.min(a, b);
+  const steps: HintStep[] = [];
+  steps.push({ text: `Start at ${bigger}. Count up ${smaller}.`, type: 'info' });
+  // Each hop is an info step — the number line animates
+  for (let i = 1; i < smaller; i++) {
+    steps.push({ text: `${bigger + i}...`, type: 'info' });
+  }
+  steps.push({ text: `What do we land on?`, type: 'interactive', intermediateAnswer: answer });
+  return steps;
+}
+
+function numberLineSubSteps(a: number, b: number, answer: number): HintStep[] {
+  const steps: HintStep[] = [];
+  steps.push({ text: `Start at ${a}. Count back ${b}.`, type: 'info' });
+  for (let i = 1; i < b; i++) {
+    steps.push({ text: `${a - i}...`, type: 'info' });
+  }
+  steps.push({ text: `What do we land on?`, type: 'interactive', intermediateAnswer: answer });
+  return steps;
+}
+
+function dotGroupSteps(groups: number, perGroup: number, answer: number, isDivision: boolean): HintStep[] {
+  const steps: HintStep[] = [];
+  if (isDivision) {
+    steps.push({ text: `How many groups of ${perGroup} fit in ${answer}? Let's find out!`, type: 'info' });
+  } else {
+    steps.push({ text: `${groups} groups of ${perGroup}. Let's count!`, type: 'info' });
+  }
+  // First group is info (shown), rest are interactive
+  steps.push({ text: `Group 1 = ${perGroup}`, type: 'info' });
+  let total = perGroup;
+  for (let i = 2; i <= groups; i++) {
+    steps.push({ text: `${total} + ${perGroup} = ?`, type: 'interactive', intermediateAnswer: total + perGroup });
+    total += perGroup;
+  }
+  if (isDivision) {
+    steps.push({ text: `${groups} groups! So ${answer} ÷ ${perGroup} = ${groups}`, type: 'info' });
+  } else {
+    steps.push({ text: `${groups} × ${perGroup} = ${answer}!`, type: 'info' });
+  }
+  return steps;
+}
+
+function skipCountSteps(groups: number, perGroup: number, answer: number, isDivision: boolean): HintStep[] {
+  const steps: HintStep[] = [];
+  if (isDivision) {
+    steps.push({ text: `Count by ${perGroup} until we reach ${answer}.`, type: 'info' });
+  } else {
+    steps.push({ text: `Skip-count by ${perGroup}, ${groups} times.`, type: 'info' });
+  }
+  steps.push({ text: `${perGroup}`, type: 'info' }); // first hop shown
+  let total = perGroup;
+  for (let i = 2; i <= groups; i++) {
+    steps.push({ text: `${total} + ${perGroup} = ?`, type: 'interactive', intermediateAnswer: total + perGroup });
+    total += perGroup;
+  }
+  if (isDivision) {
+    steps.push({ text: `${groups} hops to reach ${answer}. So ${answer} ÷ ${perGroup} = ${groups}!`, type: 'info' });
+  } else {
+    steps.push({ text: `${groups} × ${perGroup} = ${answer}!`, type: 'info' });
+  }
+  return steps;
+}
+
+// ── Main entry point ─────────────────────────────────────────────────
+
+export function buildGuidedSolve(question: Question): GuidedSolveData {
+  const practice = generatePracticeQuestion(question);
+  const { a, b, answer, operation } = practice;
+  const visual = selectVisual(operation, question.tier);
+  let steps: HintStep[];
+
+  switch (visual) {
+    case 'column':
+      steps = operation === 'subtraction'
+        ? columnSubSteps(a, b, answer)
+        : columnAddSteps(a, b, answer);
+      break;
+
+    case 'number-line':
+      if (operation === 'addition') {
+        steps = numberLineAddSteps(a, b, answer);
+      } else if (operation === 'subtraction') {
+        steps = numberLineSubSteps(a, b, answer);
+      } else if (operation === 'multiplication') {
+        const groups = Math.min(a, b), per = Math.max(a, b);
+        steps = skipCountSteps(groups, per, answer, false);
+      } else {
+        // division — a ÷ b = answer → count by b, answer times
+        steps = skipCountSteps(answer, b, a, true);
+      }
+      break;
+
+    case 'dot-groups':
+      if (operation === 'multiplication') {
+        const groups = Math.min(a, b), per = Math.max(a, b);
+        steps = dotGroupSteps(groups, per, answer, false);
+      } else {
+        // division: a ÷ b = answer → answer groups of b
+        steps = dotGroupSteps(answer, b, a, true);
+      }
+      break;
+  }
+
+  return { visual, steps, practiceA: a, practiceB: b, practiceAnswer: answer, operation };
+}

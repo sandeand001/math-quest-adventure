@@ -6,6 +6,7 @@ import { getStory } from '../../data/stories';
 import { WORLDS } from '../../data/worlds';
 import { getPipComment, type PipComment } from '../../data/pipComments';
 import { QuestionCard } from './QuestionCard';
+import { GuidedSolve } from './GuidedSolve';
 import { AvatarDisplay } from '../ui/AvatarDisplay';
 import { StoryDialog } from '../ui/StoryDialog';
 import { playCorrectSfx, playWrongSfx } from '../../services/soundManager';
@@ -56,6 +57,12 @@ export function Stage() {
   // Streak visual effects
   const [streakGlow, setStreakGlow] = useState(false);
   const [streakBurst, setStreakBurst] = useState(false);
+
+  // Guided solve state
+  const [showGuidedSolve, setShowGuidedSolve] = useState(false);
+  const [offerHelp, setOfferHelp] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const failedQuestionRef = useRef<typeof currentQuestion | null>(null);
 
   // Hint tracking
   const maxHints = activeProfile ? getHintCount(activeProfile.stats.level) : 1;
@@ -193,6 +200,18 @@ export function Stage() {
         setTimeout(() => setStreakBurst(false), 1000);
       }
 
+      // On wrong answer in practice/challenge: pause to offer help
+      const canOfferHelp =
+        !isCorrect &&
+        stageDef &&
+        (stageDef.type === 'practice' || stageDef.type === 'challenge');
+
+      if (canOfferHelp && currentQuestion) {
+        failedQuestionRef.current = currentQuestion;
+        setTimeout(() => setOfferHelp(true), 900);
+        return;
+      }
+
       // Slide out → advance → slide in
       setTimeout(() => {
         setSlideState('out');
@@ -202,8 +221,30 @@ export function Stage() {
         }, 250);
       }, 600);
     },
-    [answerQuestion, nextQuestion, recordMastery, currentQuestion, streak, muted, hasStreakSaver],
+    [answerQuestion, nextQuestion, recordMastery, currentQuestion, streak, muted, hasStreakSaver, stageDef],
   );
+
+  const dismissHelp = useCallback(() => {
+    setOfferHelp(false);
+    failedQuestionRef.current = null;
+    setSlideState('out');
+    setTimeout(() => { nextQuestion(); setSlideState('in'); }, 250);
+  }, [nextQuestion]);
+
+  const acceptHelp = useCallback(() => {
+    setOfferHelp(false);
+    setShowGuidedSolve(true);
+  }, []);
+
+  const handleGuidedComplete = useCallback(() => {
+    setShowGuidedSolve(false);
+    setSlideState('out');
+    setTimeout(() => {
+      failedQuestionRef.current = null;
+      setRetryCount((c) => c + 1);
+      setSlideState('in');
+    }, 250);
+  }, []);
 
   if (!stageDef || !currentQuestion) {
     return (
@@ -287,7 +328,7 @@ export function Stage() {
           }`}
         >
           <QuestionCard
-            key={currentQuestion.id}
+            key={`${currentQuestion.id}-${retryCount}`}
             question={currentQuestion}
             onAnswer={handleAnswer}
             streak={streak}
@@ -298,6 +339,39 @@ export function Stage() {
       </main>
       {showStory && stageStory && (
         <StoryDialog story={stageStory} onComplete={() => setShowStory(false)} />
+      )}
+
+      {/* "Need help?" prompt after wrong answer */}
+      {offerHelp && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="bg-indigo-950 border border-indigo-700/50 rounded-2xl p-5 max-w-xs w-full mx-4 space-y-4 shadow-2xl animate-[slideUp_0.15s_ease-out]">
+            <p className="text-center text-white text-sm font-medium">
+              Would you like Professor Hoot to walk you through a similar problem?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={dismissHelp}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gray-700/60 text-gray-300 hover:bg-gray-600/60 transition-all active:scale-95"
+              >
+                Skip
+              </button>
+              <button
+                onClick={acceptHelp}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:from-amber-400 hover:to-yellow-400 transition-all active:scale-95"
+              >
+                🦉 Need help?
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Guided solve visual workspace */}
+      {showGuidedSolve && failedQuestionRef.current && (
+        <GuidedSolve
+          question={failedQuestionRef.current}
+          onComplete={handleGuidedComplete}
+        />
       )}
       </div>
     </div>

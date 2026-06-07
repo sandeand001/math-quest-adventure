@@ -6,7 +6,7 @@ When a user answers wrong, they see *"The answer was X"* for 800ms, Pip says som
 
 ## Concept
 
-After a wrong answer on a practice/challenge stage, offer a **"Need help?"** button. If tapped, an overlay walks the user through the solving process step-by-step with animated speech bubbles from Professor Hoot. The walkthrough breaks the problem into intermediate steps — some are visual explanations, some ask the user to compute a smaller piece. The final answer is **never revealed**; instead, the user retries the original question after completing the walkthrough.
+After a wrong answer on a practice/challenge stage, offer a **"Need help?"** button. If tapped, a full-screen visual workspace opens showing a similar practice problem. The workspace uses an **operation-specific visual layout** — a column layout for multi-digit arithmetic, a number line for counting, dot groups for multiplication — and the learner watches and participates as the solution is built visually, one step at a time. Professor Hoot provides short guidance text, but the focus is the visual illustration, not text. The final answer is **never revealed**; the user retries their original question afterward.
 
 ## When It Triggers
 
@@ -153,14 +153,14 @@ The walkthrough rewrites the problem as its inverse, then walks through that ope
 
 ### Visual Elements
 
-Each step slides in with a short animation. `info` steps advance on tap. `interactive` steps wait for the user to answer via number input (same style as the main question card).
+The visual workspace is a single persistent scene. Nothing disappears — each part of the solution builds on top of what's already visible.
 
-Visual aids used across walkthroughs:
-- **Dot groups** — for multiplication/division at lower tiers
-- **Number line hops** — for counting up/back at lower tiers
-- **Stacked column layout** — for multi-digit addition/subtraction
-- **Carry/borrow animations** — digits float between columns
-- **Progressive reveal** — each step builds on the visible result of the previous step
+Visual layouts by operation:
+- **Number line** — for counting up/back at lower tiers. Hops animate one at a time, landing numbers appear.
+- **Dot groups** — for multiplication/division at lower tiers. Circles appear in clusters with a running total.
+- **Stacked column layout** — for multi-digit addition/subtraction. Digits are arranged in columns. Highlights move from ones to tens. Carry/borrow digits animate between columns.
+
+User input appears **inline within the visual** (e.g. the blank in the answer row of the column layout, or the next landing number on the number line). The input field is part of the illustration, not a separate UI element below it.
 
 ### Generating the "Similar" Problem
 
@@ -180,23 +180,56 @@ Two functions:
 - `generateHintSteps(practice: Question): HintStep[]` — takes the practice question, returns an ordered array of steps
 
 Each `HintStep` has:
-  - `text: string` — the instruction/explanation
-  - `character: string` — Professor Hoot sprite pose (e.g. `wise`, `proud`)
+  - `text: string` — short instruction from Professor Hoot (displayed in a small caption area, NOT a speech bubble)
   - `type: 'info' | 'interactive'`
   - `intermediateAnswer?: number` — for interactive steps, the expected answer
-  - `visual?: 'column' | 'dots' | 'number-line' | 'groups'` — which visual aid to render
-  - `visualData?: object` — data for the visual (digits, dot counts, positions, etc.)
 - Strategy selection based on operation and tier (counting for low tiers, column method for multi-digit, groups for multiplication)
 
-### 2. `src/components/game/GuidedSolve.tsx` — The Overlay
+### 2. `src/components/game/GuidedSolve.tsx` — The Visual Workspace
 
-- Full-screen overlay on top of the stage
-- Professor Hoot character with speech bubble showing current step
-- Step counter ("Step 2 of 5")
-- For interactive steps: a small number input that validates the intermediate answer
-- Correct intermediate → green flash + advance
-- Wrong intermediate → gentle shake + "Try again"
-- After all steps complete: "Now try the question again!" → dismiss overlay → the **same question** is re-presented (doesn't count as a new question)
+A **single full-screen scene** with a persistent visual layout that updates in place as the user progresses. NOT a sequence of text bubbles or separate dialogs.
+
+**Layout (all visible simultaneously):**
+
+```
+┌─────────────────────────────────────┐
+│  🦉 "Start with the ones place"    │  ← Small caption bar (Hoot's guidance text)
+├─────────────────────────────────────┤
+│                                     │
+│         ┌───────────────┐           │
+│         │   Visual Area │           │  ← THE FOCUS: operation-specific illustration
+│         │               │           │     that updates in place as steps progress
+│         │   3 4         │           │
+│         │ + 2 8         │           │
+│         │ ─────         │           │
+│         │   [?]         │           │     ← Input appears inline within the visual
+│         └───────────────┘           │
+│                                     │
+├─────────────────────────────────────┤
+│  Step 2 of 6         [Next] / [Go] │  ← Footer with progress + action
+└─────────────────────────────────────┘
+```
+
+**Operation-specific visual layouts:**
+
+| Operation / Tier | Visual | How it animates |
+|---|---|---|
+| **Addition (tier 1–2)** | Number line drawn across the screen. Starting number marked. | Hops animate one at a time as counting proceeds. Each hop lands on the next number. |
+| **Addition (tier 3+)** | Column layout: two numbers stacked vertically with a line underneath, answer row below. Ones and tens columns visually distinct. | Ones column highlights → user fills in ones result → carry digit animates up to tens column → tens column highlights → user fills in tens result → answer assembles in place. |
+| **Subtraction (tier 1–2)** | Number line. Starting number marked. | Hops animate backward. |
+| **Subtraction (tier 3+)** | Column layout (same as addition). | Highlights ones → if borrowing, tens digit decreases and ones digit gains 10 (animated) → user fills in ones → tens highlights → user fills in tens → answer assembles. |
+| **Multiplication (tier 4–5)** | Dot groups: circles arranged in rows/groups, appearing one group at a time. Running total displayed. | Group 1 appears with its count. Group 2 appears → user answers running total. Group 3 appears → user answers. Etc. |
+| **Multiplication (tier 6+)** | Number line with skip-count hops. Running total at each landing. | Hops appear one at a time. User answers each new landing total. |
+| **Division (tier 5)** | Pool of dots (dividend). Groups get circled/removed. Group counter displayed. | A group of dots is circled → removed → counter increments. User answers the remaining count. Repeats. |
+| **Division (tier 6+)** | Number line with skip-count hops (same as multiplication). Counting up to the dividend. | Hops build up. User answers each landing. Stops when reaching the dividend. |
+
+**Key principles:**
+- The visual is always visible and updates in place — nothing disappears or gets replaced
+- User input appears **inside the visual** (e.g. in the answer row of the column layout, or as the next hop's landing number)
+- Professor Hoot's text is a short caption (1 line), not a speech bubble — the visual does the teaching
+- Completed parts of the visual stay visible so the learner sees the whole problem
+- Wrong answers: the input shakes and clears, the visual doesn't change — the user just retries that same input
+- Correct answers: the digit/number settles into place with a brief green flash, then the next part of the visual activates
 
 ### 3. Integration into `Stage.tsx`
 
@@ -220,13 +253,14 @@ Wrong answer on practice/challenge stage
   │     │
   │     ├─ User taps "Need help?"
   │     │     │
-  │     │     └─ GuidedSolve overlay opens
+  │     │     └─ GuidedSolve visual workspace opens
   │     │           │
-  │     │           ├─ Step 1: info (tap to continue)
-  │     │           ├─ Step 2: interactive (user answers intermediate)
-  │     │           ├─ Step 3: interactive (user answers intermediate)
-  │     │           ├─ ...
-  │     │           └─ "Now try again!"
+  │     │           ├─ Visual layout appears (column / number line / dot groups)
+  │     │           ├─ First part highlights → user taps or fills in answer
+  │     │           ├─ Result settles into place → next part highlights
+  │     │           ├─ ... (visual builds up progressively)
+  │     │           ├─ Full practice answer visible in the layout
+  │     │           └─ "Now try your question!"
   │     │                 │
   │     │                 └─ Same question re-presented
   │     │                       │
@@ -240,6 +274,6 @@ Wrong answer on practice/challenge stage
 
 ## Complexity Estimate
 
-- `hintSteps.ts` is the most work — needs per-operation, per-tier strategy templates with number substitution
-- `GuidedSolve.tsx` is a self-contained overlay, similar in scope to the existing `StoryDialog` component
+- `GuidedSolve.tsx` is the most work — needs 3 visual layout sub-components (ColumnLayout, NumberLine, DotGroups), each with their own animation and inline input logic
+- `hintSteps.ts` generates the data each visual layout needs (digits, positions, intermediate answers, carry flags, etc.)
 - `Stage.tsx` changes are small — add a button, a state flag, and conditional rendering

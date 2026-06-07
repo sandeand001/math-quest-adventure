@@ -85,14 +85,14 @@ export function GuidedSolve({ question, onComplete }: GuidedSolveProps) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-[#0c0e1a] via-indigo-950 to-[#0c0e1a]">
       {/* Caption bar — Hoot + guidance text */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-black/40 border-b border-indigo-800/30 shrink-0">
+      <div className="flex items-start gap-3 px-4 py-3 bg-black/40 border-b border-indigo-800/30 shrink-0">
         <img
           src="/assets/characters/professor-hoot/wise.png"
           alt="Professor Hoot"
-          className="w-10 h-10 object-contain shrink-0"
+          className="w-10 h-10 object-contain shrink-0 mt-0.5"
           onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
-        <p className="flex-1 text-sm text-white font-medium min-w-0 truncate">
+        <p className="flex-1 text-sm text-white font-medium min-w-0 leading-snug">
           {isFinished
             ? 'Great work! Now try your question.'
             : step!.text}

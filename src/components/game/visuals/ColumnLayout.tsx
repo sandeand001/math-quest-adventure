@@ -45,6 +45,9 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
   const inTensPhase = stepIndex >= tensInteractiveIdx - (carry || needsBorrow ? 1 : 0);
   const inOnesPhase = !pastOnes;
 
+  // Borrow visual: show after the borrow info step (step 2), BEFORE the user answers
+  const showBorrow = needsBorrow && stepIndex >= 2;
+
   const answer = isAdd ? a + b : a - b;
   const isComplete = tensAnswer !== undefined;
 
@@ -67,9 +70,9 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
         {/* Top number (a) */}
         <div className="flex justify-end gap-0">
           <span className="w-12 text-center relative">
-            {needsBorrow && pastOnes ? (
+            {showBorrow ? (
               <>
-                <span className="text-red-400 line-through opacity-50 text-2xl absolute -top-1 left-0 w-full text-center">{tensA + 1}</span>
+                <span className="text-red-400 line-through opacity-50 text-2xl absolute -top-1 left-0 w-full text-center">{tensA}</span>
                 <span className="text-yellow-300">{borrowedTensA}</span>
               </>
             ) : (
@@ -77,7 +80,7 @@ export function ColumnLayout({ a, b, operation, stepIndex, completedAnswers }: C
             )}
           </span>
           <span className="w-12 text-center relative">
-            {needsBorrow && pastOnes ? (
+            {showBorrow ? (
               <>
                 <span className="text-red-400 line-through opacity-50 text-2xl absolute -top-1 left-0 w-full text-center">{onesA}</span>
                 <span className="text-yellow-300">{borrowedOnesA}</span>
